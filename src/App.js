@@ -1,33 +1,9 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import ProfileCard from "./components/ProfileCard";
+import Students from "./assets/leetcoders.json";
 
-const leetcoders = [
-  {
-    id: "21MCF1R47",
-    name: "Sagar Gupta",
-    userName: "sagargupta1610",
-    batch: 2024,
-  },
-  {
-    id: "21MCF1R37",
-    name: "Pranshu Singh",
-    userName: "pranshu0801",
-    batch: 2024,
-  },
-  {
-    id: "21MCF1R04",
-    name: "Amit Awasthi",
-    userName: "Awasthya",
-    batch: 2024,
-  },
-  {
-    id: "21MCF1R41",
-    name: "Rahul Kumar",
-    userName: "lightmate",
-    batch: 2024,
-  },
-];
+const leetcoders = Students.leetCoders;
 
 function App() {
   const url = "https://lcapi.cyclic.app/";
@@ -39,54 +15,41 @@ function App() {
         return fetch(url + leetcoder.userName).then((res) => res.json());
       }),
     ).then((res) => {
-      res.map((profile) => {
-        profile.id = leetcoders[res.indexOf(profile)].id;
-        profile.userName = leetcoders[res.indexOf(profile)].userName;
-        profile.name = leetcoders[res.indexOf(profile)].name;
-        profile.batch = leetcoders[res.indexOf(profile)].batch;
-        return profile;
+      // console.log(res);
+      leetcoders.forEach((leetcoder, i) => {
+        leetcoder.contestRating = Math.round(res[i].userContestRanking.rating);
+        leetcoder.contestRanking = res[i].userContestRanking.globalRanking;
+        leetcoder.easySolved = res[i].easySolved;
+        leetcoder.mediumSolved = res[i].mediumSolved;
+        leetcoder.hardSolved = res[i].hardSolved;
+        leetcoder.totalSolved = res[i].totalSolved;
+        leetcoder.totalEasy = res[i].totalEasy;
+        leetcoder.totalMedium = res[i].totalMedium;
+        leetcoder.totalHard = res[i].totalHard;
+        leetcoder.totalQuestions = res[i].totalQuestions;
+        leetcoder.reputation = res[i].reputation;
+        leetcoder.questionRanking = res[i].ranking;
+        leetcoder.contestTopPercentage =
+          res[i].userContestRanking.topPercentage;
+        leetcoder.totalParticipants =
+          res[i].userContestRanking.totalParticipants;
+        leetcoder.attendedContestCount =
+          res[i].userContestRanking.attendedContestsCount;
+        leetcoder.contestHistory = res[i].userContestRankingHistory;
       });
-      setData(res);
+      setData(leetcoders);
     });
   };
-
   useEffect(() => {
     fetchInfo();
   }, []);
 
-  
-  const sortData = (data, mode) => {
-    if (mode === "rating") {
-      return data.sort(
-        (a, b) => b.userContestRanking.rating - a.userContestRanking.rating,
-      );
-    } else if (mode === "rank") {
-      return data.sort(
-        (a, b) =>
-          a.userContestRanking.globalRanking -
-          b.userContestRanking.globalRanking,
-      );
-    }
-  };
-
-  console.log(data);
+  // console.log(data);
 
   return (
     <div className="App">
       <h1>LeetCode Leaderboard</h1>
       <div className="leaderboard">
-        <div className="profile-sort">
-          <div>Sort By:</div>
-          <div>
-            <button onClick={() => setData(sortData(data, "rating"))}>
-              Rating
-            </button>
-            <button onClick={() => setData(sortData(data, "rank"))}>
-              Rank
-            </button>
-          </div>
-        </div>
-
         <div className="profile-row profile-header">
           <div>Local Rank</div>
           <div>Leetcoder</div>
