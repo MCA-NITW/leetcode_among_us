@@ -1,12 +1,60 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
+import ProfileCard from "./components/ProfileCard";
 
-const userNames = ["sagargupta1610", "Awasthya", "lightmate", "pranshu0801"];
+const leetcoders = [
+  {
+    id: "21MCF1R47",
+    name: "Sagar Gupta",
+    userName: "sagargupta1610",
+    batch: 2024,
+  },
+  {
+    id: "21MCF1R37",
+    name: "Pranshu Singh",
+    userName: "pranshu0801",
+    batch: 2024,
+  },
+  {
+    id: "21MCF1R04",
+    name: "Amit Awasthi",
+    userName: "Awasthya",
+    batch: 2024,
+  },
+  {
+    id: "21MCF1R41",
+    name: "Rahul Kumar",
+    userName: "lightmate",
+    batch: 2024,
+  },
+];
 
 function App() {
   const url = "https://lcapi.cyclic.app/";
   const [data, setData] = useState([]);
 
+  const fetchInfo = () => {
+    return Promise.all(
+      leetcoders.map((leetcoder) => {
+        return fetch(url + leetcoder.userName).then((res) => res.json());
+      }),
+    ).then((res) => {
+      res.map((profile) => {
+        profile.id = leetcoders[res.indexOf(profile)].id;
+        profile.userName = leetcoders[res.indexOf(profile)].userName;
+        profile.name = leetcoders[res.indexOf(profile)].name;
+        profile.batch = leetcoders[res.indexOf(profile)].batch;
+        return profile;
+      });
+      setData(res);
+    });
+  };
+
+  useEffect(() => {
+    fetchInfo();
+  }, []);
+
+  
   const sortData = (data, mode) => {
     if (mode === "rating") {
       return data.sort(
@@ -21,40 +69,7 @@ function App() {
     }
   };
 
-  const fetchInfo = () => {
-    return Promise.all(
-      userNames.map((userName) => {
-        return fetch(url + userName).then((res) => res.json());
-      }),
-    ).then((res) => {
-      res.map((profile) => {
-        profile.userName = userNames[res.indexOf(profile)];
-        return profile;
-      });
-      setData(res);
-    });
-  };
-
-  useEffect(() => {
-    fetchInfo();
-  }, []);
-
   console.log(data);
-
-  const ProfileCard = ({ data, rank }) => {
-    const userName = data.userName;
-    const contest = data.userContestRanking;
-    return (
-      <div className="profile-row">
-        <div>{rank}</div>
-        <div>{userName}</div>
-        <div>{Math.round(contest.rating)}</div>
-        <div>
-          {contest.globalRanking}/{contest.totalParticipants}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="App">
@@ -74,7 +89,7 @@ function App() {
 
         <div className="profile-row profile-header">
           <div>Local Rank</div>
-          <div>Username</div>
+          <div>Leetcoder</div>
           <div>Contest Rating</div>
           <div>Contest Ranking</div>
         </div>
@@ -83,7 +98,7 @@ function App() {
           return (
             <ProfileCard
               data={profile}
-              key={profile.userName}
+              key={profile.id}
               rank={data.indexOf(profile) + 1}
             />
           );
