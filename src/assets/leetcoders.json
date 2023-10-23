@@ -1,28 +1,39 @@
 {
   "leetCoders": [
     {
-      "id": "21MCF1R47",
-      "name": "Sagar Gupta",
-      "userName": "sagargupta1610",
-      "batch": "2024"
+      "id": "21MCF1R04",
+      "name": "Amit Awasthi",
+      "userName": "Awasthya",
+      "batch": "2024",
+      "gender": "male"
     },
     {
       "id": "21MCF1R37",
       "name": "Pranshu Singh",
       "userName": "pranshu0801",
-      "batch": "2024"
-    },
-    {
-      "id": "21MCF1R04",
-      "name": "Amit Awasthi",
-      "userName": "Awasthya",
-      "batch": "2024"
+      "batch": "2024",
+      "gender": "male"
     },
     {
       "id": "21MCF1R41",
       "name": "Rahul Kumar",
       "userName": "lightmate",
-      "batch": "2024"
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R47",
+      "name": "Sagar Gupta",
+      "userName": "sagargupta1610",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R53",
+      "name": "Sikandar Kumar",
+      "userName": "sikandarsahilkumar",
+      "batch": "2024",
+      "gender": "male"
     }
   ]
 }
