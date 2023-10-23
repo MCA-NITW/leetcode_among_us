@@ -1,6 +1,7 @@
 {
   "name": "leetcode_among_us",
   "version": "0.1.0",
+  "homepage": "https://MCA-NITW.github.io/leetcode_among_us",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -17,6 +18,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -42,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "gh-pages": "^6.0.0",
     "prettier": "3.0.3"
   }
 }
