@@ -18,9 +18,7 @@ function App() {
   ).then((res) => {
     console.log(res);
     leetcoders.forEach((leetcoder, i) => {
-      leetcoder.globalContestRating = Math.round(
-        res[i].userContestRanking.rating,
-      );
+      leetcoder.globalContestRating = Math.round(res[i].userContestRanking.rating,);
       leetcoder.globalContestRanking = res[i].userContestRanking.globalRanking;
       leetcoder.easySolved = res[i].easySolved;
       leetcoder.mediumSolved = res[i].mediumSolved;

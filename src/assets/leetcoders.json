@@ -1,23 +1,16 @@
 {
   "leetCoders": [
     {
-      "id": "22MCF1R07",
-      "name": "Anjali Bansal",
-      "userName": "a_code_b",
+      "id": "22MCF1R03",
+      "name": "Aman Joshi",
+      "userName": "amanjoshi149",
       "batch": "2025",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "22MCF1R11",
       "name": "Anubhav",
       "userName": "anubhavsri",
-      "batch": "2025",
-      "gender": "male"
-    },
-    {
-      "id": "22MCF1R42",
-      "name": "Rohan Rai",
-      "userName": "Rohan_Rai",
       "batch": "2025",
       "gender": "male"
     },
@@ -29,13 +22,6 @@
       "gender": "male"
     },
     {
-      "id": "22MCF1R40",
-      "name": "Ramavath Santhosh",
-      "userName": "santhoshwon",
-      "batch": "2025",
-      "gender": "male"
-    },
-    {
       "id": "22MCF1R21",
       "name": "Jigyashu Suman",
       "userName": "jigs_",
@@ -43,9 +29,16 @@
       "gender": "male"
     },
     {
-      "id": "22MCF1R03",
-      "name": "Aman Joshi",
-      "userName": "amajoshi149",
+      "id": "22MCF1R40",
+      "name": "Ramavath Santhosh",
+      "userName": "santhoshwon",
+      "batch": "2025",
+      "gender": "male"
+    },
+    {
+      "id": "22MCF1R42",
+      "name": "Rohan Rai",
+      "userName": "Rohan_Rai",
       "batch": "2025",
       "gender": "male"
     },
