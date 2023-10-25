@@ -9,20 +9,21 @@ const camelCaseToSentenceCase = (camelCase) => {
 
 const RankTable = ({ data, rankingBasedOn }) => {
   return (
-    <>
-      <div className="profile-row profile-header">
+    <div className="profile-cards">
+      {/* <div className="profile-row profile-header">
         <div>Rank</div>
         <div>Name</div>
         <div>{camelCaseToSentenceCase(rankingBasedOn)}</div>
         <div>Visit Profile</div>
-      </div>
+      </div> */}
       {data.map((profile) => {
         return (
-          <div className="profile-row">
-            <div>{data.indexOf(profile) + 1}</div>
-            <div>{profile.name}</div>
-            <div>{profile[rankingBasedOn]}</div>
-            <div>
+          <div className="profile-card">
+            <div className="profile-card_rank">Rank: {data.indexOf(profile) + 1}</div>
+            <div className="profile-card_name">{profile.name}</div>
+            <div className="profile-card_batch">({profile.batch})</div>
+            <div className="profile-card_title">{profile[rankingBasedOn]}</div>
+            <div className="profile-card_link">
               <a
                 href={`https://leetcode.com/${profile.userName}`}
                 target="blank_"
@@ -33,7 +34,7 @@ const RankTable = ({ data, rankingBasedOn }) => {
           </div>
         );
       })}
-    </>
+    </div>
   );
 };
 
