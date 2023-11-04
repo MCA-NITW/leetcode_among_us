@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.css": "/leetcode_among_us/static/css/main.58662ce4.css",
+    "main.js": "/leetcode_among_us/static/js/main.976e6dd9.js",
+    "index.html": "/leetcode_among_us/index.html",
+    "main.58662ce4.css.map": "/leetcode_among_us/static/css/main.58662ce4.css.map",
+    "main.976e6dd9.js.map": "/leetcode_among_us/static/js/main.976e6dd9.js.map"
+  },
+  "entrypoints": ["static/css/main.58662ce4.css", "static/js/main.976e6dd9.js"]
+}

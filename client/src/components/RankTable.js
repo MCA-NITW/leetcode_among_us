@@ -1,11 +1,11 @@
 import React from "react";
 import "./RankTable.css";
 
-const camelCaseToSentenceCase = (camelCase) => {
-  const result = camelCase.replace(/([A-Z])/g, " $1");
-  const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
-  return finalResult;
-};
+// const camelCaseToSentenceCase = (camelCase) => {
+//   const result = camelCase.replace(/([A-Z])/g, " $1");
+//   const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
+//   return finalResult;
+// };
 
 const RankTable = ({ data, rankingBasedOn }) => {
   return (
@@ -19,7 +19,9 @@ const RankTable = ({ data, rankingBasedOn }) => {
       {data.map((profile) => {
         return (
           <div className="profile-card">
-            <div className="profile-card_rank">Rank: {data.indexOf(profile) + 1}</div>
+            <div className="profile-card_rank">
+              Rank: {data.indexOf(profile) + 1}
+            </div>
             <div className="profile-card_name">{profile.name}</div>
             <div className="profile-card_batch">({profile.batch})</div>
             <div className="profile-card_title">{profile[rankingBasedOn]}</div>
