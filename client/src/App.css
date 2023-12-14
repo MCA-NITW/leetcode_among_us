@@ -1,66 +1,9 @@
 .App {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: column;
+  text-align: center;
   background: #f5f5f5;
   min-height: 100vh;
-}
-
-.leaderboard {
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.leaderboard-header {
-  text-align: center;
-  padding: 1rem;
-  background-color: #fff;
-  border-bottom: 3px solid #ccc;
-  color: #000;
-  transition: all 0.3s ease;
-}
-
-.ranking-based-on {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-direction: row;
-  margin-bottom: 1rem;
-  background-color: #fff;
-  padding: 1rem;
-  border-bottom: 3px solid #ccc;
-}
-
-.ranking-based-on-sort,
-.ranking-based-on-filter {
-  margin-right: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-  transition: all 0.3s ease;
-}
-
-.ranking-based-on-sort select,
-.ranking-based-on-filter select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-}
-
-.ranking-based-on-sort select:focus,
-.ranking-based-on-filter select:focus {
-  border-color: #000;
-}
-
-.ranking-based-on-sort select option,
-.ranking-based-on-filter select option {
-  padding: 0.5rem;
+  align-items: center;
+  font-family: "Roboto", sans-serif;
 }
