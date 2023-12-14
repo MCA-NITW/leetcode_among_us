@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "leetcode_among_us.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
+    "start": "nodemon index.mjs",
     "dev": "concurrently \"npm run start\" \"cd client && npm run start\"",
     "build": "cd client && npm install && npm run build",
     "format": "prettier --write ."
@@ -14,7 +15,9 @@
   "license": "ISC",
   "keywords": [],
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
     "prettier": "^3.0.3"
   },
   "devDependencies": {

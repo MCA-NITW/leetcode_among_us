@@ -1,129 +1,40 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
-// import Students from "./assets/leetcoders.json";
-// import RankTable from "./components/RankTable";
-
-// const leetcoders = Students.leetCoders;
+import {
+  userPublicProfile,
+  globalData,
+  siteAnnouncements,
+  languageStats,
+  skillStats,
+  userContestRankingInfo,
+  userProblemsSolved,
+  userBadges,
+  userProfileCalendar,
+  recentAcSubmissions,
+  getStreakCounter,
+  currentTimestamp,
+  questionOfToday,
+  codingChallengeMedal,
+  getUserProfile,
+} from "./queries/UserData";
 
 function App() {
-  // const url = "https://leetcode-api-faisalshohag.vercel.app/";
-  const [data, setData] = useState(null);
-  // const [batch, setBatch] = useState("all");
-  // const [rankingBasedOn, setRankingBasedOn] = useState("totalSolved");
-  useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data.message);
-      });
-  }, []);
+  const username = "sagargupta1610";
 
-  // Promise.all(
-  //   leetcoders.map((leetcoder) => {
-  //     return fetch(url + leetcoder.userName).then((res) => res.json());
-  //   }),
-  // ).then((res) => {
-  //   console.log(res);
-  //   leetcoders.forEach((leetcoder, i) => {
-  //     leetcoder.globalContestRating = Math.round(
-  //       res[i].userContestRanking.rating,
-  //     );
-  //     leetcoder.globalContestRanking = res[i].userContestRanking.globalRanking;
-  //     leetcoder.easySolved = res[i].easySolved;
-  //     leetcoder.mediumSolved = res[i].mediumSolved;
-  //     leetcoder.hardSolved = res[i].hardSolved;
-  //     leetcoder.totalSolved = res[i].totalSolved;
-  //     leetcoder.totalEasy = res[i].totalEasy;
-  //     leetcoder.totalMedium = res[i].totalMedium;
-  //     leetcoder.totalHard = res[i].totalHard;
-  //     leetcoder.totalQuestions = res[i].totalQuestions;
-  //     leetcoder.reputation = res[i].reputation;
-  //     leetcoder.questionRanking = res[i].ranking;
-  //     leetcoder.contestTopPercentage = res[i].userContestRanking.topPercentage;
-  //     leetcoder.totalParticipants = res[i].userContestRanking.totalParticipants;
-  //     leetcoder.attendedContestCount =
-  //       res[i].userContestRanking.attendedContestsCount;
-  //     leetcoder.contestHistory = res[i].userContestRankingHistory;
-  //     leetcoder.bestContestRank = getBestContestRank(leetcoder.contestHistory);
-  //     leetcoder.mostFourQuestionsInContest = getMostQuestionsInContest(
-  //       leetcoder.contestHistory,
-  //       4,
-  //     );
-  //     leetcoder.mostThreeQuestionsInContest = getMostQuestionsInContest(
-  //       leetcoder.contestHistory,
-  //       3,
-  //     );
-  //     leetcoder.mostTwoQuestionsInContest = getMostQuestionsInContest(
-  //       leetcoder.contestHistory,
-  //       2,
-  //     );
-  //     leetcoder.mostOneQuestionsInContest = getMostQuestionsInContest(
-  //       leetcoder.contestHistory,
-  //       1,
-  //     );
-  //     leetcoder.mostZeroQuestionsInContest = getMostQuestionsInContest(
-  //       leetcoder.contestHistory,
-  //       0,
-  //     );
-  //     leetcoder.averageContestRanking = getAverageContestRanking(
-  //       leetcoder.contestHistory,
-  //     );
-  //   });
-  //   setData(leetcoders);
-  // });
-
-  // const getAverageContestRanking = (contestHistory) => {
-  //   let totalRanking = 0,
-  //     totalContest = 0;
-  //   contestHistory.forEach((contest) => {
-  //     if (contest.attended === true) {
-  //       totalRanking += contest.ranking;
-  //       totalContest += 1;
-  //     }
-  //   });
-  //   return Math.round(totalRanking / totalContest);
-  // };
-
-  // const getMostQuestionsInContest = (contestHistory, question) => {
-  //   let mostFourQuestionsInContest = 0;
-  //   contestHistory.forEach((contest) => {
-  //     if (contest.problemsSolved === question && contest.attended === true) {
-  //       mostFourQuestionsInContest += 1;
-  //     }
-  //   });
-  //   return mostFourQuestionsInContest;
-  // };
-
-  // const getBestContestRank = (contestHistory) => {
-  //   let bestRank = 1000000000;
-  //   contestHistory.forEach((contest) => {
-  //     if (contest.ranking < bestRank && contest.ranking !== 0) {
-  //       bestRank = contest.ranking;
-  //     }
-  //   });
-  //   return bestRank;
-  // };
-
-  // const displayData = () => {
-  //   const currentData = data.filter((profile) => {
-  //     if (batch === "all") return profile;
-  //     return profile.batch === batch;
-  //   });
-  //   let descending = [
-  //     "bestContestRank",
-  //     "averageContestRanking",
-  //     "globalContestRanking",
-  //     "questionRanking",
-  //     "contestTopPercentage",
-  //   ];
-  //   currentData.sort((a, b) => {
-  //     if (descending.includes(rankingBasedOn))
-  //       return a[rankingBasedOn] - b[rankingBasedOn];
-  //     return b[rankingBasedOn] - a[rankingBasedOn];
-  //   });
-
-  //   return <RankTable data={currentData} rankingBasedOn={rankingBasedOn} />;
-  // };
+  console.log(userPublicProfile(username));
+  console.log(globalData());
+  console.log(siteAnnouncements());
+  console.log(languageStats(username));
+  console.log(skillStats(username));
+  console.log(userContestRankingInfo(username));
+  console.log(userProblemsSolved(username));
+  console.log(userBadges(username));
+  console.log(userProfileCalendar(username));
+  console.log(recentAcSubmissions(username, 15));
+  console.log(getStreakCounter());
+  console.log(currentTimestamp());
+  console.log(questionOfToday());
+  console.log(codingChallengeMedal(2023, 10));
+  console.log(getUserProfile(username, 0, 20, ""));
 
   return (
     <div className="App">
@@ -133,11 +44,7 @@ function App() {
         </div>
         <div className="ranking-based-on">
           <div className="ranking-based-on-sort">
-            <select
-              name="ranking-based-on"
-              id="ranking-based-on"
-              // onChange={(e) => setRankingBasedOn(e.target.value)}
-            >
+            <select name="ranking-based-on" id="ranking-based-on">
               <option value="totalSolved">Total Solved</option>
               <option value="easySolved">Easy Solved</option>
               <option value="mediumSolved">Medium Solved</option>
@@ -176,11 +83,7 @@ function App() {
             </select>
           </div>
           <div className="ranking-based-on-filter">
-            <select
-              name="ranking-based-on-filter"
-              id="ranking-based-on-filter"
-              // onChange={(e) => setBatch(e.target.value)}
-            >
+            <select name="ranking-based-on-filter" id="ranking-based-on-filter">
               <option value="all">All</option>
               <option value="2024">2024</option>
               <option value="2025">2025</option>
@@ -188,7 +91,6 @@ function App() {
             </select>
           </div>
         </div>
-        {/* {displayData()} */}
       </div>
     </div>
   );
