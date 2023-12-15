@@ -50,9 +50,86 @@
       "gender": "male"
     },
     {
+      "id": "21MCF1R08",
+      "name": "Bhawana Patidar",
+      "userName": "ptdr_girl",
+      "batch": "2024",
+      "gender": "female"
+    },
+    {
+      "id": "21MCF1R09",
+      "name": "Charu Kamra",
+      "userName": "kamra_ck25",
+      "batch": "2024",
+      "gender": "female"
+    },
+    {
+      "id": "21MCF1R11",
+      "name": "Devashis Patel",
+      "userName": "devashish_ind",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R13",
+      "name": "Gaurav Mawari",
+      "userName": "gauravmawari1807",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R14",
+      "name": "Govind Patidar",
+      "userName": "GovindPatidar22",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R17",
+      "name": "Jyoti Purnima Singh",
+      "userName": "JYOTI_PURNIMA__SINGH8",
+      "batch": "2024",
+      "gender": "female"
+    },
+    {
+      "id": "21MCF1R25",
+      "name": "Mukul Malse",
+      "userName": "malseji",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R27",
+      "name": "Neeraj Kumar",
+      "userName": "LegitCodes",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
       "id": "21MCF1R30",
       "name": "Nikhil Saxena",
       "userName": "nikhil-saxena",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R33",
+      "name": "Pankaj Patidar",
+      "userName": "mr_bindass_pnkj",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R34",
+      "name": "Pinky Mangla",
+      "userName": "pinkymangla45",
+      "batch": "2024",
+      "gender": "female"
+    },
+    {
+      "id": "21MCF1R36",
+      "name": "Prakhar Verma",
+      "userName": "Psychic_Hunter",
       "batch": "2024",
       "gender": "male"
     },
@@ -64,9 +141,30 @@
       "gender": "male"
     },
     {
+      "id": "21MCF1R39",
+      "name": "Prem Kumar Panka",
+      "userName": "PREM261999",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
       "id": "21MCF1R41",
       "name": "Rahul Kumar",
       "userName": "lightmate",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R44",
+      "name": "Ravi Kumar",
+      "userName": "rkmc2133",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R46",
+      "name": "Sachin Gupta",
+      "userName": "sachin_gupta2007",
       "batch": "2024",
       "gender": "male"
     },
@@ -78,11 +176,39 @@
       "gender": "male"
     },
     {
+      "id": "21MCF1R48",
+      "name": "Sandeep Nayak",
+      "userName": "sandeepkumarnayak",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R52",
+      "name": "Shubham Patidar",
+      "userName": "ptdr_shubham",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
       "id": "21MCF1R53",
       "name": "Sikandar Kumar",
       "userName": "sikandarsahilkumar",
       "batch": "2024",
       "gender": "male"
+    },
+    {
+      "id": "21MCF1R55",
+      "name": "Sudhanshu Tripathi",
+      "userName": "officialsiud",
+      "batch": "2024",
+      "gender": "male"
+    },
+    {
+      "id": "21MCF1R56",
+      "name": "Suman Yadav",
+      "userName": "Suman_yadav",
+      "batch": "2024",
+      "gender": "female"
     }
   ]
 }

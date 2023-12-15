@@ -103,7 +103,7 @@ const skillStats = async (username) => {
   return data.data.matchedUser;
 };
 
-const userContestRankingInfo = async (username, contestSlug) => {
+const userContestRankingInfo = async (username) => {
   const response = await fetch("http://localhost:3001/leetcode", {
     method: "POST",
     headers: {
@@ -114,7 +114,6 @@ const userContestRankingInfo = async (username, contestSlug) => {
       operationName: "userContestRankingInfo",
       variables: {
         username: username,
-        contestSlug: contestSlug,
       },
       query: userContestRankingInfoQuery,
     }),
@@ -123,7 +122,7 @@ const userContestRankingInfo = async (username, contestSlug) => {
   return data.data;
 };
 
-const userProblemsSolved = async (username, offset) => {
+const userProblemsSolved = async (username) => {
   const response = await fetch("http://localhost:3001/leetcode", {
     method: "POST",
     headers: {
@@ -134,7 +133,6 @@ const userProblemsSolved = async (username, offset) => {
       operationName: "userProblemsSolved",
       variables: {
         username: username,
-        offset: offset,
       },
       query: userProblemsSolvedQuery,
     }),
@@ -143,7 +141,7 @@ const userProblemsSolved = async (username, offset) => {
   return data.data;
 };
 
-const userBadges = async (username, offset) => {
+const userBadges = async (username) => {
   const response = await fetch("http://localhost:3001/leetcode", {
     method: "POST",
     headers: {
@@ -154,7 +152,6 @@ const userBadges = async (username, offset) => {
       operationName: "userBadges",
       variables: {
         username: username,
-        offset: offset,
       },
       query: userBadgesQuery,
     }),
@@ -163,7 +160,7 @@ const userBadges = async (username, offset) => {
   return data.data;
 };
 
-const userProfileCalendar = async (username, start, end) => {
+const userProfileCalendar = async (username, year) => {
   const response = await fetch("http://localhost:3001/leetcode", {
     method: "POST",
     headers: {
@@ -174,8 +171,7 @@ const userProfileCalendar = async (username, start, end) => {
       operationName: "userProfileCalendar",
       variables: {
         username: username,
-        start: start,
-        end: end,
+        year: year,
       },
       query: userProfileCalendarQuery,
     }),
