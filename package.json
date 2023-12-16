@@ -1,14 +1,16 @@
 {
   "name": "leetcode_among_us",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "leetcode_among_us.",
-  "main": "index.js",
+  "main": "server.mjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.mjs",
-    "dev": "concurrently \"npm run start\" \"cd client && npm run start\"",
-    "build": "cd client && npm install && npm run build",
+    "start": "nodemon server.mjs",
+    "dev": "concurrently \"npm run start\" \"cd client && npm start\"",
+    "frontend-build": "cd client && npm run build",
+    "frontend-install": "cd client && npm install",
+    "build": "npm install && npm run frontend-install && npm run frontend-build",
     "format": "prettier --write ."
   },
   "author": "",

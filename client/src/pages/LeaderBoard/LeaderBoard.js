@@ -1,28 +1,21 @@
 import "./LeaderBoard.css";
 import React from "react";
-import { useEffect } from "react";
-import leetcoders from "../../assets/leetcoders.json";
-import RankTable from "../RankTable/RankTable";
-import Dropdown from "../Dropdown";
-import { fetchDataForLeetcoder } from "../dataProcessing";
+import RankTable from "./RankTable/RankTable";
+import Dropdown from "../../components/Dropdown";
 
-function LeaderBoard() {
+function LeaderBoard(props) {
   const [rankingBasedOn, setRankingBasedOn] = React.useState("totalSolved");
   const [batch, setBatch] = React.useState("all");
-  const [data, setData] = React.useState([]);
+  const data = props.data;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const updatedLeetcoders = await Promise.all(
-        leetcoders.leetCoders.map(fetchDataForLeetcoder),
-      );
-      setData(updatedLeetcoders);
-    };
+  const batchOptions = ["all"];
+  // Gett All Unique batch from data and push it in batchOptions
+  data.forEach((leetcoder) => {
+    if (!batchOptions.includes(leetcoder.batch)) {
+      batchOptions.push(leetcoder.batch);
+    }
+  });
 
-    fetchData();
-  }, []);
-
-  const batchOptions = ["all", "2022", "2023", "2024", "2025", "2026"];
   const rankingOptions = [
     "totalSolved",
     "easySolved",

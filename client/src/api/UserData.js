@@ -15,7 +15,7 @@ import {
   questionOfTodayQuery,
   codingChallengeMedalQuery,
   getUserProfileQuery,
-} from "./GraphQLQueries";
+} from "./GraphQLQueries.js";
 
 const userPublicProfile = async (username) => {
   const response = await fetch("http://localhost:3001/leetcode", {

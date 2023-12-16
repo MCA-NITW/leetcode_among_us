@@ -4,7 +4,7 @@ import {
   userProblemsSolved,
   userBadges,
   userProfileCalendar,
-} from "../queries/UserData";
+} from "../api/UserData";
 
 // Function to fetch and process data for a single leetcoder
 export const fetchDataForLeetcoder = async (leetcoder) => {
@@ -74,7 +74,7 @@ const getMostQuestionsInContest = (contestHistory, question) => {
 };
 
 const getBestContestRank = (contestHistory) => {
-  let bestRank = 1000000000;
+  let bestRank = Infinity;
   contestHistory.forEach((contest) => {
     if (contest.ranking < bestRank && contest.ranking !== 0) {
       bestRank = contest.ranking;
@@ -95,12 +95,14 @@ const processLeetcoderData = (
   // Process the data based on your application's logic
   return {
     ...leetcoder,
-    globalContestRating: Math.round(
-      userContestRankingInfoData.userContestRanking.rating,
-      2,
-    ),
+    globalContestRating:
+      userContestRankingInfoData.userContestRanking === null
+        ? 0
+        : Math.round(userContestRankingInfoData.userContestRanking.rating, 2),
     globalContestRanking:
-      userContestRankingInfoData.userContestRanking.globalRanking,
+      userContestRankingInfoData.userContestRanking === null
+        ? "N/A"
+        : userContestRankingInfoData.userContestRanking.globalRanking,
     easySolved:
       userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.filter(
         (problem) => problem.difficulty === "Easy",
@@ -132,11 +134,17 @@ const processLeetcoderData = (
     reputation: userPublicProfileData.profile.reputation,
     questionRanking: userPublicProfileData.profile.ranking,
     contestTopPercentage:
-      userContestRankingInfoData.userContestRanking.topPercentage,
+      userContestRankingInfoData.userContestRanking === null
+        ? 100
+        : userContestRankingInfoData.userContestRanking.topPercentage,
     totalParticipants:
-      userContestRankingInfoData.userContestRanking.totalParticipants,
+      userContestRankingInfoData.userContestRanking === null
+        ? 100000
+        : userContestRankingInfoData.userContestRanking.totalParticipants,
     attendedContestCount:
-      userContestRankingInfoData.userContestRanking.attendedContestsCount,
+      userContestRankingInfoData.userContestRanking === null
+        ? 0
+        : userContestRankingInfoData.userContestRanking.attendedContestsCount,
     contestHistory: userContestRankingInfoData.userContestRankingHistory,
     badgeCount: userBadgesData.matchedUser.badges.length,
     bestContestRank: getBestContestRank(
