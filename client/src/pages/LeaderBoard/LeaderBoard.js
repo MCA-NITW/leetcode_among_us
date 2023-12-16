@@ -1,15 +1,15 @@
-import "./LeaderBoard.css";
+// LeaderBoard.js
 import React from "react";
 import RankTable from "./RankTable/RankTable";
 import Dropdown from "../../components/Dropdown";
+import Loader from "../../components/Loader/Loader";
+import "./LeaderBoard.css";
 
-function LeaderBoard(props) {
+function LeaderBoard({ data, loading }) {
   const [rankingBasedOn, setRankingBasedOn] = React.useState("totalSolved");
   const [batch, setBatch] = React.useState("all");
-  const data = props.data;
 
   const batchOptions = ["all"];
-  // Gett All Unique batch from data and push it in batchOptions
   data.forEach((leetcoder) => {
     if (!batchOptions.includes(leetcoder.batch)) {
       batchOptions.push(leetcoder.batch);
@@ -54,7 +54,11 @@ function LeaderBoard(props) {
           onChange={(e) => setBatch(e.target.value)}
         />
       </div>
-      <RankTable data={data} rankingBasedOn={rankingBasedOn} batch={batch} />
+      {loading ? (
+        <Loader />
+      ) : (
+        <RankTable data={data} rankingBasedOn={rankingBasedOn} batch={batch} />
+      )}
     </div>
   );
 }

@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/leetcode_among_us/static/css/main.ad8af267.css",
-    "main.js": "/leetcode_among_us/static/js/main.a42f1cdb.js",
-    "index.html": "/leetcode_among_us/index.html",
-    "main.ad8af267.css.map": "/leetcode_among_us/static/css/main.ad8af267.css.map",
-    "main.a42f1cdb.js.map": "/leetcode_among_us/static/js/main.a42f1cdb.js.map"
+    "main.css": "./static/css/main.cadb74ca.css",
+    "main.js": "./static/js/main.781ffb13.js",
+    "index.html": "./index.html",
+    "main.cadb74ca.css.map": "./static/css/main.cadb74ca.css.map",
+    "main.781ffb13.js.map": "./static/js/main.781ffb13.js.map"
   },
-  "entrypoints": ["static/css/main.ad8af267.css", "static/js/main.a42f1cdb.js"]
+  "entrypoints": ["static/css/main.cadb74ca.css", "static/js/main.781ffb13.js"]
 }

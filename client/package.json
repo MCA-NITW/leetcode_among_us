@@ -1,15 +1,10 @@
 {
   "name": "leetcode_among_us",
   "version": "0.1.0",
-  "homepage": "https://MCA-NITW.github.io/leetcode_among_us",
+  "homepage": ".",
   "private": true,
   "proxy": "http://localhost:3001",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.6.0",
-    "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
     "react": "^18.2.0",
