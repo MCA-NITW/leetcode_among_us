@@ -20,7 +20,7 @@ const fetchGraphQLData = async (operationName, variables, query) => {
   const response = await fetch(
     window.location.href.includes("localhost")
       ? "http://localhost:3001/leetcode"
-      : window.location.href + "/leetcode",
+      : "https://leetcode-among-us.onrender.com/leetcode",
     {
       method: "POST",
       headers: {
