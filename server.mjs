@@ -13,7 +13,10 @@ let corsOptions = {
   origin: "*", // Sensitive
 };
 app.use(cors(corsOptions));
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
+
 app.use(express.json()); // to parse JSON bodies
 
 app.post("/leetcode", async (req, res) => {
