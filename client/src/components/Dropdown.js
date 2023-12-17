@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Dropdown = ({ options, selectedValue, onChange }) => {
   const camelCaseToSentenceCase = (camelCase) => {
@@ -9,13 +10,19 @@ const Dropdown = ({ options, selectedValue, onChange }) => {
 
   return (
     <select value={selectedValue} onChange={onChange}>
-      {options.map((option, index) => (
-        <option key={index} value={option}>
+      {options.map((option) => (
+        <option key={option} value={option}>
           {camelCaseToSentenceCase(option)}
         </option>
       ))}
     </select>
   );
+};
+
+Dropdown.propTypes = {
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedValue: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default Dropdown;

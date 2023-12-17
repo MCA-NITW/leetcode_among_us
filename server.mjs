@@ -1,29 +1,41 @@
-// Importing modules using ES6 import syntax
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
+import helmet from "helmet";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Correctly setting up __dirname in ES module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-app.use(cors());
+app.disable("x-powered-by");
+app.use(cors()); // configure as per your specific requirements
+app.use(helmet());
 app.use(express.json()); // to parse JSON bodies
 
 app.post("/leetcode", async (req, res) => {
-  const response = await fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(req.body), // forward the body from the client request
-  });
+  // Input validation (to be implemented based on your requirements)
 
-  const data = await response.json();
-  res.send(data);
+  try {
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(req.body), // forward the body from the client request
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred");
+  }
 });
 
 const PORT = process.env.PORT || 3001;
@@ -38,4 +50,3 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
-

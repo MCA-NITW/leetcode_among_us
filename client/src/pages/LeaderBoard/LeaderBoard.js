@@ -1,5 +1,6 @@
 // LeaderBoard.js
 import React from "react";
+import PropTypes from "prop-types";
 import RankTable from "./RankTable/RankTable";
 import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader/Loader";
@@ -62,5 +63,10 @@ function LeaderBoard({ data, loading }) {
     </div>
   );
 }
+
+LeaderBoard.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  loading: PropTypes.bool.isRequired,
+};
 
 export default LeaderBoard;

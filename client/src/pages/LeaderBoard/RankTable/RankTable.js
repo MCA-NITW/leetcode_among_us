@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "./RankTable.css";
 
 const camelCaseToSentenceCase = (camelCase) => {
@@ -62,6 +63,12 @@ const RankTable = ({ data, rankingBasedOn, batch }) => {
       })}
     </div>
   );
+};
+
+RankTable.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rankingBasedOn: PropTypes.string.isRequired,
+  batch: PropTypes.string.isRequired,
 };
 
 export default RankTable;
