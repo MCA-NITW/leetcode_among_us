@@ -1,63 +1,97 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "./RankTable.css";
+import Dropdown from "../../../components/Dropdown";
 
-const camelCaseToSentenceCase = (camelCase) => {
-  const result = camelCase.replace(/([A-Z])/g, " $1");
-  const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
-  return finalResult;
-};
+const RankTable = ({ data, batch }) => {
+  const [rankingBasedOn, setRankingBasedOn] = React.useState("totalSolved");
+  const [sortedData, setSortedData] = React.useState(data);
+  const rankingOptions = [
+    "totalSolved",
+    "easySolved",
+    "mediumSolved",
+    "hardSolved",
+    "globalContestRating",
+    "globalContestRanking",
+    "questionRanking",
+    "contestTopPercentage",
+    "attendedContestCount",
+    "reputation",
+    "bestContestRank",
+    "mostFourQuestionsInContest",
+    "mostThreeQuestionsInContest",
+    "mostTwoQuestionsInContest",
+    "mostOneQuestionsInContest",
+    "mostZeroQuestionsInContest",
+    "averageContestRanking",
+    "badgeCount",
+    "totalActiveDays",
+    "bestStreak",
+  ];
 
-const RankTable = ({ data, rankingBasedOn, batch }) => {
-  const sortData = () => {
-    const currentData = data.filter((profile) => {
-      if (batch === "all") return profile;
-      return profile.batch === batch;
-    });
+  React.useEffect(() => {
+    const sortData = () => {
+      const currentData = data.filter((profile) => {
+        if (batch === "all") return profile;
+        return profile.batch === batch;
+      });
 
-    let descending = [
-      "bestContestRank",
-      "averageContestRanking",
-      "globalContestRanking",
-      "questionRanking",
-      "contestTopPercentage",
-    ];
+      let descending = [
+        "bestContestRank",
+        "averageContestRanking",
+        "globalContestRanking",
+        "questionRanking",
+        "contestTopPercentage",
+      ];
 
-    currentData.sort((a, b) => {
-      if (descending.includes(rankingBasedOn)) {
-        return a[rankingBasedOn] - b[rankingBasedOn];
-      }
-      return b[rankingBasedOn] - a[rankingBasedOn];
-    });
-    return currentData;
-  };
-  const sortedData = sortData();
+      currentData.sort((a, b) => {
+        if (descending.includes(rankingBasedOn)) {
+          return a[rankingBasedOn] - b[rankingBasedOn];
+        }
+        return b[rankingBasedOn] - a[rankingBasedOn];
+      });
+      return currentData;
+    };
+
+    setSortedData(sortData());
+  }, [batch, data, rankingBasedOn]);
 
   return (
     <div className="profile-cards">
       <div className="profile-row profile-header">
         <div>Rank</div>
-        <div>Name</div>
-        <div>{camelCaseToSentenceCase(rankingBasedOn)}</div>
-        <div>Visit Profile</div>
+        <div>User</div>
+        <div>
+          <Dropdown
+            options={rankingOptions}
+            selectedValue={rankingBasedOn}
+            onChange={(e) => setRankingBasedOn(e.target.value)}
+          />
+        </div>
       </div>
       {sortedData.map((profile) => {
         return (
           <div className="profile-row" key={profile.userName}>
             <div className="profile-row_rank">
-              Rank: {sortedData.indexOf(profile) + 1}
+              {sortedData.indexOf(profile) + 1}
             </div>
-            <div className="profile-row_name">{profile.name}</div>
-            {/* <div className="profile-row_batch">({profile.batch})</div> */}
+            <div className="profile-row_user">
+              <div className="profile-row_avatar">
+                <img src={profile.avatar} alt="avatar" />
+              </div>
+              <div className="profile-row_names">
+                <div className="profile-row_name">{profile.name}</div>
+                <div className="profile-row_userName">
+                  <a
+                    href={`https://leetcode.com/${profile.userName}`}
+                    target="blank_"
+                  >
+                    {profile.userName}
+                  </a>
+                </div>
+              </div>
+            </div>
             <div className="profile-row_title">{profile[rankingBasedOn]}</div>
-            <div className="profile-row_link">
-              <a
-                href={`https://leetcode.com/${profile.userName}`}
-                target="blank_"
-              >
-                Visit Profile
-              </a>
-            </div>
           </div>
         );
       })}
@@ -67,7 +101,6 @@ const RankTable = ({ data, rankingBasedOn, batch }) => {
 
 RankTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  rankingBasedOn: PropTypes.string.isRequired,
   batch: PropTypes.string.isRequired,
 };
 

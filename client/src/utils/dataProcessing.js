@@ -6,17 +6,54 @@ import {
   userProfileCalendar,
 } from "../api/UserData";
 
-// Function to fetch and process data for a single leetcoder
-export const fetchDataForLeetcoder = async (leetcoder) => {
-  try {
-    const userPublicProfileData = await userPublicProfile(leetcoder.userName);
-    const userContestRankingInfoData = await userContestRankingInfo(
-      leetcoder.userName,
-    );
-    const userProblemsSolvedData = await userProblemsSolved(leetcoder.userName);
-    const userBadgesData = await userBadges(leetcoder.userName);
-    const calendarData = await fetchCalendarData(leetcoder.userName);
+// Helper function to fetch calendar data
+const fetchCalendarData = async (userName) => {
+  const years = [
+    2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025,
+  ];
+  const calendarPromises = years.map((year) =>
+    userProfileCalendar(userName, year),
+  );
+  const calendarDataArray = await Promise.all(calendarPromises);
 
+  let bestStreak = 0;
+  let totalActiveDays = 0;
+
+  calendarDataArray.forEach((userCalendarData) => {
+    if (userCalendarData.matchedUser.userCalendar.streak > bestStreak) {
+      bestStreak = userCalendarData.matchedUser.userCalendar.streak;
+    }
+    totalActiveDays +=
+      userCalendarData.matchedUser.userCalendar.totalActiveDays;
+  });
+
+  return { bestStreak, totalActiveDays };
+};
+
+export const fetchDataForLeetcoder = async (leetcoder) => {
+  // Check if userName is empty
+  if (!leetcoder.userName || leetcoder.userName.trim() === "") {
+    console.log(`No userName provided for leetcoder with ID: ${leetcoder.id}`);
+    return leetcoder;
+  }
+
+  try {
+    // Parallelize all API calls
+    const [
+      userPublicProfileData,
+      userContestRankingInfoData,
+      userProblemsSolvedData,
+      userBadgesData,
+      calendarData,
+    ] = await Promise.all([
+      userPublicProfile(leetcoder.userName),
+      userContestRankingInfo(leetcoder.userName),
+      userProblemsSolved(leetcoder.userName),
+      userBadges(leetcoder.userName),
+      fetchCalendarData(leetcoder.userName),
+    ]);
+
+    // Process and consolidate leetcoder data
     return processLeetcoderData(
       leetcoder,
       userPublicProfileData,
@@ -31,26 +68,7 @@ export const fetchDataForLeetcoder = async (leetcoder) => {
   }
 };
 
-// Helper function to fetch calendar data
-const fetchCalendarData = async (userName) => {
-  const years = [
-    2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025,
-  ];
-  let bestStreak = 0;
-  let totalActiveDays = 0;
-
-  for (let year of years) {
-    const userCalendarData = await userProfileCalendar(userName, year);
-    if (userCalendarData.matchedUser.userCalendar.streak > bestStreak) {
-      bestStreak = userCalendarData.matchedUser.userCalendar.streak;
-    }
-    totalActiveDays +=
-      userCalendarData.matchedUser.userCalendar.totalActiveDays;
-  }
-
-  return { bestStreak, totalActiveDays };
-};
-
+// Add your processLeetcoderData function here...
 const getAverageContestRanking = (contestHistory) => {
   let totalRanking = 0,
     totalContest = 0;
@@ -83,7 +101,6 @@ const getBestContestRank = (contestHistory) => {
   return bestRank;
 };
 
-// Function to process and consolidate leetcoder data
 const processLeetcoderData = (
   leetcoder,
   userPublicProfileData,
@@ -92,59 +109,41 @@ const processLeetcoderData = (
   userBadgesData,
   calendarData,
 ) => {
-  // Process the data based on your application's logic
+  const getProblemsSolvedCount = (difficulty) =>
+    userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.find(
+      (problem) => problem.difficulty === difficulty,
+    )?.count || 0;
+
+  const getTotalQuestionsCount = (difficulty) =>
+    userProblemsSolvedData.allQuestionsCount.find(
+      (problem) => problem.difficulty === difficulty,
+    )?.count || 0;
+
   return {
     ...leetcoder,
-    globalContestRating:
-      userContestRankingInfoData.userContestRanking === null
-        ? 0
-        : Math.round(userContestRankingInfoData.userContestRanking.rating, 2),
+    avatar: userPublicProfileData.profile.userAvatar,
+    globalContestRating: userContestRankingInfoData.userContestRanking?.rating
+      ? Math.round(userContestRankingInfoData.userContestRanking.rating, 2)
+      : 0,
     globalContestRanking:
-      userContestRankingInfoData.userContestRanking === null
-        ? "N/A"
-        : userContestRankingInfoData.userContestRanking.globalRanking,
-    easySolved:
-      userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.filter(
-        (problem) => problem.difficulty === "Easy",
-      )[0].count,
-    mediumSolved:
-      userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.filter(
-        (problem) => problem.difficulty === "Medium",
-      )[0].count,
-    hardSolved:
-      userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.filter(
-        (problem) => problem.difficulty === "Hard",
-      )[0].count,
-    totalSolved:
-      userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.filter(
-        (problem) => problem.difficulty === "All",
-      )[0].count,
-    totalEasy: userProblemsSolvedData.allQuestionsCount.filter(
-      (problem) => problem.difficulty === "Easy",
-    )[0].count,
-    totalMedium: userProblemsSolvedData.allQuestionsCount.filter(
-      (problem) => problem.difficulty === "Medium",
-    )[0].count,
-    totalHard: userProblemsSolvedData.allQuestionsCount.filter(
-      (problem) => problem.difficulty === "Hard",
-    )[0].count,
-    totalQuestions: userProblemsSolvedData.allQuestionsCount.filter(
-      (problem) => problem.difficulty === "All",
-    )[0].count,
+      userContestRankingInfoData.userContestRanking?.globalRanking || "N/A",
+    easySolved: getProblemsSolvedCount("Easy"),
+    mediumSolved: getProblemsSolvedCount("Medium"),
+    hardSolved: getProblemsSolvedCount("Hard"),
+    totalSolved: getProblemsSolvedCount("All"),
+    totalEasy: getTotalQuestionsCount("Easy"),
+    totalMedium: getTotalQuestionsCount("Medium"),
+    totalHard: getTotalQuestionsCount("Hard"),
+    totalQuestions: getTotalQuestionsCount("All"),
     reputation: userPublicProfileData.profile.reputation,
     questionRanking: userPublicProfileData.profile.ranking,
     contestTopPercentage:
-      userContestRankingInfoData.userContestRanking === null
-        ? 100
-        : userContestRankingInfoData.userContestRanking.topPercentage,
+      userContestRankingInfoData.userContestRanking?.topPercentage || 100,
     totalParticipants:
-      userContestRankingInfoData.userContestRanking === null
-        ? 100000
-        : userContestRankingInfoData.userContestRanking.totalParticipants,
+      userContestRankingInfoData.userContestRanking?.totalParticipants ||
+      100000,
     attendedContestCount:
-      userContestRankingInfoData.userContestRanking === null
-        ? 0
-        : userContestRankingInfoData.userContestRanking.attendedContestsCount,
+      userContestRankingInfoData.userContestRanking?.attendedContestsCount || 0,
     contestHistory: userContestRankingInfoData.userContestRankingHistory,
     badgeCount: userBadgesData.matchedUser.badges.length,
     bestContestRank: getBestContestRank(

@@ -5,6 +5,7 @@ import NavBar from "./components/Nav/NavBar";
 import Home from "./pages/Home/Home";
 import LeaderBoard from "./pages/LeaderBoard/LeaderBoard";
 import leetcoders from "./assets/leetcoders.json";
+// import leetCodersData from "./assets/leetcoders";
 import { fetchDataForLeetcoder } from "./utils/dataProcessing";
 import "./App.css";
 
@@ -17,7 +18,11 @@ function App() {
       const updatedLeetcoders = await Promise.all(
         leetcoders.leetCoders.map(fetchDataForLeetcoder),
       );
-      setData(updatedLeetcoders);
+      // Remove all user with no userName
+      const filteredLeetcoders = updatedLeetcoders.filter(
+        (leetcoder) => leetcoder.userName && leetcoder.userName.trim() !== "",
+      );
+      setData(filteredLeetcoders);
       setLoading(false);
     };
 

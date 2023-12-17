@@ -1,12 +1,52 @@
 .profile-row {
+  width: 100%;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
   background-color: #fff;
   border-bottom: 1px solid #ccc;
   color: #000;
   transition: all 0.3s ease;
+}
+
+.profile-header {
+  width: 100%;
+  height: 3rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 0 5px #ccc;
+}
+
+.profile-header div:nth-child(2) {
+  text-align: left;
+  padding-left: 5rem;
+}
+
+.profile-header div select {
+  width: 80%;
+  height: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  padding-left: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.profile-header div select:hover {
+  border: 1px solid #000;
+}
+
+.profile-header div select option {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000;
+  background-color: #fff;
+  text-align: center;
 }
 
 .profile-row:hover {
@@ -18,21 +58,55 @@
 }
 
 .profile-row div:first-child {
-  flex: 0 0 6%;
+  flex: 0.1;
 }
 
 .profile-row div:nth-child(2) {
-  flex: 0 0 24%;
-}
-
-.profile-row div:nth-child(3) {
-  flex: 0 0 60%;
+  flex: 0.25;
 }
 
 .profile-row div:last-child {
-  flex: 0 0 10%;
+  flex: 0.6;
 }
 
-.profile-header {
+.profile-row_user {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.profile-row_user div:first-child {
+  flex: 0.2;
+}
+
+.profile-row_user div:last-child {
+  flex: 0.8;
+}
+
+.profile-row_avatar img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10%;
+  margin-right: 1rem;
+}
+
+.profile-row_names {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.profile-row_name {
+  font-size: 1.2rem;
   font-weight: bold;
+}
+
+.profile-row_userName a {
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.profile-row_userName a:hover {
+  text-decoration: underline;
 }
