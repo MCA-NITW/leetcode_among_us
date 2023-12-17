@@ -17,14 +17,19 @@ import {
 } from "./GraphQLQueries.js";
 
 const fetchGraphQLData = async (operationName, variables, query) => {
-  const response = await fetch("http://localhost:3001/leetcode", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-csrftoken": "undefined",
+  const response = await fetch(
+    window.location.href.includes("localhost")
+      ? "http://localhost:3001/leetcode"
+      : window.location.href + "/leetcode",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-csrftoken": "undefined",
+      },
+      body: JSON.stringify({ operationName, variables, query }),
     },
-    body: JSON.stringify({ operationName, variables, query }),
-  });
+  );
   return response.json();
 };
 

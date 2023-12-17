@@ -9,7 +9,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 app.disable("x-powered-by");
-app.use(cors()); // configure as per your specific requirements
+let corsOptions = {
+  origin: "*", // Sensitive
+};
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json()); // to parse JSON bodies
 
