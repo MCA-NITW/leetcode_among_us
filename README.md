@@ -1,70 +1,175 @@
-# Getting Started with Create React App
+# Leetcode Among Us
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the Leetcode Among Us - a web application dedicated to fostering a competitive environment among MCA students. This platform enables users to track their Leetcode statistics, view leaderboards within their batch, and gain recognition for outstanding performance. Whether you're looking to improve your coding skills or compete with your peers, Leetcode Among Us provides the tools and insights you need to excel.
 
-## Available Scripts
+## Project Overview
 
-In the project directory, you can run:
+Leetcode Among Us is designed to encourage students by making their progress visible through a series of metrics and rankings. It features:
 
-### `npm start`
+- **Personal Leetcode Statistics:** Allows students to monitor their own problem-solving progress with detailed analytics.
+- **Batch Leaderboards:** Students can see where they stand among their peers in a dynamic leaderboard that updates with each submission.
+- **Recognition and Rewards:** Top performers are highlighted and acknowledged, promoting a spirit of healthy competition.
+- **Batch-wise Comparison:** Users can compare statistics across different MCA batches, enabling a broader perspective of performance.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This project is built with a focus on community and improvement, aiming to motivate students to achieve excellence in their coding endeavors.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## File Structure
 
-### `npm test`
+The "Leetcode Among Us" project is organized into a clear and modular file structure, promoting ease of navigation and development. Here's an outline of the main directories and files:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+LEETCODE_AMONG_US
+├── client # Client-side code
+│ ├── build # Compiled and ready to serve application files
+│ ├── public # Public files like favicon and index.html
+│ ├── src # Source files for React application
+│ │ ├── api # API related functions and GraphQL queries
+│ │ │ ├── GraphQLQueries.js
+│ │ │ └── UserData.js
+│ │ ├── assets # Static assets like JSON data
+│ │ │ ├── leetcoders.js
+│ │ │ └── leetcoders.json
+│ │ ├── components # Reusable React components
+│ │ │ ├── Loader
+│ │ │ │ ├── Loader.css
+│ │ │ │ └── Loader.js
+│ │ │ ├── Nav
+│ │ │ │ ├── NavBar.css
+│ │ │ │ ├── NavBar.js
+│ │ │ │ └── Dropdown.js
+│ │ │ ├── LeaderBoard
+│ │ │ │ ├── LeaderBoard.css
+│ │ │ │ └── LeaderBoard.js
+│ │ │ │  └── RankTable
+│ │ │ │    ├── RankTable.css
+│ │ │ │    └── RankTable.js
+│ │ │ └── Dropdown.js
+│ │ ├── pages # React components for pages
+│ │ │ ├── Home
+│ │ │   ├── Home.css
+│ │ │   └── Home.js
+│ │ ├── utils # Utility functions
+│ │ │ └── dataProcessing.js
+│ │ ├── App.css
+│ │ ├── App.js # Main React application component
+│ │ ├── index.css
+│ │ └── index.js # Entry point for React application
+│ ├── package.json # NPM dependencies and scripts
+│ └── package-lock.json # Locked versions of dependencies
+├── .gitignore # Specifies intentionally untracked files to ignore
+├── package.json # NPM dependencies and scripts for server
+├── package-lock.json # Locked versions of dependencies for server
+├── README.md # README file with project information
+├── SECURITY.md # Security policies and procedures
+└── server.js # Server-side Node.js code
+```
 
-### `npm run build`
+### Client
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The `client` directory contains all the frontend code written in React. It's structured to separate the concerns of the application's user interface (UI).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `public`: Contains the static files served by the React application, such as the favicon and the `index.html` file.
+- `src`: The main folder for React source files, including components, pages, and utilities.
+  - `api`: Holds the files related to API calls and GraphQL queries.
+  - `assets`: Includes static data files, such as JSON files.
+  - `components`: Reusable React components are placed here, each in its own subdirectory with its associated styling.
+  - `pages`: Components representing entire pages in the application.
+  - `utils`: Utility functions that can be shared across components and pages.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Server
 
-### `npm run eject`
+- `server.mjs`: The entry point for the server-side code. It contains the setup for the Node.js server, including routes and middleware.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Prerequisites
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Before you begin, ensure you have met the following requirements:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Node.js (Preferably version 20.5.0)
+- npm (Comes with Node.js)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+These software applications are essential to run the "Leetcode Among Us" application locally. If you need to install Node.js, visit the [official Node.js website](https://nodejs.org/) and download the version specified above.
 
-## Learn More
+## Installation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To get the "Leetcode Among Us" app up and running on your local machine, follow these steps:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Steps
 
-### Code Splitting
+1. Creating your branch:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+   I. For Organization Members:
 
-### Analyzing the Bundle Size
+   - **Branch Creation:**
+     As an organization member, when working on a new feature or task, you should create a new branch from the "develop" branch. The branch name should be in the format `feature-` where `<description>` represents a short description of the task or feature you are working on. For example, if you are adding a login feature, the branch name could be `feature-login`.
+   - **Code Implementation:**
+     Implement the necessary changes and new features on your created branch. Make sure to adhere to the organization's coding standards and best practices.
+   - **Code Testing:**
+     Thoroughly test your changes on the branch to ensure that they work as expected and do not introduce any bugs or issues.
+   - **Code Review:**
+     If required by the organization's development process, request a code review from your peers to ensure code quality and adherence to project guidelines.
+   - **Pull Request Creation:**
+     Once you are confident that your code is complete and tested, create a pull request to merge your changes from the `feature-*` branch into the `develop` branch. Clearly explain the purpose and scope of the changes in the pull request description.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+   II. For Outside Collaborators:
 
-### Making a Progressive Web App
+   - **Clone the Repository:**
+     As an outside collaborator, you first need to clone the repository containing the project. This will give you a local copy of the codebase to work with.
+   - **Create a New Branch:**
+     After cloning, create a new branch from the `develop` branch to work on your specific task or feature. The branch name should also follow the format `feature-` where `<description>` describes the purpose of your changes.
+   - **Implement Changes:**
+     Proceed with implementing the necessary code changes or new features on your branch. Ensure your modifications align with the project's guidelines and meet the intended functionality.
+   - **Test Your Changes:**
+     Thoroughly test the code changes you made to verify that they work as expected and do not introduce any errors.
+   - **Create a Pull Request:**
+     Once your changes are ready, create a pull request to propose merging your branch into the `develop` branch. Provide a clear and detailed explanation of the changes you made, the reasoning behind them, and any relevant context that might help with the review process.
+   - **Address Feedback:**
+     Be responsive to any feedback or comments provided during the pull request review. Make necessary adjustments and improvements based on the feedback before your changes can be merged into the main project.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+2. Change into the project directory:
 
-### Advanced Configuration
+   ```bash
+   cd leetcode_among_us
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+3. Install project dependencies:
 
-### Deployment
+   ```bash
+   npm install
+   npm run build
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+   This command will install the necessary dependencies for both the frontend and backend.
 
-### `npm run build` fails to minify
+4. Start the development server:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+   I. For frontend and backend both
+
+   ```bash
+   npm run dev
+   ```
+
+   This command will start the development server for both the frontend and backend.
+
+   II. For backend only
+
+   ```bash
+   npm start
+   ```
+
+   This command will start the development server for backend.
+
+   III. For frontend only
+
+   ```bash
+    npm frontend-start
+   ```
+
+   This command will start the development server for frontend.
+
+5. Open the application in your browser:
+
+   ```bash
+   http://localhost:3001/
+   ```
+
+   The application should now be running in your browser.
