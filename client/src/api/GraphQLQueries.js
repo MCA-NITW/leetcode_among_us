@@ -329,3 +329,15 @@ query getUserProfile($username: String!) {
 //   }
 // }
 
+
+
+//     query contestRatingHistogram {
+//   contestRatingHistogram {
+//     userCount
+//     ratingStart
+//     ratingEnd
+//     topPercentage
+//   }
+// }
+    
+
