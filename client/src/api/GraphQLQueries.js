@@ -370,3 +370,25 @@ query getUserProfile($username: String!) {
 //   }
 // }
     
+
+//     query pastContests($pageNo: Int, $numPerPage: Int) {
+//   pastContests(pageNo: $pageNo, numPerPage: $numPerPage) {
+//     pageNum
+//     currentPage
+//     totalNum
+//     numPerPage
+//     data {
+//       title
+//       titleSlug
+//       startTime
+//       originStartTime
+//       cardImg
+//       sponsors {
+//         name
+//         lightLogo
+//         darkLogo
+//       }
+//     }
+//   }
+// }
+    
