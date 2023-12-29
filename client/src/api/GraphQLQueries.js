@@ -281,114 +281,118 @@ query getUserProfile($username: String!) {
     }
 `;
 
-// query GetGlobalRankings($page: Int!) {
-//   globalRanking(page: $page) {
-//     totalUsers
-//     userPerPage
-//     myRank {
-//       ranking
-//       currentGlobalRanking
-//       currentRating
-//       dataRegion
-//       user {
-//         nameColor
-//         activeBadge {
-//           displayName
-//           icon
-//           __typename
-//         }
-//         __typename
-//       }
-//       __typename
-//     }
-//     rankingNodes {
-//       ranking
-//       currentRating
-//       currentGlobalRanking
-//       dataRegion
-//       user {
-//         username
-//         nameColor
-//         activeBadge {
-//           displayName
-//           icon
-//           __typename
-//         }
-//         profile {
-//           userAvatar
-//           countryCode
-//           countryName
-//           realName
-//           __typename
-//         }
-//         __typename
-//       }
-//       __typename
-//     }
-//     __typename
-//   }
-// }
+export const getGlobalRankingsQuery = `
+query GetGlobalRankings($page: Int!) {
+  globalRanking(page: $page) {
+    totalUsers
+    userPerPage
+    myRank {
+      ranking
+      currentGlobalRanking
+      currentRating
+      dataRegion
+      user {
+        nameColor
+        activeBadge {
+          displayName
+          icon
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    rankingNodes {
+      ranking
+      currentRating
+      currentGlobalRanking
+      dataRegion
+      user {
+        username
+        nameColor
+        activeBadge {
+          displayName
+          icon
+          __typename
+        }
+        profile {
+          userAvatar
+          countryCode
+          countryName
+          realName
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+`;
 
+export const contestRatingHistogram = `
+    query contestRatingHistogram {
+  contestRatingHistogram {
+    userCount
+    ratingStart
+    ratingEnd
+    topPercentage
+  }
+}
+`;
 
+export const problemsetQuestionList = `
 
-//     query contestRatingHistogram {
-//   contestRatingHistogram {
-//     userCount
-//     ratingStart
-//     ratingEnd
-//     topPercentage
-//   }
-// }
-    
+    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+  problemsetQuestionList: questionList(
+    categorySlug: $categorySlug
+    limit: $limit
+    skip: $skip
+    filters: $filters
+  ) {
+    total: totalNum
+    questions: data {
+      acRate
+      difficulty
+      freqBar
+      frontendQuestionId: questionFrontendId
+      isFavor
+      paidOnly: isPaidOnly
+      status
+      title
+      titleSlug
+      topicTags {
+        name
+        id
+        slug
+      }
+      hasSolution
+      hasVideoSolution
+    }
+  }
+}
+`;
 
-//     query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
-//   problemsetQuestionList: questionList(
-//     categorySlug: $categorySlug
-//     limit: $limit
-//     skip: $skip
-//     filters: $filters
-//   ) {
-//     total: totalNum
-//     questions: data {
-//       acRate
-//       difficulty
-//       freqBar
-//       frontendQuestionId: questionFrontendId
-//       isFavor
-//       paidOnly: isPaidOnly
-//       status
-//       title
-//       titleSlug
-//       topicTags {
-//         name
-//         id
-//         slug
-//       }
-//       hasSolution
-//       hasVideoSolution
-//     }
-//   }
-// }
-    
-
-//     query pastContests($pageNo: Int, $numPerPage: Int) {
-//   pastContests(pageNo: $pageNo, numPerPage: $numPerPage) {
-//     pageNum
-//     currentPage
-//     totalNum
-//     numPerPage
-//     data {
-//       title
-//       titleSlug
-//       startTime
-//       originStartTime
-//       cardImg
-//       sponsors {
-//         name
-//         lightLogo
-//         darkLogo
-//       }
-//     }
-//   }
-// }
-    
+export const pastContests = `
+    query pastContests($pageNo: Int, $numPerPage: Int) {
+  pastContests(pageNo: $pageNo, numPerPage: $numPerPage) {
+    pageNum
+    currentPage
+    totalNum
+    numPerPage
+    data {
+      title
+      titleSlug
+      startTime
+      originStartTime
+      cardImg
+      sponsors {
+        name
+        lightLogo
+        darkLogo
+      }
+    }
+  }
+}
+`;
