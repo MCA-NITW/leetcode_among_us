@@ -6,7 +6,6 @@ import Home from "./pages/Home/Home";
 import LeaderBoard from "./pages/LeaderBoard/LeaderBoard";
 import leetcoders from "./assets/leetcoders.json";
 import { fetchDataForLeetcoder } from "./utils/dataProcessing";
-import "./App.css";
 
 function App() {
   const [data, setData] = useState([]);
@@ -28,18 +27,16 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <Router>
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/leaderboard"
-            element={<LeaderBoard data={data} loading={loading} />}
-          />
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/leaderboard"
+          element={<LeaderBoard data={data} loading={loading} />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

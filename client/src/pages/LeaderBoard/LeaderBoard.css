@@ -1,53 +1,11 @@
 .leaderboard {
   width: 100%;
   max-width: 1200px;
-  margin: 2rem auto;
   border-radius: 5px;
-  overflow: hidden;
+  background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   margin-top: 5rem;
-}
-
-.leaderboard-header {
   text-align: center;
-  padding: 1rem;
-  background-color: #fff;
-  border-bottom: 3px solid #ccc;
-  color: #000;
-  transition: all 0.3s ease;
-}
-
-.ranking-based-on {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 1rem;
-  background-color: #fff;
-  border-bottom: 3px solid #ccc;
-  color: #000;
-  transition: all 0.3s ease;
-}
-
-.ranking-based-on select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-left: 1rem;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.ranking-based-on select:focus {
-  border: 1px solid #000;
-}
-
-.ranking-based-on select option {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  margin: 5rem auto 0 auto;
 }

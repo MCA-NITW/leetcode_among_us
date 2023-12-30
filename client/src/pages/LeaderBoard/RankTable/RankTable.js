@@ -1,107 +1,200 @@
 import React from "react";
 import PropTypes from "prop-types";
-import "./RankTable.css";
-import Dropdown from "../../../components/Dropdown";
+import { AgGridReact } from "ag-grid-react"; // React Grid Logic
+import "ag-grid-community/styles/ag-grid.css"; // Core CSS
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
-const RankTable = ({ data, batch }) => {
-  const [rankingBasedOn, setRankingBasedOn] = React.useState("totalSolved");
-  const [sortedData, setSortedData] = React.useState(data);
-  const rankingOptions = [
-    "totalSolved",
-    "easySolved",
-    "mediumSolved",
-    "hardSolved",
-    "globalContestRating",
-    "globalContestRanking",
-    "questionRanking",
-    "contestTopPercentage",
-    "attendedContestCount",
-    "reputation",
-    "bestContestRank",
-    "mostFourQuestionsInContest",
-    "mostThreeQuestionsInContest",
-    "mostTwoQuestionsInContest",
-    "mostOneQuestionsInContest",
-    "mostZeroQuestionsInContest",
-    "averageContestRanking",
-    "badgeCount",
-    "totalActiveDays",
-    "bestStreak",
+const RankTable = ({ data }) => {
+  const commonColumnProps = {
+    sortable: true,
+    resizable: true,
+    lockVisible: true,
+    lockPosition: true,
+  };
+  const columnDefs = [
+    {
+      headerName: "Rank",
+      valueGetter: "node.rowIndex + 1",
+      width: 80,
+      ...commonColumnProps,
+      sortable: false,
+      pinned: "left",
+    },
+    {
+      headerName: "Profile",
+      children: [
+        {
+          headerName: "Name",
+          field: "name",
+          width: 150,
+          ...commonColumnProps,
+          pinned: "left",
+        },
+        {
+          headerName: "Username",
+          field: "userName",
+          width: 150,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Batch",
+          field: "batch",
+          width: 120,
+          filter: true,
+          ...commonColumnProps,
+        },
+      ],
+    },
+    {
+      headerName: "Solved",
+      children: [
+        {
+          headerName: "Total",
+          field: "totalSolved",
+          width: 90,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Easy",
+          field: "easySolved",
+          width: 90,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Medium",
+          field: "mediumSolved",
+          width: 110,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Hard",
+          field: "hardSolved",
+          width: 90,
+          ...commonColumnProps,
+        },
+      ],
+    },
+    {
+      headerName: "Contest",
+      children: [
+        {
+          headerName: "Rating",
+          field: "globalContestRating",
+          width: 100,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Ranking",
+          field: "globalContestRanking",
+          width: 110,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Top Percentage",
+          field: "contestTopPercentage",
+          width: 150,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Attended",
+          field: "attendedContestCount",
+          width: 120,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Best Rank",
+          field: "bestContestRank",
+          width: 120,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Avg Rank",
+          field: "averageContestRanking",
+          width: 120,
+          ...commonColumnProps,
+        },
+        {
+          headerName: "Solved Question",
+          children: [
+            {
+              headerName: "4",
+              field: "mostFourQuestionsInContest",
+              width: 65,
+              ...commonColumnProps,
+            },
+            {
+              headerName: "3",
+              field: "mostThreeQuestionsInContest",
+              width: 65,
+              ...commonColumnProps,
+            },
+            {
+              headerName: "2",
+              field: "mostTwoQuestionsInContest",
+              width: 65,
+              ...commonColumnProps,
+            },
+            {
+              headerName: "1",
+              field: "mostOneQuestionsInContest",
+              width: 65,
+              ...commonColumnProps,
+            },
+            {
+              headerName: "0",
+              field: "mostZeroQuestionsInContest",
+              width: 65,
+              ...commonColumnProps,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      headerName: "Question Ranking",
+      field: "questionRanking",
+      width: 160,
+      ...commonColumnProps,
+    },
+    {
+      headerName: "Reputation",
+      field: "reputation",
+      width: 130,
+      ...commonColumnProps,
+    },
+    {
+      headerName: "Badge Count",
+      field: "badgeCount",
+      width: 140,
+      ...commonColumnProps,
+    },
+    {
+      headerName: "Total Active Days",
+      field: "totalActiveDays",
+      width: 150,
+      ...commonColumnProps,
+    },
+    {
+      headerName: "Best Streak",
+      field: "bestStreak",
+      width: 130,
+      ...commonColumnProps,
+    },
   ];
 
-  React.useEffect(() => {
-    const sortData = () => {
-      const currentData = data.filter((profile) => {
-        if (batch === "all") return profile;
-        return profile.batch === batch;
-      });
-
-      let descending = [
-        "bestContestRank",
-        "averageContestRanking",
-        "globalContestRanking",
-        "questionRanking",
-        "contestTopPercentage",
-      ];
-
-      currentData.sort((a, b) => {
-        if (descending.includes(rankingBasedOn)) {
-          return a[rankingBasedOn] - b[rankingBasedOn];
-        }
-        return b[rankingBasedOn] - a[rankingBasedOn];
-      });
-      return currentData;
-    };
-
-    setSortedData(sortData());
-  }, [batch, data, rankingBasedOn]);
-
   return (
-    <div className="profile-cards">
-      <div className="profile-row profile-header">
-        <div>Rank</div>
-        <div>User</div>
-        <div>
-          <Dropdown
-            options={rankingOptions}
-            selectedValue={rankingBasedOn}
-            onChange={(e) => setRankingBasedOn(e.target.value)}
-          />
-        </div>
-      </div>
-      {sortedData.map((profile) => {
-        return (
-          <div className="profile-row" key={profile.userName}>
-            <div className="profile-row_rank">
-              {sortedData.indexOf(profile) + 1}
-            </div>
-            <div className="profile-row_user">
-              <div className="profile-row_avatar">
-                <img src={profile.avatar} alt="avatar" />
-              </div>
-              <div className="profile-row_names">
-                <div className="profile-row_name">{profile.name}</div>
-                <div className="profile-row_userName">
-                  <a
-                    href={`https://leetcode.com/${profile.userName}`}
-                    target="blank_"
-                  >
-                    {profile.userName}
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="profile-row_title">{profile[rankingBasedOn]}</div>
-          </div>
-        );
-      })}
+    <div className="ag-theme-quartz" style={{ height: 500 }}>
+      <AgGridReact
+        rowData={data}
+        columnDefs={columnDefs}
+        rowSelection={"multiple"}
+      />
     </div>
   );
 };
 
 RankTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  batch: PropTypes.string.isRequired,
 };
 
 export default RankTable;
