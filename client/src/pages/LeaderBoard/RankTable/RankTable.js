@@ -1,200 +1,195 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { AgGridReact } from "ag-grid-react"; // React Grid Logic
-import "ag-grid-community/styles/ag-grid.css"; // Core CSS
-import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import React from 'react'
+import PropTypes from 'prop-types'
+import { AgGridReact } from 'ag-grid-react' // React Grid Logic
+import 'ag-grid-community/styles/ag-grid.css' // Core CSS
+import 'ag-grid-community/styles/ag-theme-quartz.css' // Theme
 
 const RankTable = ({ data }) => {
   const commonColumnProps = {
     sortable: true,
     resizable: true,
     lockVisible: true,
-    lockPosition: true,
-  };
+    lockPosition: true
+  }
+
   const columnDefs = [
     {
-      headerName: "Rank",
-      valueGetter: "node.rowIndex + 1",
-      width: 80,
-      ...commonColumnProps,
-      sortable: false,
-      pinned: "left",
-    },
-    {
-      headerName: "Profile",
+      headerName: 'Profile',
       children: [
         {
-          headerName: "Name",
-          field: "name",
+          headerName: 'Name',
+          field: 'name',
           width: 150,
           ...commonColumnProps,
-          pinned: "left",
+          pinned: 'left'
         },
         {
-          headerName: "Username",
-          field: "userName",
+          headerName: 'Username',
+          field: 'userName',
           width: 150,
           ...commonColumnProps,
+          pinned: 'left'
         },
         {
-          headerName: "Batch",
-          field: "batch",
+          headerName: 'Batch',
+          field: 'batch',
           width: 120,
           filter: true,
           ...commonColumnProps,
-        },
-      ],
+          pinned: 'left'
+        }
+      ]
     },
     {
-      headerName: "Solved",
+      headerName: 'Solved',
       children: [
         {
-          headerName: "Total",
-          field: "totalSolved",
+          headerName: 'Total',
+          field: 'totalSolved',
           width: 90,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Easy",
-          field: "easySolved",
+          headerName: 'Easy',
+          field: 'easySolved',
           width: 90,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Medium",
-          field: "mediumSolved",
+          headerName: 'Medium',
+          field: 'mediumSolved',
           width: 110,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Hard",
-          field: "hardSolved",
+          headerName: 'Hard',
+          field: 'hardSolved',
           width: 90,
-          ...commonColumnProps,
-        },
-      ],
+          ...commonColumnProps
+        }
+      ]
     },
     {
-      headerName: "Contest",
+      headerName: 'Contest',
       children: [
         {
-          headerName: "Rating",
-          field: "globalContestRating",
+          headerName: 'Rating',
+          field: 'globalContestRating',
           width: 100,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Ranking",
-          field: "globalContestRanking",
+          headerName: 'Ranking',
+          field: 'globalContestRanking',
           width: 110,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Top Percentage",
-          field: "contestTopPercentage",
+          headerName: 'Top Percentage',
+          field: 'contestTopPercentage',
           width: 150,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Attended",
-          field: "attendedContestCount",
+          headerName: 'Attended',
+          field: 'attendedContestCount',
           width: 120,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Best Rank",
-          field: "bestContestRank",
+          headerName: 'Best Rank',
+          field: 'bestContestRank',
           width: 120,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Avg Rank",
-          field: "averageContestRanking",
+          headerName: 'Avg Rank',
+          field: 'averageContestRanking',
           width: 120,
-          ...commonColumnProps,
+          ...commonColumnProps
         },
         {
-          headerName: "Solved Question",
+          headerName: 'Solved Question',
           children: [
             {
-              headerName: "4",
-              field: "mostFourQuestionsInContest",
+              headerName: '4',
+              field: 'mostFourQuestionsInContest',
               width: 65,
-              ...commonColumnProps,
+              ...commonColumnProps
             },
             {
-              headerName: "3",
-              field: "mostThreeQuestionsInContest",
+              headerName: '3',
+              field: 'mostThreeQuestionsInContest',
               width: 65,
-              ...commonColumnProps,
+              ...commonColumnProps
             },
             {
-              headerName: "2",
-              field: "mostTwoQuestionsInContest",
+              headerName: '2',
+              field: 'mostTwoQuestionsInContest',
               width: 65,
-              ...commonColumnProps,
+              ...commonColumnProps
             },
             {
-              headerName: "1",
-              field: "mostOneQuestionsInContest",
+              headerName: '1',
+              field: 'mostOneQuestionsInContest',
               width: 65,
-              ...commonColumnProps,
+              ...commonColumnProps
             },
             {
-              headerName: "0",
-              field: "mostZeroQuestionsInContest",
+              headerName: '0',
+              field: 'mostZeroQuestionsInContest',
               width: 65,
-              ...commonColumnProps,
-            },
-          ],
-        },
-      ],
+              ...commonColumnProps
+            }
+          ]
+        }
+      ]
     },
     {
-      headerName: "Question Ranking",
-      field: "questionRanking",
+      headerName: 'Question Ranking',
+      field: 'questionRanking',
       width: 160,
-      ...commonColumnProps,
+      ...commonColumnProps
     },
     {
-      headerName: "Reputation",
-      field: "reputation",
+      headerName: 'Reputation',
+      field: 'reputation',
       width: 130,
-      ...commonColumnProps,
+      ...commonColumnProps
     },
     {
-      headerName: "Badge Count",
-      field: "badgeCount",
+      headerName: 'Badge Count',
+      field: 'badgeCount',
       width: 140,
-      ...commonColumnProps,
+      ...commonColumnProps
     },
     {
-      headerName: "Total Active Days",
-      field: "totalActiveDays",
+      headerName: 'Total Active Days',
+      field: 'totalActiveDays',
       width: 150,
-      ...commonColumnProps,
+      ...commonColumnProps
     },
     {
-      headerName: "Best Streak",
-      field: "bestStreak",
+      headerName: 'Best Streak',
+      field: 'bestStreak',
       width: 130,
-      ...commonColumnProps,
-    },
-  ];
+      ...commonColumnProps
+    }
+  ]
 
   return (
     <div className="ag-theme-quartz" style={{ height: 500 }}>
       <AgGridReact
         rowData={data}
         columnDefs={columnDefs}
-        rowSelection={"multiple"}
+        rowSelection={'multiple'}
       />
     </div>
-  );
-};
+  )
+}
 
 RankTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
+  data: PropTypes.arrayOf(PropTypes.object).isRequired
+}
 
-export default RankTable;
+export default RankTable

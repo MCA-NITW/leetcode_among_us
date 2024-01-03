@@ -3,38 +3,37 @@ import {
   userContestRankingInfo,
   userProblemsSolved,
   userBadges,
-  userProfileCalendar,
-} from "../api/UserData";
+  userProfileCalendar
+} from '../api/FetchData'
 
 // Helper function to fetch calendar data
-const fetchCalendarData = async (userName) => {
+const fetchCalendarData = async userName => {
   const years = [
-    2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025,
-  ];
-  const calendarPromises = years.map((year) =>
-    userProfileCalendar(userName, year),
-  );
-  const calendarDataArray = await Promise.all(calendarPromises);
+    2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+  ]
+  const calendarPromises = years.map(year =>
+    userProfileCalendar(userName, year)
+  )
+  const calendarDataArray = await Promise.all(calendarPromises)
 
-  let bestStreak = 0;
-  let totalActiveDays = 0;
+  let bestStreak = 0
+  let totalActiveDays = 0
 
-  calendarDataArray.forEach((userCalendarData) => {
+  calendarDataArray.forEach(userCalendarData => {
     if (userCalendarData.matchedUser.userCalendar.streak > bestStreak) {
-      bestStreak = userCalendarData.matchedUser.userCalendar.streak;
+      bestStreak = userCalendarData.matchedUser.userCalendar.streak
     }
-    totalActiveDays +=
-      userCalendarData.matchedUser.userCalendar.totalActiveDays;
-  });
+    totalActiveDays += userCalendarData.matchedUser.userCalendar.totalActiveDays
+  })
 
-  return { bestStreak, totalActiveDays };
-};
+  return { bestStreak, totalActiveDays }
+}
 
-export const fetchDataForLeetcoder = async (leetcoder) => {
+export const fetchDataForLeetcoder = async leetcoder => {
   // Check if userName is empty
-  if (!leetcoder.userName || leetcoder.userName.trim() === "") {
-    console.log(`No userName provided for leetcoder with ID: ${leetcoder.id}`);
-    return leetcoder;
+  if (!leetcoder.userName || leetcoder.userName.trim() === '') {
+    console.log(`No userName provided for leetcoder with ID: ${leetcoder.id}`)
+    return leetcoder
   }
 
   try {
@@ -44,14 +43,14 @@ export const fetchDataForLeetcoder = async (leetcoder) => {
       userContestRankingInfoData,
       userProblemsSolvedData,
       userBadgesData,
-      calendarData,
+      calendarData
     ] = await Promise.all([
       userPublicProfile(leetcoder.userName),
       userContestRankingInfo(leetcoder.userName),
       userProblemsSolved(leetcoder.userName),
       userBadges(leetcoder.userName),
-      fetchCalendarData(leetcoder.userName),
-    ]);
+      fetchCalendarData(leetcoder.userName)
+    ])
 
     // Process and consolidate leetcoder data
     return processLeetcoderData(
@@ -60,46 +59,49 @@ export const fetchDataForLeetcoder = async (leetcoder) => {
       userContestRankingInfoData,
       userProblemsSolvedData,
       userBadgesData,
-      calendarData,
-    );
+      calendarData
+    )
   } catch (error) {
-    console.error("Error fetching data for user:", leetcoder.userName, error);
-    return leetcoder; // Return original leetcoder data in case of an error
+    console.error('Error fetching data for user:', leetcoder.userName, error)
+    return leetcoder // Return original leetcoder data in case of an error
   }
-};
+}
 
 // Add your processLeetcoderData function here...
-const getAverageContestRanking = (contestHistory) => {
+const getAverageContestRanking = contestHistory => {
   let totalRanking = 0,
-    totalContest = 0;
-  contestHistory.forEach((contest) => {
+    totalContest = 0
+  contestHistory.forEach(contest => {
     if (contest.attended === true) {
-      totalRanking += contest.ranking;
-      totalContest += 1;
+      totalRanking += contest.ranking
+      totalContest += 1
     }
-  });
-  return Math.round(totalRanking / totalContest);
-};
+  })
+  if (totalContest === 0) {
+    return Infinity
+  }
+  return Math.round(totalRanking / totalContest)
+}
 
 const getMostQuestionsInContest = (contestHistory, question) => {
-  let mostFourQuestionsInContest = 0;
-  contestHistory.forEach((contest) => {
+  let mostQuestionInContest = 0
+  contestHistory.forEach(contest => {
     if (contest.problemsSolved === question && contest.attended === true) {
-      mostFourQuestionsInContest += 1;
+      mostQuestionInContest += 1
     }
-  });
-  return mostFourQuestionsInContest;
-};
+  })
+  return mostQuestionInContest
+}
 
-const getBestContestRank = (contestHistory) => {
-  let bestRank = Infinity;
-  contestHistory.forEach((contest) => {
+const getBestContestRank = contestHistory => {
+  let bestRank = Infinity
+  contestHistory.forEach(contest => {
     if (contest.ranking < bestRank && contest.ranking !== 0) {
-      bestRank = contest.ranking;
+      bestRank = contest.ranking
     }
-  });
-  return bestRank;
-};
+  })
+  return bestRank
+}
 
 const processLeetcoderData = (
   leetcoder,
@@ -107,17 +109,17 @@ const processLeetcoderData = (
   userContestRankingInfoData,
   userProblemsSolvedData,
   userBadgesData,
-  calendarData,
+  calendarData
 ) => {
-  const getProblemsSolvedCount = (difficulty) =>
+  const getProblemsSolvedCount = difficulty =>
     userProblemsSolvedData.matchedUser.submitStatsGlobal.acSubmissionNum.find(
-      (problem) => problem.difficulty === difficulty,
-    )?.count || 0;
+      problem => problem.difficulty === difficulty
+    )?.count || 0
 
-  const getTotalQuestionsCount = (difficulty) =>
+  const getTotalQuestionsCount = difficulty =>
     userProblemsSolvedData.allQuestionsCount.find(
-      (problem) => problem.difficulty === difficulty,
-    )?.count || 0;
+      problem => problem.difficulty === difficulty
+    )?.count || 0
 
   return {
     ...leetcoder,
@@ -126,19 +128,24 @@ const processLeetcoderData = (
       ? Math.round(userContestRankingInfoData.userContestRanking.rating, 2)
       : 0,
     globalContestRanking:
-      userContestRankingInfoData.userContestRanking?.globalRanking || "N/A",
-    easySolved: getProblemsSolvedCount("Easy"),
-    mediumSolved: getProblemsSolvedCount("Medium"),
-    hardSolved: getProblemsSolvedCount("Hard"),
-    totalSolved: getProblemsSolvedCount("All"),
-    totalEasy: getTotalQuestionsCount("Easy"),
-    totalMedium: getTotalQuestionsCount("Medium"),
-    totalHard: getTotalQuestionsCount("Hard"),
-    totalQuestions: getTotalQuestionsCount("All"),
+      userContestRankingInfoData.userContestRanking?.globalRanking || Infinity,
+    easySolved: getProblemsSolvedCount('Easy'),
+    mediumSolved: getProblemsSolvedCount('Medium'),
+    hardSolved: getProblemsSolvedCount('Hard'),
+    totalSolved: getProblemsSolvedCount('All'),
+    totalEasy: getTotalQuestionsCount('Easy'),
+    totalMedium: getTotalQuestionsCount('Medium'),
+    totalHard: getTotalQuestionsCount('Hard'),
+    totalQuestions: getTotalQuestionsCount('All'),
     reputation: userPublicProfileData.profile.reputation,
     questionRanking: userPublicProfileData.profile.ranking,
-    contestTopPercentage:
-      userContestRankingInfoData.userContestRanking?.topPercentage || 100,
+    contestTopPercentage: userContestRankingInfoData.userContestRanking
+      ?.topPercentage
+      ? Math.round(
+          userContestRankingInfoData.userContestRanking.topPercentage,
+          2
+        )
+      : 100.0,
     totalParticipants:
       userContestRankingInfoData.userContestRanking?.totalParticipants ||
       100000,
@@ -147,32 +154,32 @@ const processLeetcoderData = (
     contestHistory: userContestRankingInfoData.userContestRankingHistory,
     badgeCount: userBadgesData.matchedUser.badges.length,
     bestContestRank: getBestContestRank(
-      userContestRankingInfoData.userContestRankingHistory,
+      userContestRankingInfoData.userContestRankingHistory
     ),
     mostFourQuestionsInContest: getMostQuestionsInContest(
       userContestRankingInfoData.userContestRankingHistory,
-      4,
+      4
     ),
     mostThreeQuestionsInContest: getMostQuestionsInContest(
       userContestRankingInfoData.userContestRankingHistory,
-      3,
+      3
     ),
     mostTwoQuestionsInContest: getMostQuestionsInContest(
       userContestRankingInfoData.userContestRankingHistory,
-      2,
+      2
     ),
     mostOneQuestionsInContest: getMostQuestionsInContest(
       userContestRankingInfoData.userContestRankingHistory,
-      1,
+      1
     ),
     mostZeroQuestionsInContest: getMostQuestionsInContest(
       userContestRankingInfoData.userContestRankingHistory,
-      0,
+      0
     ),
     averageContestRanking: getAverageContestRanking(
-      userContestRankingInfoData.userContestRankingHistory,
+      userContestRankingInfoData.userContestRankingHistory
     ),
     totalActiveDays: calendarData.totalActiveDays,
-    bestStreak: calendarData.bestStreak,
-  };
-};
+    bestStreak: calendarData.bestStreak
+  }
+}
