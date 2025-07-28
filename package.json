@@ -23,7 +23,7 @@
     "express-rate-limit": "^7.4.0",
     "helmet": "^8.1.0",
     "node-fetch": "^3.3.2",
-    "prettier": "^3.5.2"
+    "prettier": "^3.6.2"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
