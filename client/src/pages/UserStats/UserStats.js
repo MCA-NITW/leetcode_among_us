@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import './UserStats.css'
 import { fetchDataForLeetcoder } from '../../utils/leaderboardData'
 
 function UserStats() {
   const [username, setUsername] = useState('')
-  const [data, setData] = useState([])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedData = await fetchDataForLeetcoder(username)
-      setData(fetchedData)
+  const handleSearch = async () => {
+    if (username.trim()) {
+      const fetchedData = await fetchDataForLeetcoder({ userName: username })
+      console.log('User data:', fetchedData)
     }
-    fetchData()
-    console.log(data)
-  }, [username])
+  }
 
   return (
     <div className="user-stats">
@@ -25,6 +22,7 @@ function UserStats() {
           value={username}
           onChange={e => setUsername(e.target.value)}
         />
+        <button onClick={handleSearch}>Search</button>
       </div>
     </div>
   )
