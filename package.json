@@ -11,7 +11,8 @@
     "frontend-build": "cd client && npm run build",
     "frontend-install": "cd client && npm install",
     "build": "npm install && npm run frontend-install && npm run frontend-build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "validate-json": "node validate-json.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,7 +20,7 @@
   "dependencies": {
     "ag-grid-enterprise": "^34.1.1",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
+    "express": "^4.21.2",
     "express-rate-limit": "^7.4.0",
     "helmet": "^8.1.0",
     "node-fetch": "^3.3.2",

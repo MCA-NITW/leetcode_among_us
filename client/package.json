@@ -6,7 +6,6 @@
   "proxy": "http://localhost:3001",
   "dependencies": {
     "ag-grid-react": "^31.3.4",
-    "express": "^4.21.2",
     "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.1",
