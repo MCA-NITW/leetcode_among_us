@@ -1,7 +1,7 @@
 /* LEADERBOARD */
 .leaderboard {
   max-width: var(--container-width);
-  margin: calc(var(--navbar-height) + var(--space-2xl)) auto var(--space-2xl);
+  margin: calc(var(--navbar-height) + var(--space-2xl)) auto var(--space-xl);
   padding: var(--space-xl);
   background-color: var(--white);
   border-radius: var(--radius-xl);
@@ -10,7 +10,7 @@
 }
 
 .leaderboard__header {
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-base);
 }
 
 .leaderboard__title {
@@ -31,7 +31,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-lg);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-base);
   padding: var(--space-lg);
   background-color: var(--gray-50);
   border-radius: var(--radius-lg);
