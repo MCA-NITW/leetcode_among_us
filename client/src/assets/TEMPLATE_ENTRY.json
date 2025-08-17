@@ -1,7 +1,7 @@
 {
   "id": "YOUR_STUDENT_ID",
   "name": "Your Full Name",
-  "userName": "your_leetcode_username", 
+  "userName": "your_leetcode_username",
   "batch": "YYYY",
   "gender": "male/female"
 }

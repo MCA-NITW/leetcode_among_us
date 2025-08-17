@@ -1,6 +1,7 @@
 # Contributing Guide - Adding Your LeetCode ID
 
-Welcome to LeetCode Among Us! This guide will help you add your LeetCode ID to join the leaderboard.
+Welcome to LeetCode Among Us! This guide will help you add your LeetCode ID to
+join the leaderboard.
 
 ## Quick Steps
 
@@ -29,7 +30,7 @@ Add your entry to the `leetcoders_data.json` file in this exact format:
 ```json
 {
   "id": "22MCF1R01",
-  "name": "John Doe", 
+  "name": "John Doe",
   "userName": "john_coder",
   "batch": "2025",
   "gender": "male"
@@ -38,13 +39,13 @@ Add your entry to the `leetcoders_data.json` file in this exact format:
 
 ## Field Requirements
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `id` | Your official student ID | `"22MCF1R01"` |
-| `name` | Your full name | `"John Doe"` |
-| `userName` | Your exact LeetCode username (case-sensitive!) | `"john_coder"` |
-| `batch` | Your graduation year | `"2025"` |
-| `gender` | Your gender | `"male"` or `"female"` |
+| Field      | Description                                    | Example                |
+| ---------- | ---------------------------------------------- | ---------------------- |
+| `id`       | Your official student ID                       | `"22MCF1R01"`          |
+| `name`     | Your full name                                 | `"John Doe"`           |
+| `userName` | Your exact LeetCode username (case-sensitive!) | `"john_coder"`         |
+| `batch`    | Your graduation year                           | `"2025"`               |
+| `gender`   | Your gender                                    | `"male"` or `"female"` |
 
 ## Important Notes
 
@@ -55,10 +56,9 @@ Add your entry to the `leetcoders_data.json` file in this exact format:
 
 ## Common Mistakes
 
-❌ **Wrong username case**: `"John_Coder"` vs `"john_coder"`
-❌ **Missing quotes**: `name: John Doe` instead of `"name": "John Doe"`
-❌ **Missing comma**: Between JSON objects
-❌ **Typos in student ID**: Double-check your official ID
+❌ **Wrong username case**: `"John_Coder"` vs `"john_coder"` ❌ **Missing
+quotes**: `name: John Doe` instead of `"name": "John Doe"` ❌ **Missing comma**:
+Between JSON objects ❌ **Typos in student ID**: Double-check your official ID
 
 ## Need Help?
 

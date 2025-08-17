@@ -1,4 +1,3 @@
-// LeaderBoard.js
 import React from 'react'
 import PropTypes from 'prop-types'
 import RankTable from './RankTable/RankTable'
@@ -9,7 +8,14 @@ function LeaderBoard({ data, loading, loadingProgress, currentlyProcessing }) {
   return (
     <div className="leaderboard">
       <h1 className="leaderboard-header">Leetcode Leaderboard</h1>
-      {loading ? <Loader progress={loadingProgress} currentlyProcessing={currentlyProcessing} /> : <RankTable data={data} />}
+      {loading ? (
+        <Loader
+          progress={loadingProgress}
+          currentlyProcessing={currentlyProcessing}
+        />
+      ) : (
+        <RankTable data={data} />
+      )}
     </div>
   )
 }

@@ -1,5 +1,3 @@
-// Query Without any variables
-
 export const contestRatingHistogramQuery = `
     query contestRatingHistogram {
         contestRatingHistogram {
@@ -90,8 +88,6 @@ export const currentTimestampQuery = `
         currentTimestamp
     }
 `
-
-// Query with variables
 
 export const getGlobalRankingsQuery = `
     query GetGlobalRankings($page: Int!) {
@@ -200,8 +196,6 @@ export const codingChallengeMedalQuery = `
         }
     }
 `
-
-// Query with variable username
 
 export const languageStatsQuery = `
     query languageStats($username: String!) {

@@ -6,7 +6,6 @@ import {
   userProfileCalendar
 } from '../api/FetchData'
 
-// Helper function to fetch calendar data
 const fetchCalendarData = async userName => {
   const years = [
     2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
@@ -30,14 +29,12 @@ const fetchCalendarData = async userName => {
 }
 
 export const fetchDataForLeetcoder = async leetcoder => {
-  // Check if userName is empty
   if (!leetcoder.userName || leetcoder.userName.trim() === '') {
     console.log(`No userName provided for leetcoder with ID: ${leetcoder.id}`)
     return leetcoder
   }
 
   try {
-    // Parallelize all API calls
     const [
       userPublicProfileData,
       userContestRankingInfoData,
@@ -52,7 +49,6 @@ export const fetchDataForLeetcoder = async leetcoder => {
       fetchCalendarData(leetcoder.userName)
     ])
 
-    // Process and consolidate leetcoder data
     return processLeetcoderData(
       leetcoder,
       userPublicProfileData,
@@ -63,11 +59,10 @@ export const fetchDataForLeetcoder = async leetcoder => {
     )
   } catch (error) {
     console.error('Error fetching data for user:', leetcoder.userName, error)
-    return leetcoder // Return original leetcoder data in case of an error
+    return leetcoder
   }
 }
 
-// Add your processLeetcoderData function here...
 const getAverageContestRanking = contestHistory => {
   let totalRanking = 0,
     totalContest = 0
