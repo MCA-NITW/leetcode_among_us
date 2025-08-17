@@ -11,6 +11,8 @@ import { fetchDataForLeetcoder } from './utils/leaderboardData'
 function App() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [currentlyProcessing, setCurrentlyProcessing] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,9 +22,45 @@ function App() {
           leetcoder.userName.trim() !== '' &&
           (leetcoder.userName = leetcoder.userName.toLowerCase())
       )
-      const updatedLeetcoders = await Promise.all(
-        filteredLeetcoders.map(fetchDataForLeetcoder)
-      )
+      
+      const totalUsers = filteredLeetcoders.length
+      const updatedLeetcoders = []
+
+      // Process users in batches for better performance while still tracking progress
+      const batchSize = 5 // Process 5 users at a time
+      const batches = []
+      
+      for (let i = 0; i < filteredLeetcoders.length; i += batchSize) {
+        batches.push(filteredLeetcoders.slice(i, i + batchSize))
+      }
+
+      let completedUsers = 0
+
+      for (const batch of batches) {
+        // Set currently processing users for this batch
+        const batchUsernames = batch.map(user => user.userName).join(', ')
+        setCurrentlyProcessing(`Processing: ${batchUsernames}`)
+
+        const batchPromises = batch.map(async (leetcoder) => {
+          try {
+            const userData = await fetchDataForLeetcoder(leetcoder)
+            return userData
+          } catch (error) {
+            console.error('Error fetching data for user:', leetcoder.userName, error)
+            return leetcoder
+          }
+        })
+
+        const batchResults = await Promise.all(batchPromises)
+        updatedLeetcoders.push(...batchResults)
+        
+        // Update progress after each batch completes
+        completedUsers += batchResults.length
+        const progress = (completedUsers / totalUsers) * 100
+        setLoadingProgress(progress)
+      }
+
+      setCurrentlyProcessing('Complete!')
       setData(updatedLeetcoders)
       setLoading(false)
     }
@@ -37,7 +75,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route
           path="/leaderboard"
-          element={<LeaderBoard data={data} loading={loading} />}
+          element={<LeaderBoard data={data} loading={loading} loadingProgress={loadingProgress} currentlyProcessing={currentlyProcessing} />}
         />
         <Route path="/user-stats" element={<UserStats />} />
       </Routes>

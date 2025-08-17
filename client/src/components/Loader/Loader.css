@@ -6,13 +6,69 @@
   height: 70vh;
 }
 
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
 .loader {
   border: 5px solid #f3f3f3; /* Light grey */
   border-top: 5px solid #3498db; /* Blue */
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   animation: spin 2s linear infinite;
+  margin-bottom: 20px;
+}
+
+.loader-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 250px;
+}
+
+.loader-percentage {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 5px;
+}
+
+.loader-text {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.currently-processing {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 15px;
+  font-style: italic;
+  max-width: 250px;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #f3f3f3;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes spin {
