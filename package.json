@@ -18,7 +18,7 @@
   "license": "ISC",
   "keywords": [],
   "dependencies": {
-    "ag-grid-enterprise": "^34.1.1",
+    "ag-grid-enterprise": "^34.1.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-rate-limit": "^7.4.0",
