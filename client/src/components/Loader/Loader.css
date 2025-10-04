@@ -13,7 +13,7 @@
 .loader-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--gray-300);
+  border: 3px solid var(--border-color);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -26,7 +26,7 @@
 /* LOADER TEXT */
 .loader-text {
   font-size: var(--font-base);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   text-align: center;
   font-weight: 500;
 }
@@ -278,21 +278,39 @@
 }
 
 .loader__message--info {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1e40af;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+[data-theme="dark"] .loader__message--info {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
 }
 
 .loader__message--success {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #166534;
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+[data-theme="dark"] .loader__message--success {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #86efac;
 }
 
 .loader__message--error {
-  background-color: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+[data-theme="dark"] .loader__message--error {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -402,27 +420,9 @@
   }
   
   .loader__message {
-    background-color: var(--color-gray-800);
-    border-color: var(--color-gray-700);
-    color: var(--color-gray-300);
-  }
-  
-  .loader__message--info {
-    background-color: #1e3a8a;
-    border-color: #3730a3;
-    color: #bfdbfe;
-  }
-  
-  .loader__message--success {
-    background-color: #166534;
-    border-color: #15803d;
-    color: #bbf7d0;
-  }
-  
-  .loader__message--error {
-    background-color: #7f1d1d;
-    border-color: #991b1b;
-    color: #fecaca;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
   }
 }
 

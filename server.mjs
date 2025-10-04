@@ -11,14 +11,36 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 app.disable('x-powered-by')
 
+// CORS configuration - restrict to allowed origins
 let corsOptions = {
-  origin: '*'
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true)
+
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5000'
+      // Add your production domain here, e.g., 'https://yourdomain.com'
+    ]
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true, // Allow cookies if needed
+  optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
 
+// Use helmet with minimal configuration
 app.use(
   helmet({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
   })
 )
 
@@ -75,7 +97,7 @@ app.post('/leetcode', leetcodeLimiter, async (req, res) => {
 app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
   try {
     const { username } = req.body
-    
+
     if (!username) {
       return res.status(400).json({ error: 'Username is required' })
     }
@@ -168,7 +190,11 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
     // Execute all queries in parallel
     const promises = Object.entries(queries).map(async ([key, query]) => {
       try {
-        const data = await fetchGraphQLData(query.operationName, query.variables, query.query)
+        const data = await fetchGraphQLData(
+          query.operationName,
+          query.variables,
+          query.query
+        )
         return [key, data]
       } catch (error) {
         console.error(`Error fetching ${key} for ${username}:`, error)
@@ -180,7 +206,9 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
     const userData = Object.fromEntries(results)
 
     // Fetch calendar data for multiple years in parallel
-    const years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+    const years = [
+      2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+    ]
     const calendarQuery = {
       operationName: 'userProfileCalendar',
       query: `
@@ -204,19 +232,27 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
         )
         return data
       } catch (error) {
-        console.error(`Error fetching calendar data for ${username}, year ${year}:`, error)
+        console.error(
+          `Error fetching calendar data for ${username}, year ${year}:`,
+          error
+        )
         return null
       }
     })
 
     const calendarResults = await Promise.all(calendarPromises)
-    
+
     // Process calendar data
     let bestStreak = 0
     let totalActiveDays = 0
 
     calendarResults.forEach(result => {
-      if (result && result.data && result.data.matchedUser && result.data.matchedUser.userCalendar) {
+      if (
+        result &&
+        result.data &&
+        result.data.matchedUser &&
+        result.data.matchedUser.userCalendar
+      ) {
         const calendar = result.data.matchedUser.userCalendar
         if (calendar.streak > bestStreak) {
           bestStreak = calendar.streak
@@ -230,7 +266,9 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
     res.json({ success: true, data: userData })
   } catch (error) {
     console.error('Error in user-data endpoint:', error)
-    res.status(500).json({ error: 'An error occurred while fetching user data' })
+    res
+      .status(500)
+      .json({ error: 'An error occurred while fetching user data' })
   }
 })
 
@@ -238,13 +276,15 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
 app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
   try {
     const { usernames } = req.body
-    
+
     if (!usernames || !Array.isArray(usernames)) {
       return res.status(400).json({ error: 'Usernames array is required' })
     }
 
     if (usernames.length > 10) {
-      return res.status(400).json({ error: 'Maximum 10 usernames allowed per batch' })
+      return res
+        .status(400)
+        .json({ error: 'Maximum 10 usernames allowed per batch' })
     }
 
     // Process all users in parallel
@@ -261,7 +301,7 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
             body: JSON.stringify({ username })
           }
         )
-        
+
         const userData = await response.json()
         return { username, ...userData }
       } catch (error) {
@@ -271,21 +311,24 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
     })
 
     const results = await Promise.all(userPromises)
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       results,
-      processed: results.length 
+      processed: results.length
     })
   } catch (error) {
     console.error('Error in batch-user-data endpoint:', error)
-    res.status(500).json({ error: 'An error occurred while processing batch request' })
+    res
+      .status(500)
+      .json({ error: 'An error occurred while processing batch request' })
   }
 })
 
 app.use(express.static(path.join(__dirname, 'client', 'build')))
 
-app.get('*', (_, res) => {
+// Serve React app for all routes that don't match API endpoints (Express 5 compatible)
+app.get(/^(?!\/leetcode).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
 })
 

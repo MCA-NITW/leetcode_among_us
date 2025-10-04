@@ -18,12 +18,12 @@
   font-size: var(--font-3xl);
   font-weight: 700;
   margin-bottom: var(--space-md);
-  color: var(--gray-900);
+  color: var(--text-primary);
 }
 
 .home__subtitle {
   font-size: var(--font-lg);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   margin-bottom: var(--space-xl);
 }
 
@@ -37,7 +37,7 @@
 .home__cta {
   padding: var(--space-md) var(--space-xl);
   background-color: var(--primary);
-  color: var(--white);
+  color: #ffffff;
   text-decoration: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -57,7 +57,7 @@
 
 .home__cta--secondary:hover {
   background-color: var(--primary);
-  color: var(--white);
+  color: #ffffff;
 }
 
 /* Mobile */

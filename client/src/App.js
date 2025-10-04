@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
 import NavBar from './components/Nav/NavBar'
 import Home from './pages/Home/Home'
 import LeaderBoard from './pages/LeaderBoard/LeaderBoard'
@@ -46,24 +47,26 @@ function App() {
   }, [])
 
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route
-          path="/leaderboard"
-          element={
-            <LeaderBoard
-              data={data}
-              loading={loading}
-              loadingProgress={loadingProgress}
-              currentlyProcessing={currentlyProcessing}
-            />
-          }
-        />
-        <Route path="/user-stats" element={<UserStats />} />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/leaderboard"
+            element={
+              <LeaderBoard
+                data={data}
+                loading={loading}
+                loadingProgress={loadingProgress}
+                currentlyProcessing={currentlyProcessing}
+              />
+            }
+          />
+          <Route path="/user-stats" element={<UserStats />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   )
 }
 

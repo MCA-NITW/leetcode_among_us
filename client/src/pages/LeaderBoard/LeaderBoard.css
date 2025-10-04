@@ -3,10 +3,11 @@
   max-width: var(--container-width);
   margin: calc(var(--navbar-height) + var(--space-2xl)) auto var(--space-xl);
   padding: var(--space-xl);
-  background-color: var(--white);
+  background-color: var(--bg-primary);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   text-align: center;
+  transition: background-color 0.3s ease;
 }
 
 .leaderboard__header {
@@ -16,13 +17,13 @@
 .leaderboard__title {
   font-size: var(--font-3xl);
   font-weight: 700;
-  color: var(--gray-900);
+  color: var(--text-primary);
   margin-bottom: var(--space-md);
 }
 
 .leaderboard__subtitle {
   font-size: var(--font-lg);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   margin-bottom: 0;
 }
 
@@ -33,8 +34,9 @@
   gap: var(--space-lg);
   margin-bottom: var(--space-base);
   padding: var(--space-lg);
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
   border-radius: var(--radius-lg);
+  transition: background-color 0.3s ease;
 }
 
 .leaderboard__stat {
@@ -51,7 +53,7 @@
 
 .leaderboard__stat-label {
   font-size: var(--font-sm);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
@@ -67,7 +69,7 @@
 .leaderboard__empty {
   text-align: center;
   padding: var(--space-2xl);
-  color: var(--gray-500);
+  color: var(--text-tertiary);
 }
 
 .leaderboard__empty-icon {
@@ -78,7 +80,7 @@
 .leaderboard__empty-title {
   font-size: var(--font-xl);
   font-weight: 600;
-  color: var(--gray-900);
+  color: var(--text-primary);
   margin-bottom: var(--space-md);
 }
 
