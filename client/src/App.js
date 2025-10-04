@@ -36,7 +36,16 @@ function App() {
           }
         )
 
-        setData(updatedLeetcoders)
+        // Filter out users for whom data couldn't be fetched
+        const successfullyFetchedUsers = updatedLeetcoders.filter(
+          user => user.totalSolved !== undefined
+        )
+
+        console.log(
+          `Successfully fetched data for ${successfullyFetchedUsers.length} out of ${updatedLeetcoders.length} users`
+        )
+
+        setData(successfullyFetchedUsers)
         setLoading(false)
         console.log('Data fetching completed successfully')
       } catch (error) {

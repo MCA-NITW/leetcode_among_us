@@ -1,13 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import RankTable from './RankTable/RankTable'
+import CustomRankTable from './RankTable/CustomRankTable'
 import Loader from '../../components/Loader/Loader'
 import './LeaderBoard.css'
+import { FaChartBar } from 'react-icons/fa'
 
 function LeaderBoard({ data, loading, loadingProgress, currentlyProcessing }) {
-  const totalUsers = data ? data.length : 0
-  const activeUsers = data ? data.filter(user => user.totalSolved > 0).length : 0
-
   const renderContent = () => {
     if (loading) {
       return (
@@ -19,16 +17,18 @@ function LeaderBoard({ data, loading, loadingProgress, currentlyProcessing }) {
     }
 
     if (data && data.length > 0) {
-      return <RankTable data={data} />
+      return <CustomRankTable data={data} />
     }
 
     return (
       <div className="leaderboard__empty">
-        <div className="leaderboard__empty-icon" aria-hidden="true">📊</div>
+        <div className="leaderboard__empty-icon" aria-hidden="true">
+          <FaChartBar />
+        </div>
         <h2 className="leaderboard__empty-title">No Data Available</h2>
         <p className="leaderboard__empty-description">
-          There is no leaderboard data to display at the moment. 
-          Please check back later or contact an administrator.
+          There is no leaderboard data to display at the moment. Please check
+          back later or contact an administrator.
         </p>
       </div>
     )
@@ -43,28 +43,7 @@ function LeaderBoard({ data, loading, loadingProgress, currentlyProcessing }) {
         </p>
       </header>
 
-      {!loading && data && data.length > 0 && (
-        <div className="leaderboard__stats">
-          <div className="leaderboard__stat">
-            <span className="leaderboard__stat-value">{totalUsers}</span>
-            <span className="leaderboard__stat-label">Total Users</span>
-          </div>
-          <div className="leaderboard__stat">
-            <span className="leaderboard__stat-value">{activeUsers}</span>
-            <span className="leaderboard__stat-label">Active Users</span>
-          </div>
-          <div className="leaderboard__stat">
-            <span className="leaderboard__stat-value">
-              {data.reduce((sum, user) => sum + (user.totalSolved || 0), 0)}
-            </span>
-            <span className="leaderboard__stat-label">Total Problems Solved</span>
-          </div>
-        </div>
-      )}
-
-      <div className="leaderboard__content">
-        {renderContent()}
-      </div>
+      <div className="leaderboard__content">{renderContent()}</div>
     </div>
   )
 }
