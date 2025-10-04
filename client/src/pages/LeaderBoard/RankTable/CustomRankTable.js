@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import './CustomRankTable.css'
-import { FaChartBar, FaTrophy, FaSearch, FaMedal } from 'react-icons/fa'
+import { FaChartBar, FaTrophy, FaSearch, FaMedal, FaFire } from 'react-icons/fa'
 import { BiTargetLock } from 'react-icons/bi'
-import { MdSpeed } from 'react-icons/md'
+import { MdSpeed, MdCalendarToday } from 'react-icons/md'
 
 const CustomRankTable = ({ data }) => {
   const [sortConfig, setSortConfig] = useState({
@@ -122,6 +122,20 @@ const CustomRankTable = ({ data }) => {
               className="sortable"
             >
               Contest Rating {getSortIcon('globalContestRating')}
+            </th>
+            <th
+              onClick={() => handleSort('bestStreak')}
+              className="sortable"
+              title="Current/Best Streak"
+            >
+              🔥 Streak {getSortIcon('bestStreak')}
+            </th>
+            <th
+              onClick={() => handleSort('totalActiveDays')}
+              className="sortable"
+              title="Total Active Days"
+            >
+              📅 Active Days {getSortIcon('totalActiveDays')}
             </th>
           </>
         )
@@ -303,22 +317,57 @@ const CustomRankTable = ({ data }) => {
       const rowClass = `rank-table__row ${getRankClass(index)}`
 
       switch (activeTab) {
-        case 'overview':
+        case 'overview': {
+          const rating = user.globalContestRating || 0;
+          const getRatingColor = (rating) => {
+            if (rating >= 2200) return '#FF0000'; // Red (Legendary Grand Master)
+            if (rating >= 1900) return '#FF8C00'; // Orange (Master)
+            if (rating >= 1600) return '#A020F0'; // Purple (Expert)
+            if (rating >= 1400) return '#0000FF'; // Blue (Specialist)
+            if (rating >= 1200) return '#00C0C0'; // Cyan (Pupil)
+            return '#808080'; // Gray (Newbie)
+          };
+          const getRatingBadge = (rating) => {
+            if (rating >= 2200) return '👑';
+            if (rating >= 1900) return '⭐';
+            if (rating >= 1600) return '💎';
+            if (rating >= 1400) return '🔵';
+            if (rating >= 1200) return '🌊';
+            return '';
+          };
+          
           return (
             <tr key={user.userName || index} className={rowClass}>
               <td className="rank-col">
                 <span className="rank-badge">{getRankBadge(index)}</span>
               </td>
               <td className="name-col" title={user.name}>
-                <a
-                  href={`https://leetcode.com/${user.userName}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="username-link"
-                >
-                  {user.name || 'N/A'}
-                </a>
-                <div className="username-subtitle">@{user.userName}</div>
+                <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                  {user.avatar && (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.name}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        objectFit: 'cover'
+                      }}
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <div>
+                    <a
+                      href={`https://leetcode.com/${user.userName}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="username-link"
+                    >
+                      {user.name || 'N/A'}
+                    </a>
+                    <div className="username-subtitle">@{user.userName}</div>
+                  </div>
+                </div>
               </td>
               <td className="batch-col">
                 <span className="batch-badge">{user.batch || 'N/A'}</span>
@@ -327,12 +376,57 @@ const CustomRankTable = ({ data }) => {
                 <strong>{user.totalSolved || 0}</strong>
               </td>
               <td className="stat-col">
-                {user.globalContestRating
-                  ? Math.round(user.globalContestRating)
-                  : 'N/A'}
+                {rating > 0 ? (
+                  <span style={{
+                    color: getRatingColor(rating),
+                    fontWeight: 'bold',
+                    fontSize: '1.05em'
+                  }}>
+                    {getRatingBadge(rating)} {Math.round(rating)}
+                  </span>
+                ) : (
+                  <span style={{color: '#999'}}>Unrated</span>
+                )}
+                {user.contestTopPercentage && rating > 0 && (
+                  <div style={{fontSize: '0.75em', color: '#666'}}>
+                    Top {user.contestTopPercentage.toFixed(1)}%
+                  </div>
+                )}
+              </td>
+              <td className="stat-col">
+                {user.bestStreak > 0 ? (
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    color: user.bestStreak >= 7 ? '#FF4500' : '#FFA500'
+                  }}>
+                    <FaFire style={{fontSize: '1.2em'}} />
+                    <strong>{user.bestStreak}</strong>
+                    <span style={{fontSize: '0.85em'}}>days</span>
+                  </span>
+                ) : (
+                  <span style={{color: '#999'}}>0</span>
+                )}
+              </td>
+              <td className="stat-col">
+                {user.totalActiveDays > 0 ? (
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <MdCalendarToday style={{fontSize: '1.1em', color: '#4CAF50'}} />
+                    <strong>{user.totalActiveDays}</strong>
+                    <span style={{fontSize: '0.85em'}}>days</span>
+                  </span>
+                ) : (
+                  <span style={{color: '#999'}}>0</span>
+                )}
               </td>
             </tr>
-          )
+          )}
+        
 
         case 'problems': {
           const easyPercent =

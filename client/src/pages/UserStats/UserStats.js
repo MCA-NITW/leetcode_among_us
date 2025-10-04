@@ -21,7 +21,8 @@ import {
   FaAward,
   FaCode,
   FaRocket,
-  FaBullseye
+  FaBullseye,
+  FaHistory
 } from 'react-icons/fa'
 import { MdLeaderboard } from 'react-icons/md'
 import { BiTargetLock } from 'react-icons/bi'
@@ -250,6 +251,22 @@ function UserStats() {
                         </span>
                       </div>
                     )}
+                    {userData.company && (
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">Company:</span>
+                        <span className="user-stats__info-value">
+                          {userData.company}
+                        </span>
+                      </div>
+                    )}
+                    {userData.jobTitle && (
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">Job Title:</span>
+                        <span className="user-stats__info-value">
+                          {userData.jobTitle}
+                        </span>
+                      </div>
+                    )}
                     <div className="user-stats__info-item">
                       <span className="user-stats__info-label">Ranking:</span>
                       <span className="user-stats__info-value">
@@ -320,8 +337,113 @@ function UserStats() {
                         {formatValue(userData.bestStreak, '0')} days
                       </span>
                     </div>
+                    {userData.contestBadge && (
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">
+                          Contest Badge:
+                        </span>
+                        <span className="user-stats__info-value" title={userData.contestBadge.hoverText || userData.contestBadge.name}>
+                          {userData.contestBadge.icon && (
+                            <img 
+                              src={userData.contestBadge.icon} 
+                              alt={userData.contestBadge.name}
+                              style={{width: '20px', height: '20px', marginRight: '6px', verticalAlign: 'middle'}}
+                            />
+                          )}
+                          {userData.contestBadge.name}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Social Media Links */}
+                {(userData.githubUrl || userData.linkedinUrl || userData.twitterUrl) && (
+                  <div className="user-stats__card">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon">
+                        <FaGlobeAmericas />
+                      </span>
+                      Social Links
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <div style={{display: 'flex', gap: '15px', flexWrap: 'wrap'}}>
+                        {userData.githubUrl && (
+                          <a
+                            href={userData.githubUrl.startsWith('http') ? userData.githubUrl : `https://${userData.githubUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '8px 16px',
+                              background: '#24292e',
+                              color: 'white',
+                              borderRadius: '6px',
+                              textDecoration: 'none',
+                              fontSize: '0.9rem',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#1a1e22'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#24292e'}
+                          >
+                            <FaLink style={{fontSize: '16px'}} />
+                            GitHub
+                          </a>
+                        )}
+                        {userData.linkedinUrl && (
+                          <a
+                            href={userData.linkedinUrl.startsWith('http') ? userData.linkedinUrl : `https://${userData.linkedinUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '8px 16px',
+                              background: '#0077b5',
+                              color: 'white',
+                              borderRadius: '6px',
+                              textDecoration: 'none',
+                              fontSize: '0.9rem',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#005885'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#0077b5'}
+                          >
+                            <FaLink style={{fontSize: '16px'}} />
+                            LinkedIn
+                          </a>
+                        )}
+                        {userData.twitterUrl && (
+                          <a
+                            href={userData.twitterUrl.startsWith('http') ? userData.twitterUrl : `https://${userData.twitterUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '8px 16px',
+                              background: '#1DA1F2',
+                              color: 'white',
+                              borderRadius: '6px',
+                              textDecoration: 'none',
+                              fontSize: '0.9rem',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#0d8bd9'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#1DA1F2'}
+                          >
+                            <FaLink style={{fontSize: '16px'}} />
+                            Twitter
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {userData.skillTags && userData.skillTags.length > 0 && (
                   <div className="user-stats__card user-stats__card--wide">
@@ -555,6 +677,44 @@ function UserStats() {
                     </div>
                   </div>
                 </div>
+
+                {/* Beats Stats */}
+                {userData.beatsStats && userData.beatsStats.length > 0 && (
+                  <div className="user-stats__card user-stats__card--wide">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon">
+                        <FaRocket />
+                      </span>
+                      Performance Comparison
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">
+                          Easy Problems:
+                        </span>
+                        <span className="user-stats__info-value user-stats__info-value--success">
+                          Beats {userData.beatsStats.find(s => s.difficulty === 'Easy')?.percentage?.toFixed(1) || 'N/A'}% of users
+                        </span>
+                      </div>
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">
+                          Medium Problems:
+                        </span>
+                        <span className="user-stats__info-value user-stats__info-value--primary">
+                          Beats {userData.beatsStats.find(s => s.difficulty === 'Medium')?.percentage?.toFixed(1) || 'N/A'}% of users
+                        </span>
+                      </div>
+                      <div className="user-stats__info-item">
+                        <span className="user-stats__info-label">
+                          Hard Problems:
+                        </span>
+                        <span className="user-stats__info-value user-stats__info-value--hard">
+                          Beats {userData.beatsStats.find(s => s.difficulty === 'Hard')?.percentage?.toFixed(1) || 'N/A'}% of users
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -695,6 +855,108 @@ function UserStats() {
                     </div>
                   </div>
                 </div>
+
+                {/* Recent Contest Activity */}
+                {userData.contestHistory && userData.contestHistory.length > 0 && (
+                  <div className="user-stats__card user-stats__card--full">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon">
+                        <FaHistory />
+                      </span>
+                      Recent Contest Activity
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <div style={{overflowX: 'auto'}}>
+                        <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                          <thead>
+                            <tr style={{borderBottom: '2px solid #e0e0e0'}}>
+                              <th style={{padding: '8px', textAlign: 'left'}}>Contest</th>
+                              <th style={{padding: '8px', textAlign: 'center'}}>Status</th>
+                              <th style={{padding: '8px', textAlign: 'center'}}>Rank</th>
+                              <th style={{padding: '8px', textAlign: 'center'}}>Solved</th>
+                              <th style={{padding: '8px', textAlign: 'center'}}>Rating</th>
+                              <th style={{padding: '8px', textAlign: 'center'}}>Trend</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {userData.contestHistory
+                              .slice(0, 15)
+                              .map((contest, index) => {
+                                const prevRating = index < userData.contestHistory.length - 1 
+                                  ? userData.contestHistory[index + 1].rating 
+                                  : contest.rating;
+                                const ratingChange = contest.attended ? (contest.rating - prevRating) : 0;
+                                const trendEmoji = contest.trendDirection === 'UP' ? '📈' : 
+                                                  contest.trendDirection === 'DOWN' ? '📉' : '➡️';
+                                
+                                return (
+                                  <tr key={index} style={{
+                                    borderBottom: '1px solid #f0f0f0',
+                                    backgroundColor: index % 2 === 0 ? '#fafafa' : 'white'
+                                  }}>
+                                    <td style={{padding: '10px', fontSize: '0.9em'}}>
+                                      <div>{contest.contest?.title || 'Contest'}</div>
+                                      <div style={{fontSize: '0.8em', color: '#666'}}>
+                                        {contest.contest?.startTime && new Date(contest.contest.startTime * 1000).toLocaleDateString()}
+                                      </div>
+                                    </td>
+                                    <td style={{padding: '10px', textAlign: 'center'}}>
+                                      {contest.attended ? (
+                                        <span style={{
+                                          backgroundColor: '#4CAF50',
+                                          color: 'white',
+                                          padding: '4px 8px',
+                                          borderRadius: '12px',
+                                          fontSize: '0.75em',
+                                          fontWeight: 'bold'
+                                        }}>✓ Attended</span>
+                                      ) : (
+                                        <span style={{
+                                          backgroundColor: '#999',
+                                          color: 'white',
+                                          padding: '4px 8px',
+                                          borderRadius: '12px',
+                                          fontSize: '0.75em'
+                                        }}>Skipped</span>
+                                      )}
+                                    </td>
+                                    <td style={{padding: '10px', textAlign: 'center', fontWeight: 'bold'}}>
+                                      {contest.attended && contest.ranking > 0 ? `#${contest.ranking.toLocaleString()}` : '-'}
+                                    </td>
+                                    <td style={{padding: '10px', textAlign: 'center'}}>
+                                      {contest.attended ? (
+                                        <span>
+                                          <strong>{contest.problemsSolved}</strong>/{contest.totalProblems || 4}
+                                          {' '}
+                                          {'⭐'.repeat(contest.problemsSolved)}
+                                        </span>
+                                      ) : '-'}
+                                    </td>
+                                    <td style={{padding: '10px', textAlign: 'center'}}>
+                                      <div style={{fontWeight: 'bold'}}>
+                                        {contest.attended ? Math.round(contest.rating) : '-'}
+                                      </div>
+                                      {contest.attended && ratingChange !== 0 && (
+                                        <div style={{
+                                          fontSize: '0.8em',
+                                          color: ratingChange > 0 ? '#4CAF50' : '#f44336'
+                                        }}>
+                                          {ratingChange > 0 ? '+' : ''}{Math.round(ratingChange)}
+                                        </div>
+                                      )}
+                                    </td>
+                                    <td style={{padding: '10px', textAlign: 'center', fontSize: '1.2em'}}>
+                                      {contest.attended ? trendEmoji : '-'}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -974,29 +1236,120 @@ function UserStats() {
                     </h3>
                     <div className="user-stats__card-content">
                       <div className="user-stats__badges-grid">
-                        {userData.badges.map(badge => (
-                          <div
-                            key={badge.id}
-                            className="user-stats__badge-item"
-                          >
-                            {badge.icon && (
-                              <div className="user-stats__badge-icon-wrapper">
-                                <img
-                                  src={badge.icon}
-                                  alt={badge.displayName || badge.name}
-                                  className="user-stats__badge-icon-img"
-                                />
-                              </div>
-                            )}
-                            <div className="user-stats__badge-details">
-                              <h4 className="user-stats__badge-name">
-                                {badge.displayName || badge.name}
-                              </h4>
-                              {badge.category && (
-                                <span className="user-stats__badge-category">
-                                  {badge.category}
-                                </span>
+                        {userData.badges.map(badge => {
+                          const badgeIcon = badge.medal?.config?.iconGif || badge.icon;
+                          const badgeTooltip = badge.hoverText || badge.displayName || badge.name;
+                          
+                          return (
+                            <div
+                              key={badge.id}
+                              className="user-stats__badge-item"
+                              title={badgeTooltip}
+                              style={{cursor: 'help'}}
+                            >
+                              {badgeIcon && (
+                                <div className="user-stats__badge-icon-wrapper">
+                                  <img
+                                    src={badgeIcon}
+                                    alt={badge.displayName || badge.name}
+                                    className="user-stats__badge-icon-img"
+                                    onError={(e) => {
+                                      // Fallback to regular icon if GIF fails
+                                      if (badge.icon && e.target.src !== badge.icon) {
+                                        e.target.src = badge.icon;
+                                      }
+                                    }}
+                                  />
+                                </div>
                               )}
+                              <div className="user-stats__badge-details">
+                                <h4 className="user-stats__badge-name">
+                                  {badge.displayName || badge.name}
+                                </h4>
+                                {badge.shortName && badge.shortName !== badge.displayName && (
+                                  <span className="user-stats__badge-category">
+                                    {badge.shortName}
+                                  </span>
+                                )}
+                                {badge.hoverText && (
+                                  <p style={{
+                                    fontSize: '0.75em',
+                                    color: '#666',
+                                    marginTop: '4px',
+                                    lineHeight: '1.3'
+                                  }}>
+                                    {badge.hoverText}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upcoming Badges */}
+                {userData.upcomingBadges && userData.upcomingBadges.length > 0 && (
+                  <div className="user-stats__card user-stats__card--wide">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon">
+                        <FaBullseye />
+                      </span>
+                      Upcoming Badges ({userData.upcomingBadges.length})
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                        {userData.upcomingBadges.map((badge, idx) => (
+                          <div key={idx} style={{
+                            padding: '12px',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '8px',
+                            background: '#fafafa'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              marginBottom: '8px'
+                            }}>
+                              {badge.icon && (
+                                <img 
+                                  src={badge.icon}
+                                  alt={badge.name}
+                                  style={{width: '32px', height: '32px', opacity: 0.6}}
+                                />
+                              )}
+                              <div style={{flex: 1}}>
+                                <div style={{
+                                  fontWeight: '600',
+                                  color: '#333',
+                                  marginBottom: '4px'
+                                }}>
+                                  {badge.name}
+                                </div>
+                                <div style={{
+                                  fontSize: '0.85em',
+                                  color: '#666'
+                                }}>
+                                  Progress: {badge.progress || 0}%
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{
+                              width: '100%',
+                              height: '8px',
+                              background: '#e0e0e0',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${badge.progress || 0}%`,
+                                height: '100%',
+                                background: badge.progress >= 80 ? '#4CAF50' : badge.progress >= 50 ? '#FFA500' : '#3498db',
+                                transition: 'width 0.3s ease'
+                              }} />
                             </div>
                           </div>
                         ))}

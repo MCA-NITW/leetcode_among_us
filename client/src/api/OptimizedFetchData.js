@@ -76,6 +76,9 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       userContestRankingInfo.data.userContestRankingHistory || []
     const problemsData = userProblemsSolved.data
     const badges = userBadges.data.matchedUser?.badges || []
+    const upcomingBadges = userBadges.data.matchedUser?.upcomingBadges || []
+    const contestBadge = publicProfile?.contestBadge || null
+    const beatsStats = problemsData.matchedUser?.problemsSolvedBeatsStats || []
 
     // Helper functions
     const getProblemsSolvedCount = difficulty =>
@@ -125,10 +128,18 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       avatar: publicProfile.profile?.userAvatar || '',
       aboutMe: publicProfile.profile?.aboutMe || '',
       country: publicProfile.profile?.countryName || '',
+      company: publicProfile.profile?.company || '',
+      jobTitle: publicProfile.profile?.jobTitle || '',
       school: publicProfile.profile?.school || '',
       websites: publicProfile.profile?.websites || [],
       skillTags: publicProfile.profile?.skillTags || [],
       starRating: publicProfile.profile?.starRating || null,
+      githubUrl: publicProfile?.githubUrl || '',
+      linkedinUrl: publicProfile?.linkedinUrl || '',
+      twitterUrl: publicProfile?.twitterUrl || '',
+      contestBadge: contestBadge,
+      upcomingBadges: upcomingBadges,
+      beatsStats: beatsStats,
       globalContestRating: contestRanking?.rating
         ? Math.round(contestRanking.rating)
         : 0,
