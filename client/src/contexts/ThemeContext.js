@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useMemo
+} from 'react'
 import PropTypes from 'prop-types'
 
 const ThemeContext = createContext()
@@ -18,12 +24,15 @@ export const ThemeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme
     }
-    
+
     // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
       return 'dark'
     }
-    
+
     return 'light'
   }
 
@@ -32,26 +41,25 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     // Apply theme to document root
     document.documentElement.setAttribute('data-theme', theme)
-    
+
     // Save to localStorage
     localStorage.setItem('theme', theme)
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light')
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'))
   }
 
-  const value = useMemo(() => ({
-    theme,
-    toggleTheme,
-    isDark: theme === 'dark'
-  }), [theme])
-
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo(
+    () => ({
+      theme,
+      toggleTheme,
+      isDark: theme === 'dark'
+    }),
+    [theme]
   )
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 
 ThemeProvider.propTypes = {

@@ -39,17 +39,17 @@
 
 ## 🚀 How It Works
 
-1. **Initial Load**: 
+1. **Initial Load**:
    - Checks localStorage for saved preference
    - Falls back to system preference (`prefers-color-scheme`)
    - Defaults to light mode if neither is set
 
-2. **Theme Toggle**: 
+2. **Theme Toggle**:
    - Click the sun/moon icon in the navbar
    - Instantly switches between light and dark mode
    - Preference is saved to localStorage
 
-3. **Persistence**: 
+3. **Persistence**:
    - Theme choice is remembered across sessions
    - Uses `data-theme` attribute on `<html>` element
 
@@ -77,12 +77,13 @@
 ## 🎯 Usage
 
 ### In Components:
+
 ```javascript
 import { useTheme } from './contexts/ThemeContext'
 
 function MyComponent() {
   const { theme, toggleTheme, isDark } = useTheme()
-  
+
   return (
     <div>
       <p>Current theme: {theme}</p>
@@ -93,6 +94,7 @@ function MyComponent() {
 ```
 
 ### In CSS:
+
 ```css
 .my-element {
   background-color: var(--bg-primary);
@@ -104,11 +106,13 @@ function MyComponent() {
 ## 🎨 Color Schemes
 
 ### Light Mode:
+
 - Background: White (#ffffff) to Light Gray (#f8f9fa)
 - Text: Dark Gray (#212529)
 - Primary: Blue (#3498db)
 
 ### Dark Mode:
+
 - Background: Dark (#1a1a1a) to Medium Gray (#2d2d2d)
 - Text: Light Gray (#e9ecef)
 - Primary: Brighter Blue (#4da6e0)

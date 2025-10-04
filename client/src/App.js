@@ -24,7 +24,9 @@ function App() {
             (leetcoder.userName = leetcoder.userName.toLowerCase())
         )
 
-        console.log(`Starting optimized data fetch for ${filteredLeetcoders.length} users`)
+        console.log(
+          `Starting optimized data fetch for ${filteredLeetcoders.length} users`
+        )
 
         const updatedLeetcoders = await fetchDataWithProgress(
           filteredLeetcoders,
