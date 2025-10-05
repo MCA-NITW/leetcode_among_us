@@ -5,6 +5,7 @@ import NavBar from './components/Nav/NavBar'
 import Home from './pages/Home/Home'
 import LeaderBoard from './pages/LeaderBoard/LeaderBoard'
 import UserStats from './pages/UserStats/UserStats'
+import Compare from './pages/Compare/Compare'
 import leetcoders from './assets/leetcoders_data.json'
 import { fetchDataWithProgress } from './utils/optimizedLeaderboardData'
 
@@ -75,6 +76,7 @@ function App() {
             }
           />
           <Route path="/user-stats" element={<UserStats />} />
+          <Route path="/compare" element={<Compare />} />
         </Routes>
       </Router>
     </ThemeProvider>

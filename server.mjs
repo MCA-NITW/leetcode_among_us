@@ -207,10 +207,9 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
     const results = await Promise.all(promises)
     const userData = Object.fromEntries(results)
 
-    // Fetch calendar data for multiple years in parallel
-    const years = [
-      2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
-    ]
+    // Fetch calendar data for multiple years with delay to avoid rate limiting
+    // Only fetch recent years to reduce API calls
+    const years = [2022, 2023, 2024, 2025]
     const calendarQuery = {
       operationName: 'userProfileCalendar',
       query: `
@@ -225,24 +224,26 @@ app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
       `
     }
 
-    const calendarPromises = years.map(async year => {
+    // Fetch calendar data sequentially with delay to avoid rate limiting
+    const calendarResults = []
+    for (const year of years) {
       try {
         const data = await fetchGraphQLData(
           calendarQuery.operationName,
           { username, year },
           calendarQuery.query
         )
-        return data
+        calendarResults.push(data)
+        // Add small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 100))
       } catch (error) {
         console.error(
           `Error fetching calendar data for ${username}, year ${year}:`,
-          error
+          error.message
         )
-        return null
+        calendarResults.push(null)
       }
-    })
-
-    const calendarResults = await Promise.all(calendarPromises)
+    }
 
     // Process calendar data
     let bestStreak = 0

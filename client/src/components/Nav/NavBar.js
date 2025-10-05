@@ -53,6 +53,17 @@ const NavBar = () => {
               User Stats
             </Link>
           </li>
+          <li>
+            <Link
+              to="/compare"
+              className={`navbar__link ${
+                isActive('/compare') ? 'navbar__link--active' : ''
+              }`}
+              aria-current={isActive('/compare') ? 'page' : undefined}
+            >
+              Compare
+            </Link>
+          </li>
         </ul>
         <ThemeToggle />
       </div>
