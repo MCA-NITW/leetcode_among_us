@@ -21,8 +21,10 @@ let corsOptions = {
       'http://localhost:3000',
       'http://localhost:5000',
       'http://127.0.0.1:3000',
-      'http://127.0.0.1:5000'
-      // Add your production domain here, e.g., 'https://yourdomain.com'
+      'http://127.0.0.1:5000',
+      'https://leetcode-among-us.onrender.com',
+      'https://leetcode-among-us.onrender.com:*',
+      'https://Sagargupta.live/*'
     ]
 
     if (allowedOrigins.indexOf(origin) !== -1) {
