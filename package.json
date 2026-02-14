@@ -11,8 +11,7 @@
     "frontend-build": "cd client && npm run build",
     "frontend-install": "cd client && npm install",
     "build": "npm install && npm run frontend-install && npm run frontend-build",
-    "format": "prettier --write .",
-    "validate-json": "node validate-json.js"
+    "format": "prettier --write ."
   },
   "author": "",
   "license": "ISC",
@@ -23,12 +22,12 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
-    "node-fetch": "^3.3.2",
-    "prettier": "^3.8.1"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1"
   }
 }

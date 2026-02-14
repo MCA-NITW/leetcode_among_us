@@ -18,16 +18,15 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const filteredLeetcoders = leetcoders.filter(
-          leetcoder =>
-            leetcoder.userName &&
-            leetcoder.userName.trim() !== '' &&
-            (leetcoder.userName = leetcoder.userName.toLowerCase())
-        )
-
-        console.log(
-          `Starting optimized data fetch for ${filteredLeetcoders.length} users`
-        )
+        const filteredLeetcoders = leetcoders
+          .filter(
+            leetcoder =>
+              leetcoder.userName && leetcoder.userName.trim() !== ''
+          )
+          .map(leetcoder => ({
+            ...leetcoder,
+            userName: leetcoder.userName.toLowerCase()
+          }))
 
         const updatedLeetcoders = await fetchDataWithProgress(
           filteredLeetcoders,
@@ -42,15 +41,9 @@ function App() {
           user => user.totalSolved !== undefined
         )
 
-        console.log(
-          `Successfully fetched data for ${successfullyFetchedUsers.length} out of ${updatedLeetcoders.length} users`
-        )
-
         setData(successfullyFetchedUsers)
         setLoading(false)
-        console.log('Data fetching completed successfully')
       } catch (error) {
-        console.error('Error in data fetching:', error)
         setLoading(false)
       }
     }
@@ -60,7 +53,9 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router>
+      <Router
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <NavBar />
         <Routes>
           <Route path="/" element={<Home />} />

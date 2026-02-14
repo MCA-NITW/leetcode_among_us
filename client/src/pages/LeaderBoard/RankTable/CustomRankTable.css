@@ -1,82 +1,121 @@
-/* Custom Rank Table - Modern Design */
+/* ============================================
+   CUSTOM RANK TABLE — Glassmorphism Minimal
+   Clean, data-dense table component
+   ============================================ */
 
+/* ── Wrapper ── */
 .custom-rank-table {
   width: 100%;
-  animation: fadeIn 0.5s ease;
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: rank-table-enter 0.5s var(--ease-out-expo) both;
 }
 
-/* Tab Navigation */
+@keyframes rank-table-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   TABS
+   ============================================ */
 .rank-table__tabs {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--bg-glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: var(--glass-border);
   overflow-x: auto;
-  border: 1px solid var(--border-color);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.rank-table__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border: none;
   background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
   white-space: nowrap;
-  position: relative;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s var(--ease-spring);
+}
+
+.tab-button:active {
+  transform: scale(0.95);
 }
 
 .tab-button:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-  transform: translateY(-2px);
+  color: var(--text-1);
+  background: var(--bg-glass-hover);
 }
 
 .tab-button--active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  color: var(--accent);
+  background: var(--accent-dim);
 }
 
 .tab-button--active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+  background: var(--accent-dim);
 }
 
 .tab-icon {
-  font-size: 1.2rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.tab-button--active .tab-icon {
+  opacity: 1;
 }
 
 .tab-label {
   font-weight: 600;
 }
 
-/* Controls Bar */
+/* ============================================
+   CONTROLS BAR
+   ============================================ */
 .rank-table__controls {
   display: flex;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
-  padding: var(--space-lg);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  flex-wrap: wrap;
   align-items: center;
-  transition: all 0.3s ease;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: var(--glass-border);
+  flex-wrap: wrap;
 }
 
+/* ── Search ── */
 .rank-table__search {
   flex: 1;
-  min-width: 250px;
+  min-width: 220px;
   position: relative;
   display: flex;
   align-items: center;
@@ -85,49 +124,72 @@
 .search-icon {
   position: absolute;
   left: var(--space-md);
-  font-size: 1.2rem;
-  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  color: var(--text-3);
+  font-size: 0.85rem;
+  pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: var(--space-md) var(--space-md) var(--space-md) 2.5rem;
-  border: 2px solid var(--border-color);
+  padding: var(--space-sm) var(--space-lg) var(--space-sm) 2.25rem;
+  border: var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: var(--font-base);
-  transition: all 0.3s ease;
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: var(--text-3);
+}
+
+.search-input:hover {
+  border-color: var(--border-hover);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 .search-clear {
   position: absolute;
-  right: var(--space-md);
-  background: var(--danger);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
+  right: var(--space-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  font-size: 0.75rem;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-3);
+  color: var(--bg-base);
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .search-clear:hover {
+  background: var(--danger);
+  color: #fff;
   transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
+/* ── Filter ── */
 .rank-table__filter {
   display: flex;
   align-items: center;
@@ -135,409 +197,633 @@
 }
 
 .filter-label {
+  font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-3);
   white-space: nowrap;
 }
 
 .filter-select {
   padding: var(--space-sm) var(--space-md);
-  border: 2px solid var(--border-color);
+  padding-right: var(--space-xl);
+  border: var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-1);
+  font-family: var(--font-body);
   font-size: var(--font-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235a5e73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.filter-select:hover {
+  border-color: var(--border-hover);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
+/* ── Count Badge ── */
 .rank-table__count {
+  font-family: var(--font-mono);
   font-size: var(--font-sm);
-  color: var(--text-secondary);
-  font-weight: 600;
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-primary);
+  color: var(--text-3);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--bg-glass);
+  border: var(--glass-border);
   border-radius: var(--radius-md);
   white-space: nowrap;
+  margin-left: auto;
 }
 
-/* Table Wrapper */
+/* ============================================
+   TABLE
+   ============================================ */
 .rank-table__wrapper {
   overflow-x: auto;
-  border-radius: var(--radius-lg);
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-color);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
 }
 
-/* Custom scrollbar */
 .rank-table__wrapper::-webkit-scrollbar {
-  height: 10px;
+  height: 6px;
 }
 
 .rank-table__wrapper::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
+  background: transparent;
 }
 
 .rank-table__wrapper::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: var(--radius-md);
+  background: var(--border-hover);
+  border-radius: 3px;
 }
 
 .rank-table__wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
+  background: var(--text-3);
 }
 
-/* Table */
 .rank-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 800px;
 }
 
-/* Table Head */
+/* ── Table Head (sticky, frosted glass) ── */
 .rank-table__head {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rank-table__head tr {
+  background: var(--bg-glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .rank-table__head th {
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
   text-align: left;
-  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
   font-weight: 700;
-  font-size: var(--font-sm);
+  color: var(--text-2);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: var(--glass-border);
+  user-select: none;
+  position: relative;
 }
 
-.rank-table__head th:last-child {
-  border-right: none;
+/* Column sizing hints */
+.rank-table__head th.rank-col {
+  text-align: center;
+  width: 64px;
 }
 
+.rank-table__head th.stat-col {
+  text-align: center;
+  min-width: 72px;
+}
+
+/* ── Sortable Headers ── */
 .rank-table__head th.sortable {
   cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .rank-table__head th.sortable:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-hover);
+  color: var(--text-1);
 }
 
-/* Table Body */
+.rank-table__head th.sortable:active {
+  background: var(--accent-dim);
+}
+
+/* ── Table Body ── */
 .rank-table__body tr {
-  border-bottom: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+  border-bottom: var(--glass-border);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .rank-table__body tr:hover {
-  background: var(--hover-bg);
-  transform: scale(1.002);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: var(--bg-glass-hover);
 }
 
-.rank-table__body tr:nth-child(odd) {
-  background: var(--bg-secondary);
+.rank-table__body tr:last-child {
+  border-bottom: none;
 }
 
-.rank-table__body tr:nth-child(odd):hover {
-  background: var(--hover-bg);
+.rank-table__body tr:hover {
+  background: var(--bg-glass-hover);
 }
 
 .rank-table__body td {
-  padding: var(--space-lg) var(--space-md);
-  color: var(--text-primary);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-1);
   font-size: var(--font-sm);
   vertical-align: middle;
+  line-height: 1.4;
 }
 
-/* Rank Column */
+/* ── Row class (applied via JS) ── */
+.rank-table__row {
+  transition: background-color 0.2s ease;
+}
+
+/* ============================================
+   TOP-3 ROW ACCENTS
+   Subtle left border + faint tint
+   ============================================ */
+.rank-gold {
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(
+    90deg,
+    rgba(251, 191, 36, 0.04) 0%,
+    transparent 35%
+  );
+}
+
+.rank-gold:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(251, 191, 36, 0.07) 0%,
+    var(--bg-glass-hover) 35%
+  );
+}
+
+.rank-silver {
+  border-left: 3px solid var(--silver);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.04) 0%,
+    transparent 35%
+  );
+}
+
+.rank-silver:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.07) 0%,
+    var(--bg-glass-hover) 35%
+  );
+}
+
+.rank-bronze {
+  border-left: 3px solid var(--bronze);
+  background: linear-gradient(
+    90deg,
+    rgba(217, 119, 6, 0.04) 0%,
+    transparent 35%
+  );
+}
+
+.rank-bronze:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(217, 119, 6, 0.07) 0%,
+    var(--bg-glass-hover) 35%
+  );
+}
+
+/* ============================================
+   COLUMN TYPES
+   ============================================ */
+
+/* ── Rank Column ── */
 .rank-col {
   text-align: center;
-  width: 80px;
-  font-weight: 700;
+  width: 64px;
 }
 
 .rank-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 var(--space-sm);
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  font-size: 1rem;
+  background: var(--bg-glass-strong);
+  border: var(--glass-border);
+  font-family: var(--font-mono);
+  font-size: var(--font-sm);
   font-weight: 700;
-  transition: all 0.3s ease;
+  color: var(--text-2);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.2s ease;
 }
 
-/* Medal Ranks */
+tr:hover .rank-badge {
+  transform: scale(1.1);
+}
+
+/* Medal-specific badge colors */
 .rank-gold .rank-badge {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  color: #996515;
-  border-color: #ffd700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-  animation: pulse 2s ease-in-out infinite;
+  background: linear-gradient(135deg, var(--gold), rgba(251, 191, 36, 0.6));
+  border-color: var(--gold);
+  color: #6b4f00;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
 }
 
 .rank-silver .rank-badge {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-  color: #666;
-  border-color: #c0c0c0;
-  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.4);
+  background: linear-gradient(135deg, var(--silver), rgba(148, 163, 184, 0.6));
+  border-color: var(--silver);
+  color: #334155;
+  box-shadow: 0 2px 8px rgba(148, 163, 184, 0.2);
 }
 
 .rank-bronze .rank-badge {
-  background: linear-gradient(135deg, #cd7f32 0%, #e6a85c 100%);
-  color: #5c3d1f;
-  border-color: #cd7f32;
-  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.4);
+  background: linear-gradient(135deg, var(--bronze), rgba(217, 119, 6, 0.6));
+  border-color: var(--bronze);
+  color: #451a03;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-/* Special row highlighting for top 3 */
-.rank-gold {
-  background: linear-gradient(90deg, rgba(255, 215, 0, 0.05) 0%, transparent 100%);
-}
-
-.rank-silver {
-  background: linear-gradient(90deg, rgba(192, 192, 192, 0.05) 0%, transparent 100%);
-}
-
-.rank-bronze {
-  background: linear-gradient(90deg, rgba(205, 127, 50, 0.05) 0%, transparent 100%);
-}
-
-/* Name Column */
+/* ── Name Column ── */
 .name-col {
-  font-weight: 600;
-  max-width: 250px;
   min-width: 180px;
+  max-width: 280px;
 }
 
 .username-link {
-  color: var(--primary);
+  color: var(--accent);
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: var(--font-sm);
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .username-link:hover {
-  color: var(--primary-dark);
-  text-decoration: underline;
+  color: var(--text-1);
+  transform: translateX(2px);
 }
 
 .username-link::after {
-  content: '↗';
-  font-size: 0.75rem;
-  opacity: 0.6;
+  content: '\2197';
+  font-size: 0.65rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.username-link:hover::after {
+  opacity: 0.5;
+  transform: translateX(2px);
 }
 
 .username-subtitle {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-3);
   font-weight: 400;
-  margin-top: 0.25rem;
-  opacity: 0.7;
+  margin-top: 1px;
+  line-height: 1.3;
 }
 
-/* Username Column (deprecated - now combined with name) */
-.username-col {
-  min-width: 150px;
-}
-
-/* Batch Column */
+/* ── Batch Column ── */
 .batch-col {
   text-align: center;
 }
 
 .batch-badge {
   display: inline-block;
-  padding: var(--space-xs) var(--space-md);
-  background: var(--primary);
-  color: white;
-  border-radius: var(--radius-md);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  padding: 2px var(--space-sm);
+  background: var(--bg-glass-strong);
+  border: var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.03em;
 }
 
-/* Stat Columns */
+/* ── Stat Column ── */
 .stat-col {
   text-align: center;
+  font-family: var(--font-mono);
   font-weight: 600;
-  min-width: 80px;
+  min-width: 72px;
 }
 
+/* ── Total Column ── */
 .total-col {
-  font-size: var(--font-lg);
-  color: var(--primary);
+  color: var(--accent);
   font-weight: 800;
+  font-size: var(--font-base);
 }
 
+/* ── Difficulty Color Columns ── */
 .easy-col {
-  color: #22c55e;
+  color: var(--easy-color);
 }
 
 .medium-col {
-  color: #f59e0b;
+  color: var(--medium-color);
 }
 
 .hard-col {
-  color: #ef4444;
+  color: var(--hard-color);
 }
 
-/* Contest Performance Columns */
+/* ── Contest Performance Quartile Columns ── */
 .contest-4q {
-  color: #8b5cf6; /* Purple for 4 questions */
-  font-weight: 600;
+  color: var(--contest-color);
+  font-weight: 700;
 }
 
 .contest-3q {
-  color: #3b82f6; /* Blue for 3 questions */
+  color: #3b82f6;
   font-weight: 600;
 }
 
 .contest-2q {
-  color: #10b981; /* Green for 2 questions */
+  color: var(--easy-color);
   font-weight: 600;
 }
 
 .contest-1q {
-  color: #f59e0b; /* Orange for 1 question */
+  color: var(--medium-color);
   font-weight: 600;
 }
 
 .contest-0q {
-  color: #ef4444; /* Red for 0 questions */
+  color: var(--hard-color);
   font-weight: 600;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-/* Empty State */
+/* ============================================
+   EMPTY STATE
+   ============================================ */
 .rank-table__empty {
   text-align: center;
-  padding: var(--space-2xl);
-  color: var(--text-tertiary);
+  padding: var(--space-2xl) var(--space-xl);
 }
 
 .empty-icon {
-  font-size: 3rem;
   display: block;
-  margin-bottom: var(--space-lg);
-  opacity: 0.5;
+  font-size: 2.5rem;
+  margin-bottom: var(--space-md);
+  color: var(--text-3);
+  opacity: 0.3;
 }
 
 .rank-table__empty p {
-  font-size: var(--font-lg);
+  font-family: var(--font-body);
+  font-size: var(--font-base);
+  color: var(--text-2);
   margin-bottom: var(--space-lg);
-  color: var(--text-secondary);
 }
 
 .reset-btn {
-  padding: var(--space-md) var(--space-xl);
-  background: var(--primary);
-  color: white;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-md);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.25s var(--ease-spring),
+    box-shadow 0.2s ease;
 }
 
 .reset-btn:hover {
-  background: var(--primary-dark);
+  background: var(--accent-border);
+  border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Responsive Design */
+.reset-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 1024px) {
   .rank-table__controls {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-sm);
   }
-  
-  .rank-table__search,
+
+  .rank-table__search {
+    min-width: 100%;
+  }
+
   .rank-table__filter {
     width: 100%;
   }
-  
+
+  .filter-select {
+    flex: 1;
+  }
+
   .rank-table__count {
     text-align: center;
+    margin-left: 0;
   }
 }
 
 @media (max-width: 768px) {
-  .rank-table__head th {
-    padding: var(--space-md) var(--space-sm);
-    font-size: 0.7rem;
+  .custom-rank-table {
+    border-radius: var(--radius-lg);
   }
-  
-  .rank-table__body td {
-    padding: var(--space-md) var(--space-sm);
+
+  .rank-table__tabs {
+    padding: var(--space-sm);
+    gap: 2px;
+  }
+
+  .tab-button {
+    padding: var(--space-xs) var(--space-sm);
     font-size: 0.75rem;
   }
-  
+
+  .tab-icon {
+    font-size: 0.85rem;
+  }
+
+  .rank-table__controls {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .rank-table__head th {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.65rem;
+  }
+
+  .rank-table__body td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.75rem;
+  }
+
   .rank-badge {
-    min-width: 30px;
-    height: 30px;
-    font-size: 0.875rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
   }
-  
-  .name-col,
-  .username-col {
-    max-width: 120px;
+
+  .name-col {
+    min-width: 140px;
+    max-width: 180px;
+  }
+
+  .username-subtitle {
+    font-size: 0.6rem;
   }
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@media (max-width: 480px) {
+  .tab-label {
+    display: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .tab-button {
+    padding: var(--space-xs) var(--space-sm);
+    justify-content: center;
+  }
+
+  .tab-icon {
+    font-size: 1.1rem;
+  }
+
+  .rank-table__head th {
+    padding: var(--space-xs) 6px;
+    font-size: 0.6rem;
+  }
+
+  .rank-table__body td {
+    padding: var(--space-xs) 6px;
+    font-size: 0.7rem;
   }
 }
 
-/* Print styles */
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .custom-rank-table {
+    animation: none !important;
+  }
+
+  .tab-button,
+  .search-input,
+  .search-clear,
+  .filter-select,
+  .rank-table__body tr,
+  .rank-table__row,
+  .rank-badge,
+  .username-link,
+  .reset-btn {
+    transition: none !important;
+  }
+}
+
+/* ── Print ── */
 @media print {
+  .rank-table__tabs,
   .rank-table__controls {
     display: none;
   }
-  
-  .rank-table__wrapper {
+
+  .custom-rank-table {
+    border: 1px solid #ccc;
     box-shadow: none;
-    border: 1px solid #000;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #fff;
   }
-  
+
+  .rank-table__head tr {
+    background: #f5f5f5;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .rank-table__head th {
+    color: #333;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .rank-table__body tr {
+    break-inside: avoid;
+    border-bottom: 1px solid #ddd;
+  }
+
   .rank-table__body tr:hover {
-    transform: none;
-    box-shadow: none;
+    background: none;
   }
+
+  .rank-table__body td {
+    color: #111;
+  }
+
+  .rank-gold,
+  .rank-silver,
+  .rank-bronze {
+    border-left: 3px solid #999;
+    background: none;
+  }
+
+  .username-link {
+    color: #111;
+  }
+
+  .username-link::after {
+    display: none;
+  }
+
+  .total-col {
+    color: #111;
+  }
+
+  .easy-col { color: #16a34a; }
+  .medium-col { color: #d97706; }
+  .hard-col { color: #dc2626; }
 }

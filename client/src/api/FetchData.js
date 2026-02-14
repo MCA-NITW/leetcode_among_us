@@ -20,20 +20,24 @@ import {
   userProfileCalendarQuery
 } from './AllQueries.js'
 
+const getApiBaseUrl = () =>
+  window.location.href.includes('localhost')
+    ? 'http://localhost:3001'
+    : 'https://leetcode-among-us.onrender.com'
+
 const fetchGraphQLData = async (operationName, variables, query) => {
-  const response = await fetch(
-    window.location.href.includes('localhost')
-      ? 'http://localhost:3001/leetcode'
-      : 'https://leetcode-among-us.onrender.com/leetcode',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-csrftoken': 'undefined'
-      },
-      body: JSON.stringify({ operationName, variables, query })
-    }
-  )
+  const response = await fetch(`${getApiBaseUrl()}/leetcode`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ operationName, variables, query })
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+
   return response.json()
 }
 

@@ -8,54 +8,86 @@ import rateLimit from 'express-rate-limit'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+// Constants
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
+const RATE_LIMIT_MAX = 2000
+const MAX_BATCH_SIZE = 10
+const CALENDAR_DELAY_MS = 100
+const MAX_USERNAME_LENGTH = 40
+const LEETCODE_GRAPHQL_URL = 'https://leetcode.com/graphql'
+const BODY_SIZE_LIMIT = '1mb'
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000',
+  'https://leetcode-among-us.onrender.com',
+  'https://sagargupta.live'
+]
+
 const app = express()
 app.disable('x-powered-by')
 
 // CORS configuration - restrict to allowed origins
-let corsOptions = {
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or Postman)
-    if (!origin) return callback(null, true)
+    if (!origin) {
+      // Block requests with no origin in production
+      if (process.env.NODE_ENV === 'production') {
+        return callback(new Error('Not allowed by CORS'))
+      }
+      return callback(null, true)
+    }
 
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5000',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:5000',
-      'https://leetcode-among-us.onrender.com',
-      'https://leetcode-among-us.onrender.com:*',
-      'https://Sagargupta.live/*'
-    ]
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
     }
   },
-  credentials: true, // Allow cookies if needed
+  credentials: true,
   optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
 
-// Use helmet with minimal configuration
+// Use helmet with security headers
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'https:', 'data:'],
+        connectSrc: ["'self'", 'https://leetcode.com'],
+        fontSrc: ["'self'", 'https:', 'data:']
+      }
+    },
     crossOriginEmbedderPolicy: false
   })
 )
 
-app.use(express.json())
+app.use(express.json({ limit: BODY_SIZE_LIMIT }))
 
 const leetcodeLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 2000 // Increased limit for parallel processing
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX
 })
+
+// Username validation helper
+const isValidUsername = username => {
+  return (
+    typeof username === 'string' &&
+    username.trim().length > 0 &&
+    username.length <= MAX_USERNAME_LENGTH &&
+    /^[a-zA-Z0-9_-]+$/.test(username)
+  )
+}
 
 // Helper function to make GraphQL requests
 const fetchGraphQLData = async (operationName, variables, query) => {
-  const response = await fetch('https://leetcode.com/graphql', {
+  const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -71,211 +103,204 @@ const fetchGraphQLData = async (operationName, variables, query) => {
   return response.json()
 }
 
-// Original single GraphQL endpoint
-app.post('/leetcode', leetcodeLimiter, async (req, res) => {
-  try {
-    const response = await fetch('https://leetcode.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(req.body)
-    })
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    res.send(data)
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('An error occurred')
+// Helper to get calendar years dynamically
+const getCalendarYears = () => {
+  const currentYear = new Date().getFullYear()
+  const startYear = 2022
+  const years = []
+  for (let year = startYear; year <= currentYear; year++) {
+    years.push(year)
   }
-})
+  return years
+}
 
-// New optimized endpoint for fetching user data in parallel
-app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
-  try {
-    const { username } = req.body
-
-    if (!username) {
-      return res.status(400).json({ error: 'Username is required' })
-    }
-
-    // All the GraphQL queries needed for a user
-    const queries = {
-      userPublicProfile: {
-        operationName: 'userPublicProfile',
-        variables: { username },
-        query: `
-          query userPublicProfile($username: String!) {
-            matchedUser(username: $username) {
-              profile {
-                userAvatar
-                reputation
-                ranking
-              }
-            }
-          }
-        `
-      },
-      userContestRankingInfo: {
-        operationName: 'userContestRankingInfo',
-        variables: { username },
-        query: `
-          query userContestRankingInfo($username: String!) {
-            userContestRanking(username: $username) {
-              attendedContestsCount
-              rating
-              globalRanking
-              topPercentage
-              totalParticipants
-            }
-            userContestRankingHistory(username: $username) {
-              attended
-              rating
-              ranking
-              problemsSolved
-            }
-          }
-        `
-      },
-      userProblemsSolved: {
-        operationName: 'userProblemsSolved',
-        variables: { username },
-        query: `
-          query userProblemsSolved($username: String!) {
-            allQuestionsCount {
-              difficulty
-              count
-            }
-            matchedUser(username: $username) {
-              submitStatsGlobal {
-                acSubmissionNum {
-                  difficulty
-                  count
-                }
-              }
-            }
-          }
-        `
-      },
-      userBadges: {
-        operationName: 'userBadges',
-        variables: { username },
-        query: `
-          query userBadges($username: String!) {
-            matchedUser(username: $username) {
-              badges {
-                id
-                name
-                shortName
-                displayName
-                icon
-                hoverText
-                medal {
-                  slug
-                  config {
-                    iconGif
-                    iconGifBackground
-                  }
-                }
-              }
-            }
-          }
-        `
-      }
-    }
-
-    // Execute all queries in parallel
-    const promises = Object.entries(queries).map(async ([key, query]) => {
-      try {
-        const data = await fetchGraphQLData(
-          query.operationName,
-          query.variables,
-          query.query
-        )
-        return [key, data]
-      } catch (error) {
-        console.error(`Error fetching ${key} for ${username}:`, error)
-        return [key, null]
-      }
-    })
-
-    const results = await Promise.all(promises)
-    const userData = Object.fromEntries(results)
-
-    // Fetch calendar data for multiple years with delay to avoid rate limiting
-    // Only fetch recent years to reduce API calls
-    const years = [2022, 2023, 2024, 2025]
-    const calendarQuery = {
-      operationName: 'userProfileCalendar',
+// Core user data fetching logic (used by both single and batch endpoints)
+const fetchUserData = async username => {
+  const queries = {
+    userPublicProfile: {
+      operationName: 'userPublicProfile',
+      variables: { username },
       query: `
-        query userProfileCalendar($username: String!, $year: Int!) {
+        query userPublicProfile($username: String!) {
           matchedUser(username: $username) {
-            userCalendar(year: $year) {
-              streak
-              totalActiveDays
+            profile {
+              userAvatar
+              reputation
+              ranking
+            }
+          }
+        }
+      `
+    },
+    userContestRankingInfo: {
+      operationName: 'userContestRankingInfo',
+      variables: { username },
+      query: `
+        query userContestRankingInfo($username: String!) {
+          userContestRanking(username: $username) {
+            attendedContestsCount
+            rating
+            globalRanking
+            topPercentage
+            totalParticipants
+          }
+          userContestRankingHistory(username: $username) {
+            attended
+            rating
+            ranking
+            problemsSolved
+          }
+        }
+      `
+    },
+    userProblemsSolved: {
+      operationName: 'userProblemsSolved',
+      variables: { username },
+      query: `
+        query userProblemsSolved($username: String!) {
+          allQuestionsCount {
+            difficulty
+            count
+          }
+          matchedUser(username: $username) {
+            submitStatsGlobal {
+              acSubmissionNum {
+                difficulty
+                count
+              }
+            }
+          }
+        }
+      `
+    },
+    userBadges: {
+      operationName: 'userBadges',
+      variables: { username },
+      query: `
+        query userBadges($username: String!) {
+          matchedUser(username: $username) {
+            badges {
+              id
+              name
+              shortName
+              displayName
+              icon
+              hoverText
+              medal {
+                slug
+                config {
+                  iconGif
+                  iconGifBackground
+                }
+              }
             }
           }
         }
       `
     }
+  }
 
-    // Fetch calendar data sequentially with delay to avoid rate limiting
-    const calendarResults = []
-    for (const year of years) {
-      try {
-        const data = await fetchGraphQLData(
-          calendarQuery.operationName,
-          { username, year },
-          calendarQuery.query
-        )
-        calendarResults.push(data)
-        // Add small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 100))
-      } catch (error) {
-        console.error(
-          `Error fetching calendar data for ${username}, year ${year}:`,
-          error.message
-        )
-        calendarResults.push(null)
+  // Execute all queries in parallel
+  const promises = Object.entries(queries).map(async ([key, query]) => {
+    try {
+      const data = await fetchGraphQLData(
+        query.operationName,
+        query.variables,
+        query.query
+      )
+      return [key, data]
+    } catch (error) {
+      console.error(`Error fetching ${key} for ${username}:`, error.message)
+      return [key, null]
+    }
+  })
+
+  const results = await Promise.all(promises)
+  const userData = Object.fromEntries(results)
+
+  // Fetch calendar data for multiple years with delay to avoid rate limiting
+  const years = getCalendarYears()
+  const calendarQuery = {
+    operationName: 'userProfileCalendar',
+    query: `
+      query userProfileCalendar($username: String!, $year: Int!) {
+        matchedUser(username: $username) {
+          userCalendar(year: $year) {
+            streak
+            totalActiveDays
+          }
+        }
       }
+    `
+  }
+
+  // Fetch calendar data sequentially with delay to avoid rate limiting
+  const calendarResults = []
+  for (const year of years) {
+    try {
+      const data = await fetchGraphQLData(
+        calendarQuery.operationName,
+        { username, year },
+        calendarQuery.query
+      )
+      calendarResults.push(data)
+      await new Promise(resolve => setTimeout(resolve, CALENDAR_DELAY_MS))
+    } catch (error) {
+      console.error(
+        `Error fetching calendar data for ${username}, year ${year}:`,
+        error.message
+      )
+      calendarResults.push(null)
+    }
+  }
+
+  // Process calendar data
+  let bestStreak = 0
+  let totalActiveDays = 0
+
+  calendarResults.forEach(result => {
+    if (
+      result &&
+      result.data &&
+      result.data.matchedUser &&
+      result.data.matchedUser.userCalendar
+    ) {
+      const calendar = result.data.matchedUser.userCalendar
+      if (calendar.streak > bestStreak) {
+        bestStreak = calendar.streak
+      }
+      totalActiveDays += calendar.totalActiveDays
+    }
+  })
+
+  userData.calendarData = { bestStreak, totalActiveDays }
+
+  return userData
+}
+
+// Optimized endpoint for fetching user data in parallel
+app.post('/leetcode/user-data', leetcodeLimiter, async (req, res) => {
+  try {
+    const { username } = req.body
+
+    if (!isValidUsername(username)) {
+      return res.status(400).json({
+        error:
+          'Invalid username. Must be 1-40 alphanumeric characters, hyphens, or underscores.'
+      })
     }
 
-    // Process calendar data
-    let bestStreak = 0
-    let totalActiveDays = 0
-
-    calendarResults.forEach(result => {
-      if (
-        result &&
-        result.data &&
-        result.data.matchedUser &&
-        result.data.matchedUser.userCalendar
-      ) {
-        const calendar = result.data.matchedUser.userCalendar
-        if (calendar.streak > bestStreak) {
-          bestStreak = calendar.streak
-        }
-        totalActiveDays += calendar.totalActiveDays
-      }
-    })
-
-    userData.calendarData = { bestStreak, totalActiveDays }
-
+    const userData = await fetchUserData(username)
     res.json({ success: true, data: userData })
   } catch (error) {
-    console.error('Error in user-data endpoint:', error)
+    console.error('Error in user-data endpoint:', error.message)
     res
       .status(500)
       .json({ error: 'An error occurred while fetching user data' })
   }
 })
 
-// New batch endpoint for processing multiple users in parallel
+// Batch endpoint for processing multiple users in parallel
 app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
   try {
     const { usernames } = req.body
@@ -284,32 +309,28 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Usernames array is required' })
     }
 
-    if (usernames.length > 10) {
-      return res
-        .status(400)
-        .json({ error: 'Maximum 10 usernames allowed per batch' })
+    if (usernames.length > MAX_BATCH_SIZE) {
+      return res.status(400).json({
+        error: `Maximum ${MAX_BATCH_SIZE} usernames allowed per batch`
+      })
     }
 
-    // Process all users in parallel
+    // Validate all usernames
+    const invalidUsernames = usernames.filter(u => !isValidUsername(u))
+    if (invalidUsernames.length > 0) {
+      return res.status(400).json({
+        error: `Invalid usernames: ${invalidUsernames.join(', ')}`
+      })
+    }
+
+    // Process all users in parallel using the shared function directly
     const userPromises = usernames.map(async username => {
       try {
-        // Make a request to our own user-data endpoint
-        const response = await fetch(
-          `${req.protocol}://${req.get('host')}/leetcode/user-data`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username })
-          }
-        )
-
-        const userData = await response.json()
-        return { username, ...userData }
+        const userData = await fetchUserData(username)
+        return { username, success: true, data: userData }
       } catch (error) {
-        console.error(`Error fetching data for user ${username}:`, error)
-        return { username, success: false, error: error.message }
+        console.error(`Error fetching data for user ${username}:`, error.message)
+        return { username, success: false, error: 'Failed to fetch user data' }
       }
     })
 
@@ -321,7 +342,7 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
       processed: results.length
     })
   } catch (error) {
-    console.error('Error in batch-user-data endpoint:', error)
+    console.error('Error in batch-user-data endpoint:', error.message)
     res
       .status(500)
       .json({ error: 'An error occurred while processing batch request' })

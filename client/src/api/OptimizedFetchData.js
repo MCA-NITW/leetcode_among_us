@@ -1,9 +1,11 @@
 // Optimized fetch functions that use the new parallel backend endpoints
 
 const getApiBaseUrl = () =>
-  window.location.href.includes('localhost')
+  process.env.REACT_APP_API_URL ||
+  (window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001'
-    : 'https://leetcode-among-us.onrender.com'
+    : 'https://leetcode-among-us.onrender.com')
 
 // Optimized single user data fetch using the new backend endpoint
 export const fetchOptimizedUserData = async username => {
@@ -57,7 +59,6 @@ export const fetchBatchUserData = async usernames => {
 // Helper function to process the backend response into the format expected by the frontend
 export const processUserDataResponse = (leetcoder, backendData) => {
   if (!backendData || !backendData.userPublicProfile?.data?.matchedUser) {
-    console.log(`No data available for user: ${leetcoder.userName}`)
     return leetcoder
   }
 

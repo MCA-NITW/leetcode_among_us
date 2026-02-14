@@ -1,49 +1,116 @@
+/* ============================================
+   ThemeToggle — Glassmorphism Minimal
+   Pill-shaped toggle with subtle glass
+   background and smooth icon transitions.
+   ============================================ */
+
+/* ---- Button ---- */
 .theme-toggle {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--border-color);
+  margin: 0;
+  flex-shrink: 0;
+
+  /* Glass surface */
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  color: var(--text-2);
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--text-primary);
+  overflow: hidden;
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s var(--ease-spring);
 }
 
+/* Ripple ring on click */
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.theme-toggle:active::after {
+  opacity: 1;
+  transform: scale(2);
+  transition-duration: 0.15s;
+}
+
+/* Hover */
 .theme-toggle:hover {
-  background-color: var(--hover-bg);
-  border-color: var(--primary);
-  transform: scale(1.05);
+  background-color: var(--bg-glass-hover);
+  border-color: var(--accent-border);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm), var(--glow-primary);
+  transform: scale(1.08);
 }
 
+/* Active press */
 .theme-toggle:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
+  transition-duration: 0.1s;
 }
 
-.theme-toggle:focus {
-  outline: 2px solid var(--primary);
+/* Keyboard focus ring */
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
+/* Remove default browser focus outline */
+.theme-toggle:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- Icon (SVG) ---- */
 .theme-toggle__icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  transition: transform 0.3s ease;
-  animation: iconFade 0.3s ease;
+  width: 18px;
+  height: 18px;
+  display: block;
+  animation: themeIconIn 0.3s ease both;
 }
 
-.theme-toggle:hover .theme-toggle__icon {
-  transform: rotate(15deg);
+/* ---- Transition States (JS-driven) ---- */
+.theme-toggle__icon--entering {
+  opacity: 0;
+  transform: rotate(-60deg) scale(0.5);
 }
 
-/* Animation for icon change */
-@keyframes iconFade {
+.theme-toggle__icon--entered {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+  transition:
+    transform 0.3s ease,
+    opacity 0.25s ease;
+}
+
+/* ---- Icon swap keyframe (spring bounce) ---- */
+@keyframes themeIconIn {
   0% {
     opacity: 0;
-    transform: rotate(-90deg) scale(0.5);
+    transform: rotate(-90deg) scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(8deg) scale(1.1);
+  }
+  80% {
+    transform: rotate(-3deg) scale(0.96);
   }
   100% {
     opacity: 1;
@@ -51,15 +118,39 @@
   }
 }
 
-/* Mobile adjustments */
+/* ---- Tablet ---- */
 @media (max-width: 768px) {
   .theme-toggle {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 32px;
+    height: 32px;
   }
-  
+
   .theme-toggle__icon {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* ---- Small screens ---- */
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .theme-toggle__icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle__icon,
+  .theme-toggle__icon--entering,
+  .theme-toggle__icon--entered {
+    transition: none;
+    animation: none;
   }
 }

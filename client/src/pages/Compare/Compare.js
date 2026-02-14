@@ -15,6 +15,12 @@ import {
 } from '../../api/OptimizedFetchData'
 import './Compare.css'
 
+const getDifficultyColor = difficulty => {
+  if (difficulty === 'Easy') return '#00b8a3'
+  if (difficulty === 'Medium') return '#ffc01e'
+  return '#ef4743'
+}
+
 const Compare = () => {
   const [username1, setUsername1] = useState('')
   const [username2, setUsername2] = useState('')
@@ -56,7 +62,6 @@ const Compare = () => {
       setError(
         'Error fetching user data. Please check usernames and try again.'
       )
-      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -136,15 +141,11 @@ const Compare = () => {
 
   const DifficultyComparison = ({ difficulty, solved1, solved2, total }) => {
     const winner = getWinner(solved1, solved2)
-    const getColor = () => {
-      if (difficulty === 'Easy') return '#00b8a3'
-      if (difficulty === 'Medium') return '#ffc01e'
-      return '#ef4743'
-    }
+    const color = getDifficultyColor(difficulty)
 
     return (
       <div className="difficulty-comparison">
-        <div className="difficulty-header" style={{ color: getColor() }}>
+        <div className="difficulty-header" style={{ color }}>
           {difficulty}
         </div>
         <div className="difficulty-bars">
@@ -157,7 +158,7 @@ const Compare = () => {
               className="bar-fill"
               style={{
                 width: `${(solved1 / total) * 100}%`,
-                backgroundColor: getColor()
+                backgroundColor: color
               }}
             >
               <span className="bar-text">{solved1}</span>
@@ -173,7 +174,7 @@ const Compare = () => {
               className="bar-fill"
               style={{
                 width: `${(solved2 / total) * 100}%`,
-                backgroundColor: getColor()
+                backgroundColor: color
               }}
             >
               <span className="bar-text">{solved2}</span>
@@ -186,15 +187,10 @@ const Compare = () => {
 
   const BeatsComparison = ({ difficulty, beats1, beats2 }) => {
     const winner = getWinner(beats1, beats2)
-    const getColor = () => {
-      if (difficulty === 'Easy') return '#00b8a3'
-      if (difficulty === 'Medium') return '#ffc01e'
-      return '#ef4743'
-    }
 
     return (
       <div className="beats-comparison">
-        <div className="beats-header" style={{ color: getColor() }}>
+        <div className="beats-header" style={{ color: getDifficultyColor(difficulty) }}>
           {difficulty}
         </div>
         <div className={`beats-value ${winner === 'user1' ? 'winner' : ''}`}>
@@ -225,7 +221,7 @@ const Compare = () => {
             placeholder="Enter first username"
             value={username1}
             onChange={e => setUsername1(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             className="compare-input user1-input"
           />
           <span className="vs-text">VS</span>
@@ -234,7 +230,7 @@ const Compare = () => {
             placeholder="Enter second username"
             value={username2}
             onChange={e => setUsername2(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             className="compare-input user2-input"
           />
         </div>
@@ -247,7 +243,11 @@ const Compare = () => {
         </button>
       </div>
 
-      {error && <div className="compare-error">{error}</div>}
+      {error && (
+        <div className="compare-error" role="alert">
+          {error}
+        </div>
+      )}
 
       {loading && <Loader />}
 

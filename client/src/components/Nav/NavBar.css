@@ -1,4 +1,11 @@
-/* NAVBAR */
+/* ============================================
+   NavBar — Glassmorphism Minimal
+   Frosted glass bar fixed at top with clean
+   nav links, subtle borders, and restrained
+   accent highlights.
+   ============================================ */
+
+/* ---- Navbar Shell ---- */
 .navbar {
   position: fixed;
   top: 0;
@@ -9,67 +16,200 @@
   align-items: center;
   justify-content: space-between;
   height: var(--navbar-height);
-  padding: 0 var(--space-lg);
-  background-color: var(--bg-primary);
-  box-shadow: var(--shadow-md);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 0 var(--space-xl);
+
+  /* Frosted glass surface */
+  background: var(--bg-glass-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
+/* ---- Brand ---- */
 .navbar__brand {
-  font-size: var(--font-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  transition: color 0.3s ease;
+  font-family: var(--font-heading);
+  font-size: var(--font-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .navbar__brand a {
   color: inherit;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: color 0.25s ease, transform 0.25s var(--ease-spring);
 }
 
+.navbar__brand a:hover {
+  color: var(--accent);
+  transform: scale(1.03);
+}
+
+/* ---- Nav Container (right side) ---- */
 .navbar__nav {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
 }
 
-.navbar__nav-list {
+/* Alias for layout flexibility */
+.navbar__right {
   display: flex;
-  gap: var(--space-lg);
-  list-style: none;
   align-items: center;
+  gap: var(--space-md);
 }
 
+/* ---- Link List ---- */
+.navbar__nav-list,
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Individual Link ---- */
 .navbar__link {
-  color: var(--text-secondary);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: var(--font-base);
+  font-weight: 500;
+  color: var(--text-2);
   text-decoration: none;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.navbar__link:hover,
+/* Subtle underline indicator — grows from center */
+.navbar__link::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 60%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 0.3s var(--ease-out-expo);
+}
+
+/* Hover state */
+.navbar__link:hover {
+  color: var(--text-1);
+  background-color: var(--bg-glass-hover);
+}
+
+.navbar__link:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Focus-visible ring for keyboard navigation */
+.navbar__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Active Link ---- */
 .navbar__link--active {
-  color: var(--primary);
-  background-color: var(--hover-bg);
+  color: var(--accent);
+  background-color: var(--accent-dim);
 }
 
-/* Mobile */
+.navbar__link--active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.navbar__link--active:hover {
+  color: var(--accent);
+  background-color: var(--accent-dim);
+}
+
+/* ============================================
+   Tablet (max-width: 768px)
+   ============================================ */
 @media (max-width: 768px) {
   .navbar {
     padding: 0 var(--space-md);
+    gap: var(--space-sm);
   }
-  
+
   .navbar__brand {
-    font-size: var(--font-xl);
+    font-size: var(--font-lg);
   }
-  
-  .navbar__nav-list {
-    gap: var(--space-md);
+
+  .navbar__nav {
+    gap: var(--space-sm);
   }
-  
+
+  .navbar__nav-list,
+  .navbar__links {
+    gap: 0;
+  }
+
   .navbar__link {
     font-size: var(--font-sm);
     padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+/* ============================================
+   Small screens (max-width: 480px)
+   ============================================ */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 var(--space-sm);
+  }
+
+  .navbar__brand {
+    font-size: var(--font-base);
+    letter-spacing: 0;
+  }
+
+  .navbar__nav-list,
+  .navbar__links {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .navbar__nav-list::-webkit-scrollbar,
+  .navbar__links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navbar__link {
+    font-size: var(--font-sm);
+    padding: var(--space-xs);
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar__brand a,
+  .navbar__link,
+  .navbar__link::after {
+    transition: none;
   }
 }

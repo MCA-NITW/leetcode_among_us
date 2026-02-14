@@ -28,6 +28,20 @@ import { MdLeaderboard } from 'react-icons/md'
 import { BiTargetLock } from 'react-icons/bi'
 import { AiFillTrophy, AiOutlineBarChart } from 'react-icons/ai'
 
+const sanitizeUrl = url => {
+  if (!url) return ''
+  const withProtocol = url.startsWith('http') ? url : `https://${url}`
+  try {
+    const parsed = new URL(withProtocol)
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return parsed.href
+    }
+  } catch {
+    // invalid URL
+  }
+  return ''
+}
+
 function UserStats() {
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
@@ -50,12 +64,10 @@ function UserStats() {
         userName: username.toLowerCase()
       })
       setUserData(fetchedData)
-      console.log('User data:', fetchedData)
     } catch (err) {
       setError(
         'Failed to fetch user data. Please check the username and try again.'
       )
-      console.error('Error fetching user data:', err)
     } finally {
       setLoading(false)
     }
@@ -106,7 +118,7 @@ function UserStats() {
                 placeholder="Enter LeetCode username..."
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 disabled={loading}
                 aria-label="LeetCode username"
               />
@@ -389,13 +401,9 @@ function UserStats() {
                           flexWrap: 'wrap'
                         }}
                       >
-                        {userData.githubUrl && (
+                        {userData.githubUrl && sanitizeUrl(userData.githubUrl) && (
                           <a
-                            href={
-                              userData.githubUrl.startsWith('http')
-                                ? userData.githubUrl
-                                : `https://${userData.githubUrl}`
-                            }
+                            href={sanitizeUrl(userData.githubUrl)}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -421,13 +429,9 @@ function UserStats() {
                             GitHub
                           </a>
                         )}
-                        {userData.linkedinUrl && (
+                        {userData.linkedinUrl && sanitizeUrl(userData.linkedinUrl) && (
                           <a
-                            href={
-                              userData.linkedinUrl.startsWith('http')
-                                ? userData.linkedinUrl
-                                : `https://${userData.linkedinUrl}`
-                            }
+                            href={sanitizeUrl(userData.linkedinUrl)}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -453,13 +457,9 @@ function UserStats() {
                             LinkedIn
                           </a>
                         )}
-                        {userData.twitterUrl && (
+                        {userData.twitterUrl && sanitizeUrl(userData.twitterUrl) && (
                           <a
-                            href={
-                              userData.twitterUrl.startsWith('http')
-                                ? userData.twitterUrl
-                                : `https://${userData.twitterUrl}`
-                            }
+                            href={sanitizeUrl(userData.twitterUrl)}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
