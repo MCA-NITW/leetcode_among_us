@@ -225,6 +225,12 @@
     box-shadow 0.2s ease;
 }
 
+.filter-select option {
+  background: var(--bg-raised);
+  color: var(--text-1);
+  padding: var(--space-sm);
+}
+
 .filter-select:hover {
   border-color: var(--border-hover);
 }

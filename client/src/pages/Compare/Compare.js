@@ -8,7 +8,7 @@ import {
   FaCalendar,
   FaStar
 } from 'react-icons/fa'
-import Loader from '../../components/Loader/Loader'
+import ContentLoader from '../../components/Loader/ContentLoader'
 import {
   fetchOptimizedUserData,
   processUserDataResponse
@@ -249,7 +249,12 @@ const Compare = () => {
         </div>
       )}
 
-      {loading && <Loader />}
+      {loading && (
+        <ContentLoader
+          message="Comparing LeetCode profiles..."
+          variant="compare"
+        />
+      )}
 
       {!loading && user1Data && user2Data && (
         <div className="comparison-results">

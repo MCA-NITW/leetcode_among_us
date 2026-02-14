@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './UserStats.css'
+import ContentLoader from '../../components/Loader/ContentLoader'
 import { fetchDataForLeetcoder } from '../../utils/optimizedLeaderboardData'
 import {
   FaUser,
@@ -159,10 +160,10 @@ function UserStats() {
       </div>
 
       {loading && (
-        <div className="user-stats__loading">
-          <div className="user-stats__loading-spinner"></div>
-          <span>Fetching comprehensive user data...</span>
-        </div>
+        <ContentLoader
+          message="Fetching comprehensive user data..."
+          variant="stats"
+        />
       )}
 
       {userData && !loading && (

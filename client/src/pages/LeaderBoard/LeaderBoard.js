@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import CustomRankTable from './RankTable/CustomRankTable'
+import RecentContestActivity from './RecentContestActivity'
 import Loader from '../../components/Loader/Loader'
 import './LeaderBoard.css'
 import { FaChartBar } from 'react-icons/fa'
@@ -17,7 +18,12 @@ function LeaderBoard({ data, loading, loadingProgress, currentlyProcessing }) {
     }
 
     if (data && data.length > 0) {
-      return <CustomRankTable data={data} />
+      return (
+        <>
+          <CustomRankTable data={data} />
+          <RecentContestActivity data={data} />
+        </>
+      )
     }
 
     return (
