@@ -68,6 +68,7 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       userContestRankingInfo,
       userProblemsSolved,
       userBadges,
+      skillStats,
       calendarData
     } = backendData
 
@@ -171,7 +172,13 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       mostZeroQuestionsInContest: getMostQuestionsInContest(contestHistory, 0),
       averageContestRanking: getAverageContestRanking(contestHistory),
       totalActiveDays: calendarData?.totalActiveDays || 0,
-      bestStreak: calendarData?.bestStreak || 0
+      bestStreak: calendarData?.bestStreak || 0,
+      submissionCalendar: calendarData?.submissionCalendar || {},
+      activeYears: calendarData?.activeYears || [],
+      acSubmissionNum:
+        problemsData.matchedUser?.submitStatsGlobal?.acSubmissionNum || [],
+      tagProblemCounts:
+        skillStats?.data?.matchedUser?.tagProblemCounts || null
     }
   } catch (error) {
     console.error('Error processing user data:', error)

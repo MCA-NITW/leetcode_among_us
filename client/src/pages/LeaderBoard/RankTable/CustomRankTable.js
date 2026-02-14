@@ -137,6 +137,9 @@ const CustomRankTable = ({ data }) => {
             >
               📅 Active Days {getSortIcon('totalActiveDays')}
             </th>
+            <th title="Easy/Medium/Hard ratio">
+              Difficulty Mix
+            </th>
           </>
         )
 
@@ -174,6 +177,9 @@ const CustomRankTable = ({ data }) => {
             <th className="sortable">Easy %</th>
             <th className="sortable">Medium %</th>
             <th className="sortable">Hard %</th>
+            <th onClick={() => handleSort('acceptanceRate')} className="sortable" title="Overall acceptance rate">
+              Accept % {getSortIcon('acceptanceRate')}
+            </th>
           </>
         )
 
@@ -213,6 +219,9 @@ const CustomRankTable = ({ data }) => {
               className="sortable"
             >
               Best Rank {getSortIcon('bestContestRank')}
+            </th>
+            <th className="sortable" title="Contest Badge">
+              Badge
             </th>
           </>
         )
@@ -436,6 +445,17 @@ const CustomRankTable = ({ data }) => {
                   <span style={{ color: '#999' }}>0</span>
                 )}
               </td>
+              <td className="stat-col" style={{ minWidth: '100px' }}>
+                {user.totalSolved > 0 ? (
+                  <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', background: 'var(--border)', width: '100%' }}>
+                    <div style={{ width: `${(user.easySolved / user.totalSolved * 100)}%`, background: 'var(--easy-color)' }} title={`Easy: ${user.easySolved}`}></div>
+                    <div style={{ width: `${(user.mediumSolved / user.totalSolved * 100)}%`, background: 'var(--medium-color)' }} title={`Medium: ${user.mediumSolved}`}></div>
+                    <div style={{ width: `${(user.hardSolved / user.totalSolved * 100)}%`, background: 'var(--hard-color)' }} title={`Hard: ${user.hardSolved}`}></div>
+                  </div>
+                ) : (
+                  <span style={{ color: 'var(--text-3)' }}>-</span>
+                )}
+              </td>
             </tr>
           )
         }
@@ -453,6 +473,13 @@ const CustomRankTable = ({ data }) => {
             user.hardSolved && user.totalSolved
               ? ((user.hardSolved / user.totalSolved) * 100).toFixed(1)
               : 0
+
+          const acceptanceRate = user.acSubmissionNum ? (() => {
+            const totalAc = user.acSubmissionNum.find(s => s.difficulty === 'All')
+            return totalAc && totalAc.submissions > 0
+              ? ((totalAc.count / totalAc.submissions) * 100).toFixed(1)
+              : '0.0'
+          })() : '0.0'
 
           return (
             <tr key={user.userName || index} className={rowClass}>
@@ -485,6 +512,11 @@ const CustomRankTable = ({ data }) => {
               <td className="stat-col easy-col">{easyPercent}%</td>
               <td className="stat-col medium-col">{mediumPercent}%</td>
               <td className="stat-col hard-col">{hardPercent}%</td>
+              <td className="stat-col" title="Acceptance Rate">
+                <span style={{ color: parseFloat(acceptanceRate) > 50 ? 'var(--easy-color)' : parseFloat(acceptanceRate) > 30 ? 'var(--medium-color)' : 'var(--hard-color)', fontWeight: 'bold' }}>
+                  {acceptanceRate}%
+                </span>
+              </td>
             </tr>
           )
         }
@@ -529,6 +561,18 @@ const CustomRankTable = ({ data }) => {
                 {user.bestContestRank && user.bestContestRank !== Infinity
                   ? user.bestContestRank.toLocaleString()
                   : 'N/A'}
+              </td>
+              <td className="stat-col" style={{ textAlign: 'center' }}>
+                {user.contestBadge ? (
+                  <span title={user.contestBadge.hoverText || user.contestBadge.name} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    {user.contestBadge.icon && (
+                      <img src={user.contestBadge.icon} alt={user.contestBadge.name} style={{ width: '20px', height: '20px' }} onError={e => { e.target.style.display = 'none' }} />
+                    )}
+                    <span style={{ fontSize: '0.8em', color: 'var(--contest-color)' }}>{user.contestBadge.name}</span>
+                  </span>
+                ) : (
+                  <span style={{ color: 'var(--text-3)' }}>-</span>
+                )}
               </td>
             </tr>
           )

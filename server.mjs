@@ -123,10 +123,29 @@ const fetchUserData = async username => {
       query: `
         query userPublicProfile($username: String!) {
           matchedUser(username: $username) {
+            contestBadge {
+              name
+              expired
+              hoverText
+              icon
+            }
+            username
+            githubUrl
+            twitterUrl
+            linkedinUrl
             profile {
-              userAvatar
-              reputation
               ranking
+              userAvatar
+              realName
+              aboutMe
+              school
+              websites
+              countryName
+              company
+              jobTitle
+              skillTags
+              reputation
+              starRating
             }
           }
         }
@@ -143,12 +162,22 @@ const fetchUserData = async username => {
             globalRanking
             topPercentage
             totalParticipants
+            badge {
+              name
+            }
           }
           userContestRankingHistory(username: $username) {
             attended
+            trendDirection
+            problemsSolved
+            totalProblems
+            finishTimeInSeconds
             rating
             ranking
-            problemsSolved
+            contest {
+              title
+              startTime
+            }
           }
         }
       `
@@ -163,10 +192,42 @@ const fetchUserData = async username => {
             count
           }
           matchedUser(username: $username) {
+            problemsSolvedBeatsStats {
+              difficulty
+              percentage
+            }
             submitStatsGlobal {
               acSubmissionNum {
                 difficulty
                 count
+                submissions
+              }
+            }
+          }
+        }
+      `
+    },
+    skillStats: {
+      operationName: 'skillStats',
+      variables: { username },
+      query: `
+        query skillStats($username: String!) {
+          matchedUser(username: $username) {
+            tagProblemCounts {
+              advanced {
+                tagName
+                tagSlug
+                problemsSolved
+              }
+              intermediate {
+                tagName
+                tagSlug
+                problemsSolved
+              }
+              fundamental {
+                tagName
+                tagSlug
+                problemsSolved
               }
             }
           }
@@ -226,8 +287,10 @@ const fetchUserData = async username => {
       query userProfileCalendar($username: String!, $year: Int!) {
         matchedUser(username: $username) {
           userCalendar(year: $year) {
+            activeYears
             streak
             totalActiveDays
+            submissionCalendar
           }
         }
       }
@@ -257,6 +320,8 @@ const fetchUserData = async username => {
   // Process calendar data
   let bestStreak = 0
   let totalActiveDays = 0
+  let submissionCalendar = {}
+  let activeYears = []
 
   calendarResults.forEach(result => {
     if (
@@ -270,10 +335,21 @@ const fetchUserData = async username => {
         bestStreak = calendar.streak
       }
       totalActiveDays += calendar.totalActiveDays
+      if (calendar.activeYears) {
+        activeYears = calendar.activeYears
+      }
+      if (calendar.submissionCalendar) {
+        try {
+          const parsed = JSON.parse(calendar.submissionCalendar)
+          submissionCalendar = { ...submissionCalendar, ...parsed }
+        } catch {
+          // ignore parse errors
+        }
+      }
     }
   })
 
-  userData.calendarData = { bestStreak, totalActiveDays }
+  userData.calendarData = { bestStreak, totalActiveDays, submissionCalendar, activeYears }
 
   return userData
 }

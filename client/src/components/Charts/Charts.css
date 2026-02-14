@@ -1,0 +1,112 @@
+.chart-container {
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  animation: g-fadeInUp 0.5s var(--ease-out-expo) both;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+}
+
+.chart-container--small {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.chart-container--wide {
+  overflow-x: auto;
+}
+
+.chart-header {
+  font-family: var(--font-heading);
+  font-size: var(--font-lg);
+  color: var(--text-1);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.chart-no-data {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--text-3);
+  font-size: var(--font-sm);
+}
+
+/* Heatmap specific styles */
+.heatmap-wrapper {
+  overflow-x: auto;
+  padding-bottom: var(--space-sm);
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: auto repeat(53, 1fr);
+  gap: 2px;
+  min-width: 700px;
+}
+
+.heatmap-month-labels {
+  display: grid;
+  grid-template-columns: auto repeat(53, 1fr);
+  gap: 2px;
+  min-width: 700px;
+  margin-bottom: 4px;
+}
+
+.heatmap-month-label {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  text-align: center;
+}
+
+.heatmap-day-label {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+  height: 13px;
+}
+
+.heatmap-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 2px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.5);
+  outline: 1px solid var(--accent);
+  z-index: 1;
+  position: relative;
+}
+
+.heatmap-stats {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  font-size: var(--font-sm);
+  color: var(--text-2);
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-sm);
+  font-size: 0.7rem;
+  color: var(--text-3);
+}
+
+.heatmap-legend-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 2px;
+}

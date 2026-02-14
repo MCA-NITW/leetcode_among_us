@@ -28,6 +28,12 @@ import {
 import { MdLeaderboard } from 'react-icons/md'
 import { BiTargetLock } from 'react-icons/bi'
 import { AiFillTrophy, AiOutlineBarChart } from 'react-icons/ai'
+import ContestRatingChart from '../../components/Charts/ContestRatingChart'
+import DifficultyDoughnut from '../../components/Charts/DifficultyDoughnut'
+import TopicRadarChart from '../../components/Charts/TopicRadarChart'
+import SubmissionHeatmap from '../../components/Charts/SubmissionHeatmap'
+import AcceptanceRateChart from '../../components/Charts/AcceptanceRateChart'
+import ContestScatterChart from '../../components/Charts/ContestScatterChart'
 
 const sanitizeUrl = url => {
   if (!url) return ''
@@ -773,6 +779,37 @@ function UserStats() {
                     </div>
                   </div>
                 )}
+
+                <div className="user-stats__card user-stats__card--wide">
+                  <h3 className="user-stats__card-title">
+                    <span className="user-stats__card-icon"><FaChartBar /></span>
+                    Difficulty Distribution
+                  </h3>
+                  <div className="user-stats__card-content" style={{ display: 'flex', justifyContent: 'center' }}>
+                    <DifficultyDoughnut
+                      easySolved={userData.easySolved || 0}
+                      mediumSolved={userData.mediumSolved || 0}
+                      hardSolved={userData.hardSolved || 0}
+                    />
+                  </div>
+                </div>
+
+                <div className="user-stats__card user-stats__card--wide">
+                  <h3 className="user-stats__card-title">
+                    <span className="user-stats__card-icon"><FaChartLine /></span>
+                    Acceptance Rate by Difficulty
+                  </h3>
+                  <div className="user-stats__card-content">
+                    <AcceptanceRateChart
+                      easySolved={userData.easySolved || 0}
+                      mediumSolved={userData.mediumSolved || 0}
+                      hardSolved={userData.hardSolved || 0}
+                      totalEasy={userData.totalEasy || 0}
+                      totalMedium={userData.totalMedium || 0}
+                      totalHard={userData.totalHard || 0}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1139,6 +1176,30 @@ function UserStats() {
                       </div>
                     </div>
                   )}
+
+                {userData.contestHistory && userData.contestHistory.length > 0 && (
+                  <div className="user-stats__card user-stats__card--full">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon"><FaChartLine /></span>
+                      Contest Rating Timeline
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <ContestRatingChart contestHistory={userData.contestHistory} />
+                    </div>
+                  </div>
+                )}
+
+                {userData.contestHistory && userData.contestHistory.length > 0 && (
+                  <div className="user-stats__card user-stats__card--full">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon"><BiTargetLock /></span>
+                      Contest Performance Scatter
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <ContestScatterChart contestHistory={userData.contestHistory} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1271,6 +1332,18 @@ function UserStats() {
                     </div>
                   </div>
                 </div>
+
+                {userData.tagProblemCounts && (
+                  <div className="user-stats__card user-stats__card--wide">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon"><FaChartLine /></span>
+                      Topic Proficiency Radar
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <TopicRadarChart tagProblemCounts={userData.tagProblemCounts} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1345,6 +1418,18 @@ function UserStats() {
                     </div>
                   </div>
                 </div>
+
+                {userData.submissionCalendar && Object.keys(userData.submissionCalendar).length > 0 && (
+                  <div className="user-stats__card user-stats__card--full">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon"><FaCalendarAlt /></span>
+                      Submission Heatmap
+                    </h3>
+                    <div className="user-stats__card-content">
+                      <SubmissionHeatmap submissionCalendar={userData.submissionCalendar} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

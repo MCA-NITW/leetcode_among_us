@@ -14,6 +14,9 @@ import {
   processUserDataResponse
 } from '../../api/OptimizedFetchData'
 import './Compare.css'
+import DualRatingChart from '../../components/Charts/DualRatingChart'
+import DualRadarChart from '../../components/Charts/DualRadarChart'
+import DifficultyGroupedBar from '../../components/Charts/DifficultyGroupedBar'
 
 const getDifficultyColor = difficulty => {
   if (difficulty === 'Easy') return '#00b8a3'
@@ -523,6 +526,47 @@ const Compare = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Chart Comparisons */}
+          {(user1Data.contestHistory?.length > 0 || user2Data.contestHistory?.length > 0) && (
+            <div className="comparison-section">
+              <h3 className="section-title">
+                <FaChartLine /> Contest Rating History
+              </h3>
+              <DualRatingChart
+                user1History={user1Data.contestHistory || []}
+                user2History={user2Data.contestHistory || []}
+                user1Name={user1Data.name || username1}
+                user2Name={user2Data.name || username2}
+              />
+            </div>
+          )}
+
+          {(user1Data.tagProblemCounts || user2Data.tagProblemCounts) && (
+            <div className="comparison-section">
+              <h3 className="section-title">
+                <FaCode /> Topic Proficiency
+              </h3>
+              <DualRadarChart
+                user1Tags={user1Data.tagProblemCounts}
+                user2Tags={user2Data.tagProblemCounts}
+                user1Name={user1Data.name || username1}
+                user2Name={user2Data.name || username2}
+              />
+            </div>
+          )}
+
+          <div className="comparison-section">
+            <h3 className="section-title">
+              <FaChartLine /> Difficulty Breakdown
+            </h3>
+            <DifficultyGroupedBar
+              user1Data={user1Data}
+              user2Data={user2Data}
+              user1Name={user1Data.name || username1}
+              user2Name={user2Data.name || username2}
+            />
           </div>
 
           {/* Summary */}
