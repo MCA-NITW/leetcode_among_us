@@ -1,33 +1,40 @@
 {
   "name": "leetcode_among_us",
   "version": "2.0.0",
-  "description": "leetcode_among_us.",
-  "main": "server.mjs",
+  "description": "LeetCode tracking platform for MCA students at NIT Warangal",
+  "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env NODE_OPTIONS=\"--no-deprecation\" nodemon server.mjs",
-    "dev": "concurrently \"npm run start\" \"cd client && npm start\"",
-    "frontend-build": "cd client && npm run build",
-    "frontend-install": "cd client && npm install",
-    "build": "npm install && npm run frontend-install && npm run frontend-build",
+    "start": "node dist/server.js",
+    "start:dev": "tsx watch server.ts",
+    "dev": "concurrently \"pnpm run start:dev\" \"cd client && pnpm start\"",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:client": "cd client && pnpm build",
+    "build": "pnpm install && pnpm build:server && pnpm build:client",
     "format": "prettier --write ."
   },
   "author": "",
   "license": "ISC",
   "keywords": [],
   "dependencies": {
-    "ag-grid-enterprise": "^35.1.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
-    "helmet": "^8.1.0",
-    "node-fetch": "^3.3.2"
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.3",
     "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
-    "nodemon": "^3.1.14",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

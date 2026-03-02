@@ -10,6 +10,8 @@
 
 # production
 client/build
+client/dist
+dist
 
 
 # misc

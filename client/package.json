@@ -1,54 +1,33 @@
 {
-  "name": "leetcode_among_us",
+  "name": "leetcode-among-us-client",
   "version": "0.1.0",
-  "homepage": ".",
   "private": true,
-  "proxy": "http://localhost:3001",
+  "type": "module",
   "dependencies": {
     "ag-grid-react": "^31.3.4",
     "chart.js": "^4.5.1",
-    "node-fetch": "^3.3.2",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.9.1",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.9",
     "react-chartjs-2": "^5.3.1",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^6.30.3",
-    "web-vitals": "^2.1.4"
+    "react-router-dom": "^6.30.3"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "start": "cross-env NODE_OPTIONS=\"--no-deprecation\" react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "predeploy": "pnpm build",
+    "deploy": "gh-pages -d dist",
     "format": "prettier --write ."
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "cross-env": "^10.0.0",
-    "gh-pages": "^6.0.0",
-    "prettier": "3.0.3",
-    "react-scripts": "^5.0.1",
-    "util": "^0.12.5"
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
+    "@vitejs/plugin-react": "^4.3.4",
+    "gh-pages": "^6.3.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.1"
   }
 }
