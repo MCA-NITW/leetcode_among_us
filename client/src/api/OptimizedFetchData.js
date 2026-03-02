@@ -1,9 +1,10 @@
+/* global globalThis */
 // Optimized fetch functions that use the new parallel backend endpoints
 
 const getApiBaseUrl = () =>
   process.env.REACT_APP_API_URL ||
-  (window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1'
+  (globalThis.location.hostname === 'localhost' ||
+  globalThis.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001'
     : 'https://leetcode-among-us.onrender.com')
 
@@ -58,7 +59,7 @@ export const fetchBatchUserData = async usernames => {
 
 // Helper function to process the backend response into the format expected by the frontend
 export const processUserDataResponse = (leetcoder, backendData) => {
-  if (!backendData || !backendData.userPublicProfile?.data?.matchedUser) {
+  if (!backendData?.userPublicProfile?.data?.matchedUser) {
     return leetcoder
   }
 
@@ -158,7 +159,7 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       questionRanking: publicProfile.profile?.ranking || Infinity,
       contestTopPercentage: contestRanking?.topPercentage
         ? Math.round(contestRanking.topPercentage, 2)
-        : 100.0,
+        : 100,
       totalParticipants: contestRanking?.totalParticipants || 100000,
       attendedContestCount: contestRanking?.attendedContestsCount || 0,
       contestHistory: contestHistory,
@@ -177,8 +178,7 @@ export const processUserDataResponse = (leetcoder, backendData) => {
       activeYears: calendarData?.activeYears || [],
       acSubmissionNum:
         problemsData.matchedUser?.submitStatsGlobal?.acSubmissionNum || [],
-      tagProblemCounts:
-        skillStats?.data?.matchedUser?.tagProblemCounts || null
+      tagProblemCounts: skillStats?.data?.matchedUser?.tagProblemCounts || null
     }
   } catch (error) {
     console.error('Error processing user data:', error)

@@ -6,7 +6,8 @@
 .leaderboard {
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: calc(var(--navbar-height) + var(--space-2xl)) var(--space-lg) var(--space-2xl);
+  padding: calc(var(--navbar-height) + var(--space-2xl)) var(--space-lg)
+    var(--space-2xl);
   min-height: 100vh;
   position: relative;
 }
@@ -67,11 +68,7 @@
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin-bottom: var(--space-sm);
-  background: linear-gradient(
-    135deg,
-    var(--text-1) 0%,
-    var(--accent) 100%
-  );
+  background: linear-gradient(135deg, var(--text-1) 0%, var(--accent) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -140,11 +137,21 @@
   animation: g-scaleIn 0.4s var(--ease-out-expo) both;
 }
 
-.leaderboard__stat:nth-child(1) { animation-delay: 0.1s; }
-.leaderboard__stat:nth-child(2) { animation-delay: 0.18s; }
-.leaderboard__stat:nth-child(3) { animation-delay: 0.26s; }
-.leaderboard__stat:nth-child(4) { animation-delay: 0.34s; }
-.leaderboard__stat:nth-child(5) { animation-delay: 0.42s; }
+.leaderboard__stat:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.leaderboard__stat:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.leaderboard__stat:nth-child(3) {
+  animation-delay: 0.26s;
+}
+.leaderboard__stat:nth-child(4) {
+  animation-delay: 0.34s;
+}
+.leaderboard__stat:nth-child(5) {
+  animation-delay: 0.42s;
+}
 
 .leaderboard__stat:hover {
   transform: translateY(-4px) scale(1.02);
@@ -180,8 +187,12 @@
 }
 
 @keyframes leaderboard-content-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Empty State ── */
@@ -226,7 +237,8 @@
 
 @media (max-width: 768px) {
   .leaderboard {
-    padding: calc(var(--navbar-height) + var(--space-xl)) var(--space-md) var(--space-xl);
+    padding: calc(var(--navbar-height) + var(--space-xl)) var(--space-md)
+      var(--space-xl);
   }
 
   .leaderboard::before {
@@ -262,7 +274,8 @@
 
 @media (max-width: 480px) {
   .leaderboard {
-    padding: calc(var(--navbar-height) + var(--space-lg)) var(--space-sm) var(--space-lg);
+    padding: calc(var(--navbar-height) + var(--space-lg)) var(--space-sm)
+      var(--space-lg);
   }
 
   .leaderboard__stats {

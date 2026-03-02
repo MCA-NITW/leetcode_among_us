@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 /**
  * Custom hook that reads CSS custom properties from :root and
@@ -8,31 +8,31 @@ import { useState, useEffect } from 'react';
  * components can use for axes, labels, grid lines, etc.
  */
 function useChartColors() {
-  const [colors, setColors] = useState(() => readColors());
+  const [colors, setColors] = useState(() => readColors())
 
   useEffect(() => {
     // Re-read colors whenever the theme attribute mutates.
     const observer = new MutationObserver(() => {
-      setColors(readColors());
-    });
+      setColors(readColors())
+    })
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme'],
-    });
+      attributeFilter: ['data-theme']
+    })
 
     // Also read once on mount (handles SSR hydration edge-case).
-    setColors(readColors());
+    setColors(readColors())
 
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()
+  }, [])
 
-  return colors;
+  return colors
 }
 
 function readColors() {
-  const style = getComputedStyle(document.documentElement);
-  const get = (name) => style.getPropertyValue(name).trim();
+  const style = getComputedStyle(document.documentElement)
+  const get = name => style.getPropertyValue(name).trim()
 
   return {
     text: get('--text-1'),
@@ -46,8 +46,8 @@ function readColors() {
     contest: get('--contest-color'),
     secondary: get('--secondary'),
     bgRaised: get('--bg-raised'),
-    bgGlass: get('--bg-glass'),
-  };
+    bgGlass: get('--bg-glass')
+  }
 }
 
-export default useChartColors;
+export default useChartColors

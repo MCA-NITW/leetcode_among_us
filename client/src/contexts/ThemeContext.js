@@ -1,3 +1,4 @@
+/* global globalThis */
 import React, {
   createContext,
   useContext,
@@ -27,8 +28,8 @@ export const ThemeProvider = ({ children }) => {
 
     // Check system preference
     if (
-      window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
+      globalThis.matchMedia &&
+      globalThis.matchMedia('(prefers-color-scheme: dark)').matches
     ) {
       return 'dark'
     }
@@ -40,7 +41,7 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     // Apply theme to document root
-    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.dataset.theme = theme
 
     // Save to localStorage
     localStorage.setItem('theme', theme)

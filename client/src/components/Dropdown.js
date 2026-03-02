@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 const Dropdown = ({ options, selectedValue, onChange }) => {
   const camelCaseToSentenceCase = camelCase => {
-    const result = camelCase.replace(/([A-Z])/g, ' $1')
+    const result = camelCase.replaceAll(/([A-Z])/g, ' $1')
     const finalResult = result.charAt(0).toUpperCase() + result.slice(1)
     return finalResult
   }

@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -6,20 +7,13 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-import useChartColors from './useChartColors';
-import './Charts.css';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
   Legend
-);
+} from 'chart.js'
+import { Bar } from 'react-chartjs-2'
+import useChartColors from './useChartColors'
+import './Charts.css'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 /**
  * Stacked bar chart comparing solved vs remaining problems
@@ -35,14 +29,14 @@ function AcceptanceRateChart({
   hardSolved = 0,
   totalEasy = 0,
   totalMedium = 0,
-  totalHard = 0,
+  totalHard = 0
 }) {
-  const colors = useChartColors();
+  const colors = useChartColors()
 
   const data = useMemo(() => {
-    const easyRemaining = Math.max(0, totalEasy - easySolved);
-    const mediumRemaining = Math.max(0, totalMedium - mediumSolved);
-    const hardRemaining = Math.max(0, totalHard - hardSolved);
+    const easyRemaining = Math.max(0, totalEasy - easySolved)
+    const mediumRemaining = Math.max(0, totalMedium - mediumSolved)
+    const hardRemaining = Math.max(0, totalHard - hardSolved)
 
     return {
       labels: ['Easy', 'Medium', 'Hard'],
@@ -52,17 +46,17 @@ function AcceptanceRateChart({
           data: [easySolved, mediumSolved, hardSolved],
           backgroundColor: [colors.easy, colors.medium, colors.hard],
           borderRadius: 4,
-          borderSkipped: false,
+          borderSkipped: false
         },
         {
           label: 'Remaining',
           data: [easyRemaining, mediumRemaining, hardRemaining],
           backgroundColor: hexToRgba(colors.grid, 0.25),
           borderRadius: 4,
-          borderSkipped: false,
-        },
-      ],
-    };
+          borderSkipped: false
+        }
+      ]
+    }
   }, [
     easySolved,
     mediumSolved,
@@ -70,8 +64,8 @@ function AcceptanceRateChart({
     totalEasy,
     totalMedium,
     totalHard,
-    colors,
-  ]);
+    colors
+  ])
 
   const options = useMemo(() => {
     return {
@@ -85,14 +79,14 @@ function AcceptanceRateChart({
             usePointStyle: true,
             pointStyle: 'rectRounded',
             padding: 16,
-            font: { size: 12 },
-          },
+            font: { size: 12 }
+          }
         },
         title: {
           display: true,
           text: 'Solved vs Total',
           color: colors.text,
-          font: { size: 14, weight: '600' },
+          font: { size: 14, weight: '600' }
         },
         tooltip: {
           backgroundColor: colors.bgRaised || 'rgba(0,0,0,0.8)',
@@ -101,60 +95,77 @@ function AcceptanceRateChart({
           borderColor: colors.grid,
           borderWidth: 1,
           callbacks: {
-            afterBody: (items) => {
-              const idx = items[0]?.dataIndex;
-              if (idx == null) return '';
-              const totals = [totalEasy, totalMedium, totalHard];
-              const solved = [easySolved, mediumSolved, hardSolved];
+            afterBody: items => {
+              const idx = items[0]?.dataIndex
+              if (idx == null) return ''
+              const totals = [totalEasy, totalMedium, totalHard]
+              const solved = [easySolved, mediumSolved, hardSolved]
               const pct =
                 totals[idx] > 0
                   ? ((solved[idx] / totals[idx]) * 100).toFixed(1)
-                  : 0;
-              return `${pct}% solved`;
-            },
-          },
-        },
+                  : 0
+              return `${pct}% solved`
+            }
+          }
+        }
       },
       scales: {
         x: {
           stacked: true,
           ticks: { color: colors.text2 },
-          grid: { display: false },
+          grid: { display: false }
         },
         y: {
           stacked: true,
           ticks: { color: colors.text2 },
-          grid: { color: colors.grid, drawBorder: false },
-        },
-      },
-    };
-  }, [colors, totalEasy, totalMedium, totalHard, easySolved, mediumSolved, hardSolved]);
+          grid: { color: colors.grid, drawBorder: false }
+        }
+      }
+    }
+  }, [
+    colors,
+    totalEasy,
+    totalMedium,
+    totalHard,
+    easySolved,
+    mediumSolved,
+    hardSolved
+  ])
 
   return (
     <div className="chart-container" style={{ height: 300 }}>
       <Bar data={data} options={options} />
     </div>
-  );
+  )
 }
 
 /* ---- helpers ---- */
 
 function hexToRgba(hex, alpha) {
-  if (!hex) return `rgba(0,0,0,${alpha})`;
+  if (!hex) return `rgba(0,0,0,${alpha})`
   if (hex.startsWith('rgb')) {
-    return hex.replace('rgb(', 'rgba(').replace(')', `,${alpha})`);
+    return hex.replace('rgb(', 'rgba(').replace(')', `,${alpha})`)
   }
-  hex = hex.replace('#', '');
+  hex = hex.replace('#', '')
   if (hex.length === 3) {
     hex = hex
       .split('')
-      .map((c) => c + c)
-      .join('');
+      .map(c => c + c)
+      .join('')
   }
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
+  const r = Number.parseInt(hex.substring(0, 2), 16)
+  const g = Number.parseInt(hex.substring(2, 4), 16)
+  const b = Number.parseInt(hex.substring(4, 6), 16)
+  return `rgba(${r},${g},${b},${alpha})`
 }
 
-export default AcceptanceRateChart;
+AcceptanceRateChart.propTypes = {
+  easySolved: PropTypes.number,
+  mediumSolved: PropTypes.number,
+  hardSolved: PropTypes.number,
+  totalEasy: PropTypes.number,
+  totalMedium: PropTypes.number,
+  totalHard: PropTypes.number
+}
+
+export default AcceptanceRateChart

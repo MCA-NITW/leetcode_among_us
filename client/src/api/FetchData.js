@@ -1,3 +1,4 @@
+/* global globalThis */
 import {
   contestRatingHistogramQuery,
   getStreakCounterQuery,
@@ -21,7 +22,7 @@ import {
 } from './AllQueries.js'
 
 const getApiBaseUrl = () =>
-  window.location.href.includes('localhost')
+  globalThis.location.href.includes('localhost')
     ? 'http://localhost:3001'
     : 'https://leetcode-among-us.onrender.com'
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import {
   FaTrophy,
   FaFire,
@@ -22,6 +23,155 @@ const getDifficultyColor = difficulty => {
   if (difficulty === 'Easy') return '#00b8a3'
   if (difficulty === 'Medium') return '#ffc01e'
   return '#ef4743'
+}
+
+const getWinner = (val1, val2, higherIsBetter = true) => {
+  // Handle N/A values
+  if (val1 === 'N/A' && val2 === 'N/A') return 'tie'
+  if (val1 === 'N/A') return 'user2'
+  if (val2 === 'N/A') return 'user1'
+
+  // Extract numeric values from strings (e.g., "#123,456" -> 123456)
+  let numVal1 = val1
+  let numVal2 = val2
+
+  if (typeof val1 === 'string') {
+    numVal1 = Number.parseFloat(
+      val1.replaceAll(/[#,%]/g, '').replaceAll(/,/g, '')
+    )
+  }
+  if (typeof val2 === 'string') {
+    numVal2 = Number.parseFloat(
+      val2.replaceAll(/[#,%]/g, '').replaceAll(/,/g, '')
+    )
+  }
+
+  if (
+    numVal1 === undefined ||
+    numVal2 === undefined ||
+    Number.isNaN(numVal1) ||
+    Number.isNaN(numVal2)
+  )
+    return null
+  if (numVal1 === numVal2) return 'tie'
+
+  if (higherIsBetter) {
+    return numVal1 > numVal2 ? 'user1' : 'user2'
+  }
+  return numVal1 < numVal2 ? 'user1' : 'user2'
+}
+
+const ComparisonRow = ({
+  label,
+  value1,
+  value2,
+  higherIsBetter = true,
+  icon
+}) => {
+  const winner = getWinner(value1, value2, higherIsBetter)
+  const value1Class = winner === 'user1' ? 'winner' : ''
+  const value1TieClass = winner === 'tie' ? 'tie' : value1Class
+  const value2Class = winner === 'user2' ? 'winner' : ''
+  const value2TieClass = winner === 'tie' ? 'tie' : value2Class
+
+  return (
+    <div className="comparison-row">
+      <div className={`comparison-value ${value1TieClass}`}>
+        {value1 === undefined ? 'N/A' : value1}
+      </div>
+      <div className="comparison-label">
+        {icon && <span className="comparison-icon">{icon}</span>}
+        {label}
+      </div>
+      <div className={`comparison-value ${value2TieClass}`}>
+        {value2 === undefined ? 'N/A' : value2}
+      </div>
+    </div>
+  )
+}
+
+ComparisonRow.propTypes = {
+  label: PropTypes.string.isRequired,
+  value1: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  value2: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  higherIsBetter: PropTypes.bool,
+  icon: PropTypes.node
+}
+
+const DifficultyComparison = ({ difficulty, solved1, solved2, total }) => {
+  const winner = getWinner(solved1, solved2)
+  const color = getDifficultyColor(difficulty)
+
+  return (
+    <div className="difficulty-comparison">
+      <div className="difficulty-header" style={{ color }}>
+        {difficulty}
+      </div>
+      <div className="difficulty-bars">
+        <div
+          className={`difficulty-bar ${winner === 'user1' ? 'winner-bar' : ''}`}
+        >
+          <div
+            className="bar-fill"
+            style={{
+              width: `${(solved1 / total) * 100}%`,
+              backgroundColor: color
+            }}
+          >
+            <span className="bar-text">{solved1}</span>
+          </div>
+        </div>
+        <div className="difficulty-total">/ {total}</div>
+        <div
+          className={`difficulty-bar ${winner === 'user2' ? 'winner-bar' : ''}`}
+        >
+          <div
+            className="bar-fill"
+            style={{
+              width: `${(solved2 / total) * 100}%`,
+              backgroundColor: color
+            }}
+          >
+            <span className="bar-text">{solved2}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+DifficultyComparison.propTypes = {
+  difficulty: PropTypes.string.isRequired,
+  solved1: PropTypes.number,
+  solved2: PropTypes.number,
+  total: PropTypes.number
+}
+
+const BeatsComparison = ({ difficulty, beats1, beats2 }) => {
+  const winner = getWinner(beats1, beats2)
+
+  return (
+    <div className="beats-comparison">
+      <div
+        className="beats-header"
+        style={{ color: getDifficultyColor(difficulty) }}
+      >
+        {difficulty}
+      </div>
+      <div className={`beats-value ${winner === 'user1' ? 'winner' : ''}`}>
+        {beats1 ? `${beats1.toFixed(1)}%` : 'N/A'}
+      </div>
+      <div className={`beats-value ${winner === 'user2' ? 'winner' : ''}`}>
+        {beats2 ? `${beats2.toFixed(1)}%` : 'N/A'}
+      </div>
+    </div>
+  )
+}
+
+BeatsComparison.propTypes = {
+  difficulty: PropTypes.string.isRequired,
+  beats1: PropTypes.number,
+  beats2: PropTypes.number
 }
 
 const Compare = () => {
@@ -62,6 +212,7 @@ const Compare = () => {
       setUser1Data(processedData1)
       setUser2Data(processedData2)
     } catch (err) {
+      console.error('Error fetching user data for comparison:', err)
       setError(
         'Error fetching user data. Please check usernames and try again.'
       )
@@ -74,136 +225,6 @@ const Compare = () => {
     if (e.key === 'Enter') {
       handleCompare()
     }
-  }
-
-  const getWinner = (val1, val2, higherIsBetter = true) => {
-    // Handle N/A values
-    if (val1 === 'N/A' && val2 === 'N/A') return 'tie'
-    if (val1 === 'N/A') return 'user2'
-    if (val2 === 'N/A') return 'user1'
-
-    // Extract numeric values from strings (e.g., "#123,456" -> 123456)
-    let numVal1 = val1
-    let numVal2 = val2
-
-    if (typeof val1 === 'string') {
-      numVal1 = parseFloat(val1.replace(/[#,%]/g, '').replace(/,/g, ''))
-    }
-    if (typeof val2 === 'string') {
-      numVal2 = parseFloat(val2.replace(/[#,%]/g, '').replace(/,/g, ''))
-    }
-
-    if (
-      numVal1 === undefined ||
-      numVal2 === undefined ||
-      isNaN(numVal1) ||
-      isNaN(numVal2)
-    )
-      return null
-    if (numVal1 === numVal2) return 'tie'
-
-    if (higherIsBetter) {
-      return numVal1 > numVal2 ? 'user1' : 'user2'
-    } else {
-      return numVal1 < numVal2 ? 'user1' : 'user2'
-    }
-  }
-
-  const ComparisonRow = ({
-    label,
-    value1,
-    value2,
-    higherIsBetter = true,
-    icon
-  }) => {
-    const winner = getWinner(value1, value2, higherIsBetter)
-
-    return (
-      <div className="comparison-row">
-        <div
-          className={`comparison-value ${
-            winner === 'user1' ? 'winner' : winner === 'tie' ? 'tie' : ''
-          }`}
-        >
-          {value1 !== undefined ? value1 : 'N/A'}
-        </div>
-        <div className="comparison-label">
-          {icon && <span className="comparison-icon">{icon}</span>}
-          {label}
-        </div>
-        <div
-          className={`comparison-value ${
-            winner === 'user2' ? 'winner' : winner === 'tie' ? 'tie' : ''
-          }`}
-        >
-          {value2 !== undefined ? value2 : 'N/A'}
-        </div>
-      </div>
-    )
-  }
-
-  const DifficultyComparison = ({ difficulty, solved1, solved2, total }) => {
-    const winner = getWinner(solved1, solved2)
-    const color = getDifficultyColor(difficulty)
-
-    return (
-      <div className="difficulty-comparison">
-        <div className="difficulty-header" style={{ color }}>
-          {difficulty}
-        </div>
-        <div className="difficulty-bars">
-          <div
-            className={`difficulty-bar ${
-              winner === 'user1' ? 'winner-bar' : ''
-            }`}
-          >
-            <div
-              className="bar-fill"
-              style={{
-                width: `${(solved1 / total) * 100}%`,
-                backgroundColor: color
-              }}
-            >
-              <span className="bar-text">{solved1}</span>
-            </div>
-          </div>
-          <div className="difficulty-total">/ {total}</div>
-          <div
-            className={`difficulty-bar ${
-              winner === 'user2' ? 'winner-bar' : ''
-            }`}
-          >
-            <div
-              className="bar-fill"
-              style={{
-                width: `${(solved2 / total) * 100}%`,
-                backgroundColor: color
-              }}
-            >
-              <span className="bar-text">{solved2}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const BeatsComparison = ({ difficulty, beats1, beats2 }) => {
-    const winner = getWinner(beats1, beats2)
-
-    return (
-      <div className="beats-comparison">
-        <div className="beats-header" style={{ color: getDifficultyColor(difficulty) }}>
-          {difficulty}
-        </div>
-        <div className={`beats-value ${winner === 'user1' ? 'winner' : ''}`}>
-          {beats1 ? `${beats1.toFixed(1)}%` : 'N/A'}
-        </div>
-        <div className={`beats-value ${winner === 'user2' ? 'winner' : ''}`}>
-          {beats2 ? `${beats2.toFixed(1)}%` : 'N/A'}
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -493,9 +514,9 @@ const Compare = () => {
 
             <div className="badges-showcase">
               <div className="user-badges">
-                {user1Data.badges?.slice(0, 5).map((badge, idx) => (
+                {user1Data.badges?.slice(0, 5).map(badge => (
                   <img
-                    key={idx}
+                    key={badge.id || badge.name}
                     src={badge.icon}
                     alt={badge.name}
                     title={badge.hoverText || badge.name}
@@ -510,9 +531,9 @@ const Compare = () => {
               </div>
               <div className="badges-spacer"></div>
               <div className="user-badges">
-                {user2Data.badges?.slice(0, 5).map((badge, idx) => (
+                {user2Data.badges?.slice(0, 5).map(badge => (
                   <img
-                    key={idx}
+                    key={badge.id || badge.name}
                     src={badge.icon}
                     alt={badge.name}
                     title={badge.hoverText || badge.name}
@@ -529,7 +550,8 @@ const Compare = () => {
           </div>
 
           {/* Chart Comparisons */}
-          {(user1Data.contestHistory?.length > 0 || user2Data.contestHistory?.length > 0) && (
+          {(user1Data.contestHistory?.length > 0 ||
+            user2Data.contestHistory?.length > 0) && (
             <div className="comparison-section">
               <h3 className="section-title">
                 <FaChartLine /> Contest Rating History

@@ -5,9 +5,9 @@ import {
 } from '../api/OptimizedFetchData'
 
 // Legacy function for backward compatibility - now uses optimized backend
-export const fetchDataForLeetcoder = async (leetcoder) => {
+export const fetchDataForLeetcoder = async leetcoder => {
   if (!leetcoder.userName || leetcoder.userName.trim() === '') {
-    console.log(`No userName provided for leetcoder with ID: ${leetcoder.id}`)
+    console.warn(`No userName provided for leetcoder with ID: ${leetcoder.id}`)
     return leetcoder
   }
 
@@ -21,7 +21,7 @@ export const fetchDataForLeetcoder = async (leetcoder) => {
 }
 
 // New optimized function for batch processing
-export const fetchDataForMultipleLeetcoders = async (leetcoders) => {
+export const fetchDataForMultipleLeetcoders = async leetcoders => {
   const validLeetcoders = leetcoders.filter(
     leetcoder => leetcoder.userName && leetcoder.userName.trim() !== ''
   )
@@ -34,7 +34,7 @@ export const fetchDataForMultipleLeetcoders = async (leetcoders) => {
     // Process in batches of 10 (backend limit)
     const batchSize = 10
     const batches = []
-    
+
     for (let i = 0; i < validLeetcoders.length; i += batchSize) {
       batches.push(validLeetcoders.slice(i, i + batchSize))
     }
@@ -45,11 +45,11 @@ export const fetchDataForMultipleLeetcoders = async (leetcoders) => {
       try {
         const usernames = batch.map(user => user.userName.toLowerCase())
         const batchResults = await fetchBatchUserData(usernames)
-        
+
         // Process each result
         const processedBatch = batch.map((leetcoder, index) => {
           const backendData = batchResults[index]
-          if (backendData && backendData.success && backendData.data) {
+          if (backendData?.success && backendData.data) {
             return processUserDataResponse(leetcoder, backendData.data)
           } else {
             console.warn(`Failed to fetch data for ${leetcoder.userName}`)
@@ -70,11 +70,40 @@ export const fetchDataForMultipleLeetcoders = async (leetcoders) => {
 
     return allResults
   } catch (error) {
-    console.error('Error in batch processing, falling back to individual requests:', error)
+    console.error(
+      'Error in batch processing, falling back to individual requests:',
+      error
+    )
     // Fallback to processing each user individually
     return Promise.all(
       validLeetcoders.map(leetcoder => fetchDataForLeetcoder(leetcoder))
     )
+  }
+}
+
+// Helper to process a batch individually when batch API fails
+const processBatchIndividually = async (
+  batch,
+  allResults,
+  progressState,
+  onProgress
+) => {
+  for (const leetcoder of batch) {
+    try {
+      onProgress?.({
+        progress:
+          (progressState.completedUsers / progressState.totalUsers) * 100,
+        currentlyProcessing: `Processing: ${leetcoder.userName}`
+      })
+
+      const result = await fetchDataForLeetcoder(leetcoder)
+      allResults.push(result)
+      progressState.completedUsers++
+    } catch (individualError) {
+      console.error(`Error processing ${leetcoder.userName}:`, individualError)
+      allResults.push(leetcoder)
+      progressState.completedUsers++
+    }
   }
 }
 
@@ -90,30 +119,33 @@ export const fetchDataWithProgress = async (leetcoders, onProgress) => {
 
   const batchSize = 10
   const batches = []
-  
+
   for (let i = 0; i < validLeetcoders.length; i += batchSize) {
     batches.push(validLeetcoders.slice(i, i + batchSize))
   }
 
   const allResults = []
-  let completedUsers = 0
+  const progressState = {
+    completedUsers: 0,
+    totalUsers: validLeetcoders.length
+  }
 
   for (const batch of batches) {
     try {
       // Update progress with current batch
       const batchUsernames = batch.map(user => user.userName).join(', ')
-      onProgress && onProgress({
-        progress: (completedUsers / validLeetcoders.length) * 100,
+      onProgress?.({
+        progress: (progressState.completedUsers / validLeetcoders.length) * 100,
         currentlyProcessing: `Processing: ${batchUsernames}`
       })
 
       const usernames = batch.map(user => user.userName.toLowerCase())
       const batchResults = await fetchBatchUserData(usernames)
-      
+
       // Process each result
       const processedBatch = batch.map((leetcoder, index) => {
         const backendData = batchResults[index]
-        if (backendData && backendData.success && backendData.data) {
+        if (backendData?.success && backendData.data) {
           return processUserDataResponse(leetcoder, backendData.data)
         } else {
           console.warn(`Failed to fetch data for ${leetcoder.userName}`)
@@ -122,37 +154,26 @@ export const fetchDataWithProgress = async (leetcoders, onProgress) => {
       })
 
       allResults.push(...processedBatch)
-      completedUsers += batch.length
+      progressState.completedUsers += batch.length
 
       // Update progress
-      onProgress && onProgress({
-        progress: (completedUsers / validLeetcoders.length) * 100,
-        currentlyProcessing: `Completed: ${completedUsers}/${validLeetcoders.length}`
+      onProgress?.({
+        progress: (progressState.completedUsers / validLeetcoders.length) * 100,
+        currentlyProcessing: `Completed: ${progressState.completedUsers}/${validLeetcoders.length}`
       })
-
     } catch (error) {
       console.error('Error processing batch:', error)
       // Fallback to individual processing for this batch
-      for (const leetcoder of batch) {
-        try {
-          onProgress && onProgress({
-            progress: (completedUsers / validLeetcoders.length) * 100,
-            currentlyProcessing: `Processing: ${leetcoder.userName}`
-          })
-
-          const result = await fetchDataForLeetcoder(leetcoder)
-          allResults.push(result)
-          completedUsers++
-        } catch (individualError) {
-          console.error(`Error processing ${leetcoder.userName}:`, individualError)
-          allResults.push(leetcoder)
-          completedUsers++
-        }
-      }
+      await processBatchIndividually(
+        batch,
+        allResults,
+        progressState,
+        onProgress
+      )
     }
   }
 
-  onProgress && onProgress({
+  onProgress?.({
     progress: 100,
     currentlyProcessing: 'Complete!'
   })

@@ -26,20 +26,45 @@
 }
 
 @keyframes compareScaleIn {
-  0%   { opacity: 0; transform: scale(0.88); }
-  60%  { opacity: 1; transform: scale(1.03); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes vsBreathe {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50%      { opacity: 0.7; transform: scale(1.08); }
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
 }
 
 @keyframes winnerReveal {
-  0%   { opacity: 0; transform: scale(0.85); }
-  50%  { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ── PAGE CONTAINER ── */
@@ -112,7 +137,9 @@
   background: var(--bg-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .compare-input::placeholder {
@@ -159,7 +186,10 @@
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.25s var(--ease-spring), box-shadow 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s var(--ease-spring),
+    box-shadow 0.2s ease;
 }
 
 .compare-button:hover:not(:disabled) {
@@ -202,14 +232,30 @@
   animation: compareFadeIn 0.3s ease both;
 }
 
-.comparison-results > *:nth-child(1) { animation-delay: 0s; }
-.comparison-results > *:nth-child(2) { animation-delay: 0.08s; }
-.comparison-results > *:nth-child(3) { animation-delay: 0.16s; }
-.comparison-results > *:nth-child(4) { animation-delay: 0.24s; }
-.comparison-results > *:nth-child(5) { animation-delay: 0.32s; }
-.comparison-results > *:nth-child(6) { animation-delay: 0.40s; }
-.comparison-results > *:nth-child(7) { animation-delay: 0.48s; }
-.comparison-results > *:nth-child(8) { animation-delay: 0.56s; }
+.comparison-results > *:nth-child(1) {
+  animation-delay: 0s;
+}
+.comparison-results > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.comparison-results > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.comparison-results > *:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.comparison-results > *:nth-child(5) {
+  animation-delay: 0.32s;
+}
+.comparison-results > *:nth-child(6) {
+  animation-delay: 0.4s;
+}
+.comparison-results > *:nth-child(7) {
+  animation-delay: 0.48s;
+}
+.comparison-results > *:nth-child(8) {
+  animation-delay: 0.56s;
+}
 
 /* ── USER HEADERS ── */
 .user-headers {
@@ -230,7 +276,10 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  transition: transform 0.35s var(--ease-spring), box-shadow 0.25s ease, border-color 0.25s ease;
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .user-header:hover {
@@ -263,7 +312,9 @@
   border-radius: 50%;
   border: 2px solid var(--border-hover);
   object-fit: cover;
-  transition: transform 0.35s var(--ease-spring), border-color 0.25s ease;
+  transition:
+    transform 0.35s var(--ease-spring),
+    border-color 0.25s ease;
 }
 
 .user-header:hover .user-avatar {

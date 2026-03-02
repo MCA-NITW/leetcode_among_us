@@ -345,7 +345,9 @@
 /* ── Table Body ── */
 .rank-table__body tr {
   border-bottom: var(--glass-border);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .rank-table__body tr:hover {
@@ -354,10 +356,6 @@
 
 .rank-table__body tr:last-child {
   border-bottom: none;
-}
-
-.rank-table__body tr:hover {
-  background: var(--bg-glass-hover);
 }
 
 .rank-table__body td {
@@ -451,7 +449,9 @@
   font-size: var(--font-sm);
   font-weight: 700;
   color: var(--text-2);
-  transition: transform 0.3s var(--ease-spring), box-shadow 0.2s ease;
+  transition:
+    transform 0.3s var(--ease-spring),
+    box-shadow 0.2s ease;
 }
 
 tr:hover .rank-badge {
@@ -469,7 +469,7 @@ tr:hover .rank-badge {
 .rank-silver .rank-badge {
   background: linear-gradient(135deg, var(--silver), rgba(148, 163, 184, 0.6));
   border-color: var(--silver);
-  color: #334155;
+  color: #1e293b;
   box-shadow: 0 2px 8px rgba(148, 163, 184, 0.2);
 }
 
@@ -494,7 +494,9 @@ tr:hover .rank-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .username-link:hover {
@@ -829,7 +831,13 @@ tr:hover .rank-badge {
     color: #111;
   }
 
-  .easy-col { color: #16a34a; }
-  .medium-col { color: #d97706; }
-  .hard-col { color: #dc2626; }
+  .easy-col {
+    color: #16a34a;
+  }
+  .medium-col {
+    color: #d97706;
+  }
+  .hard-col {
+    color: #dc2626;
+  }
 }

@@ -5,6 +5,374 @@ import { FaChartBar, FaTrophy, FaSearch, FaMedal, FaFire } from 'react-icons/fa'
 import { BiTargetLock } from 'react-icons/bi'
 import { MdSpeed, MdCalendarToday } from 'react-icons/md'
 
+const getRatingColor = rating => {
+  if (rating >= 2200) return '#FF0000'
+  if (rating >= 1900) return '#FF8C00'
+  if (rating >= 1600) return '#A020F0'
+  if (rating >= 1400) return '#0000FF'
+  if (rating >= 1200) return '#00C0C0'
+  return '#808080'
+}
+
+const getRatingBadge = rating => {
+  if (rating >= 2200) return '👑'
+  if (rating >= 1900) return '⭐'
+  if (rating >= 1600) return '💎'
+  if (rating >= 1400) return '🔵'
+  if (rating >= 1200) return '🌊'
+  return ''
+}
+
+const computeAcceptanceRate = user => {
+  if (!user.acSubmissionNum) return '0.0'
+  const totalAc = user.acSubmissionNum.find(s => s.difficulty === 'All')
+  if (totalAc && totalAc.submissions > 0) {
+    return ((totalAc.count / totalAc.submissions) * 100).toFixed(1)
+  }
+  return '0.0'
+}
+
+const getAcceptanceRateColor = acceptanceRate => {
+  const rate = Number.parseFloat(acceptanceRate)
+  if (rate > 50) return 'var(--easy-color)'
+  if (rate > 30) return 'var(--medium-color)'
+  return 'var(--hard-color)'
+}
+
+const OverviewRow = ({ user, index, rowClass, getRankBadge }) => {
+  const rating = user.globalContestRating || 0
+
+  return (
+    <tr key={user.userName || index} className={rowClass}>
+      <td className="rank-col">
+        <span className="rank-badge">{getRankBadge(index)}</span>
+      </td>
+      <td className="name-col" title={user.name}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {user.avatar && (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+              onError={e => {
+                e.target.style.display = 'none'
+              }}
+            />
+          )}
+          <div>
+            <a
+              href={`https://leetcode.com/${user.userName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="username-link"
+            >
+              {user.name || 'N/A'}
+            </a>
+            <div className="username-subtitle">@{user.userName}</div>
+          </div>
+        </div>
+      </td>
+      <td className="batch-col">
+        <span className="batch-badge">{user.batch || 'N/A'}</span>
+      </td>
+      <td className="stat-col total-col">
+        <strong>{user.totalSolved || 0}</strong>
+      </td>
+      <td className="stat-col">
+        {rating > 0 ? (
+          <span
+            style={{
+              color: getRatingColor(rating),
+              fontWeight: 'bold',
+              fontSize: '1.05em'
+            }}
+          >
+            {getRatingBadge(rating)} {Math.round(rating)}
+          </span>
+        ) : (
+          <span style={{ color: '#999' }}>Unrated</span>
+        )}
+        {user.contestTopPercentage && rating > 0 && (
+          <div style={{ fontSize: '0.75em', color: '#666' }}>
+            Top {user.contestTopPercentage.toFixed(1)}%
+          </div>
+        )}
+      </td>
+      <td className="stat-col">
+        {user.bestStreak > 0 ? (
+          <span
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: user.bestStreak >= 7 ? '#FF4500' : '#FFA500'
+            }}
+          >
+            <FaFire style={{ fontSize: '1.2em' }} />
+            <strong>{user.bestStreak}</strong>
+            <span style={{ fontSize: '0.85em' }}>days</span>
+          </span>
+        ) : (
+          <span style={{ color: '#999' }}>0</span>
+        )}
+      </td>
+      <td className="stat-col">
+        {user.totalActiveDays > 0 ? (
+          <span
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <MdCalendarToday style={{ fontSize: '1.1em', color: '#4CAF50' }} />
+            <strong>{user.totalActiveDays}</strong>
+            <span style={{ fontSize: '0.85em' }}>days</span>
+          </span>
+        ) : (
+          <span style={{ color: '#999' }}>0</span>
+        )}
+      </td>
+      <td className="stat-col" style={{ minWidth: '100px' }}>
+        {user.totalSolved > 0 ? (
+          <div
+            style={{
+              display: 'flex',
+              height: '8px',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              background: 'var(--border)',
+              width: '100%'
+            }}
+          >
+            <div
+              style={{
+                width: `${(user.easySolved / user.totalSolved) * 100}%`,
+                background: 'var(--easy-color)'
+              }}
+              title={`Easy: ${user.easySolved}`}
+            ></div>
+            <div
+              style={{
+                width: `${(user.mediumSolved / user.totalSolved) * 100}%`,
+                background: 'var(--medium-color)'
+              }}
+              title={`Medium: ${user.mediumSolved}`}
+            ></div>
+            <div
+              style={{
+                width: `${(user.hardSolved / user.totalSolved) * 100}%`,
+                background: 'var(--hard-color)'
+              }}
+              title={`Hard: ${user.hardSolved}`}
+            ></div>
+          </div>
+        ) : (
+          <span style={{ color: 'var(--text-3)' }}>-</span>
+        )}
+      </td>
+    </tr>
+  )
+}
+
+const ProblemsRow = ({ user, index, rowClass, getRankBadge }) => {
+  const easyPercent =
+    user.easySolved && user.totalSolved
+      ? ((user.easySolved / user.totalSolved) * 100).toFixed(1)
+      : 0
+  const mediumPercent =
+    user.mediumSolved && user.totalSolved
+      ? ((user.mediumSolved / user.totalSolved) * 100).toFixed(1)
+      : 0
+  const hardPercent =
+    user.hardSolved && user.totalSolved
+      ? ((user.hardSolved / user.totalSolved) * 100).toFixed(1)
+      : 0
+
+  const acceptanceRate = computeAcceptanceRate(user)
+  const acceptanceColor = getAcceptanceRateColor(acceptanceRate)
+
+  return (
+    <tr key={user.userName || index} className={rowClass}>
+      <td className="rank-col">
+        <span className="rank-badge">{getRankBadge(index)}</span>
+      </td>
+      <td className="name-col" title={user.name}>
+        <a
+          href={`https://leetcode.com/${user.userName}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="username-link"
+        >
+          {user.name || 'N/A'}
+        </a>
+        <div className="username-subtitle">@{user.userName}</div>
+      </td>
+      <td className="stat-col total-col">
+        <strong>{user.totalSolved || 0}</strong>
+      </td>
+      <td className="stat-col easy-col">
+        <strong>{user.easySolved || 0}</strong>
+      </td>
+      <td className="stat-col medium-col">
+        <strong>{user.mediumSolved || 0}</strong>
+      </td>
+      <td className="stat-col hard-col">
+        <strong>{user.hardSolved || 0}</strong>
+      </td>
+      <td className="stat-col easy-col">{easyPercent}%</td>
+      <td className="stat-col medium-col">{mediumPercent}%</td>
+      <td className="stat-col hard-col">{hardPercent}%</td>
+      <td className="stat-col" title="Acceptance Rate">
+        <span style={{ color: acceptanceColor, fontWeight: 'bold' }}>
+          {acceptanceRate}%
+        </span>
+      </td>
+    </tr>
+  )
+}
+
+const ContestsRow = ({ user, index, rowClass, getRankBadge }) => (
+  <tr key={user.userName || index} className={rowClass}>
+    <td className="rank-col">
+      <span className="rank-badge">{getRankBadge(index)}</span>
+    </td>
+    <td className="name-col" title={user.name}>
+      <a
+        href={`https://leetcode.com/${user.userName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="username-link"
+      >
+        {user.name || 'N/A'}
+      </a>
+      <div className="username-subtitle">@{user.userName}</div>
+    </td>
+    <td className="stat-col total-col">
+      <strong>
+        {user.globalContestRating
+          ? Math.round(user.globalContestRating)
+          : 'N/A'}
+      </strong>
+    </td>
+    <td className="stat-col">
+      {user.globalContestRanking && user.globalContestRanking !== Infinity
+        ? user.globalContestRanking.toLocaleString()
+        : 'N/A'}
+    </td>
+    <td className="stat-col">
+      {user.contestTopPercentage
+        ? `${user.contestTopPercentage.toFixed(2)}%`
+        : 'N/A'}
+    </td>
+    <td className="stat-col">{user.attendedContestCount || 0}</td>
+    <td className="stat-col">
+      {user.bestContestRank && user.bestContestRank !== Infinity
+        ? user.bestContestRank.toLocaleString()
+        : 'N/A'}
+    </td>
+    <td className="stat-col" style={{ textAlign: 'center' }}>
+      {user.contestBadge ? (
+        <span
+          title={user.contestBadge.hoverText || user.contestBadge.name}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+        >
+          {user.contestBadge.icon && (
+            <img
+              src={user.contestBadge.icon}
+              alt={user.contestBadge.name}
+              style={{ width: '20px', height: '20px' }}
+              onError={e => {
+                e.target.style.display = 'none'
+              }}
+            />
+          )}
+          <span style={{ fontSize: '0.8em', color: 'var(--contest-color)' }}>
+            {user.contestBadge.name}
+          </span>
+        </span>
+      ) : (
+        <span style={{ color: 'var(--text-3)' }}>-</span>
+      )}
+    </td>
+  </tr>
+)
+
+const ContestPerformanceRow = ({ user, index, rowClass, getRankBadge }) => (
+  <tr key={user.userName || index} className={rowClass}>
+    <td className="rank-col">
+      <span className="rank-badge">{getRankBadge(index)}</span>
+    </td>
+    <td className="name-col" title={user.name}>
+      <a
+        href={`https://leetcode.com/${user.userName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="username-link"
+      >
+        {user.name || 'N/A'}
+      </a>
+      <div className="username-subtitle">@{user.userName}</div>
+    </td>
+    <td className="stat-col">
+      <strong>{user.attendedContestCount || 0}</strong>
+    </td>
+    <td className="stat-col contest-4q">
+      <strong>{user.mostFourQuestionsInContest || 0}</strong>
+    </td>
+    <td className="stat-col contest-3q">
+      <strong>{user.mostThreeQuestionsInContest || 0}</strong>
+    </td>
+    <td className="stat-col contest-2q">
+      <strong>{user.mostTwoQuestionsInContest || 0}</strong>
+    </td>
+    <td className="stat-col contest-1q">
+      <strong>{user.mostOneQuestionsInContest || 0}</strong>
+    </td>
+    <td className="stat-col contest-0q">
+      <strong>{user.mostZeroQuestionsInContest || 0}</strong>
+    </td>
+    <td className="stat-col">
+      {user.averageContestRanking && user.averageContestRanking !== Infinity
+        ? user.averageContestRanking.toLocaleString()
+        : 'N/A'}
+    </td>
+  </tr>
+)
+
+const AdvancedRow = ({ user, index, rowClass, getRankBadge }) => (
+  <tr key={user.userName || index} className={rowClass}>
+    <td className="rank-col">
+      <span className="rank-badge">{getRankBadge(index)}</span>
+    </td>
+    <td className="name-col" title={user.name}>
+      <a
+        href={`https://leetcode.com/${user.userName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="username-link"
+      >
+        {user.name || 'N/A'}
+      </a>
+      <div className="username-subtitle">@{user.userName}</div>
+    </td>
+    <td className="stat-col">{user.reputation || 0}</td>
+    <td className="stat-col">
+      {user.questionRanking ? user.questionRanking.toLocaleString() : 'N/A'}
+    </td>
+    <td className="stat-col">
+      {user.bestStreak ? `${user.bestStreak} days` : 'N/A'}
+    </td>
+    <td className="stat-col">{user.totalActiveDays || 0}</td>
+    <td className="stat-col">{user.badgeCount || 0}</td>
+  </tr>
+)
+
 const CustomRankTable = ({ data }) => {
   const [sortConfig, setSortConfig] = useState({
     key: 'totalSolved',
@@ -137,9 +505,7 @@ const CustomRankTable = ({ data }) => {
             >
               📅 Active Days {getSortIcon('totalActiveDays')}
             </th>
-            <th title="Easy/Medium/Hard ratio">
-              Difficulty Mix
-            </th>
+            <th title="Easy/Medium/Hard ratio">Difficulty Mix</th>
           </>
         )
 
@@ -177,7 +543,11 @@ const CustomRankTable = ({ data }) => {
             <th className="sortable">Easy %</th>
             <th className="sortable">Medium %</th>
             <th className="sortable">Hard %</th>
-            <th onClick={() => handleSort('acceptanceRate')} className="sortable" title="Overall acceptance rate">
+            <th
+              onClick={() => handleSort('acceptanceRate')}
+              className="sortable"
+              title="Overall acceptance rate"
+            >
               Accept % {getSortIcon('acceptanceRate')}
             </th>
           </>
@@ -326,332 +696,56 @@ const CustomRankTable = ({ data }) => {
       const rowClass = `rank-table__row ${getRankClass(index)}`
 
       switch (activeTab) {
-        case 'overview': {
-          const rating = user.globalContestRating || 0
-          const getRatingColor = rating => {
-            if (rating >= 2200) return '#FF0000' // Red (Legendary Grand Master)
-            if (rating >= 1900) return '#FF8C00' // Orange (Master)
-            if (rating >= 1600) return '#A020F0' // Purple (Expert)
-            if (rating >= 1400) return '#0000FF' // Blue (Specialist)
-            if (rating >= 1200) return '#00C0C0' // Cyan (Pupil)
-            return '#808080' // Gray (Newbie)
-          }
-          const getRatingBadge = rating => {
-            if (rating >= 2200) return '👑'
-            if (rating >= 1900) return '⭐'
-            if (rating >= 1600) return '💎'
-            if (rating >= 1400) return '🔵'
-            if (rating >= 1200) return '🌊'
-            return ''
-          }
-
+        case 'overview':
           return (
-            <tr key={user.userName || index} className={rowClass}>
-              <td className="rank-col">
-                <span className="rank-badge">{getRankBadge(index)}</span>
-              </td>
-              <td className="name-col" title={user.name}>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                  {user.avatar && (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        objectFit: 'cover'
-                      }}
-                      onError={e => {
-                        e.target.style.display = 'none'
-                      }}
-                    />
-                  )}
-                  <div>
-                    <a
-                      href={`https://leetcode.com/${user.userName}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="username-link"
-                    >
-                      {user.name || 'N/A'}
-                    </a>
-                    <div className="username-subtitle">@{user.userName}</div>
-                  </div>
-                </div>
-              </td>
-              <td className="batch-col">
-                <span className="batch-badge">{user.batch || 'N/A'}</span>
-              </td>
-              <td className="stat-col total-col">
-                <strong>{user.totalSolved || 0}</strong>
-              </td>
-              <td className="stat-col">
-                {rating > 0 ? (
-                  <span
-                    style={{
-                      color: getRatingColor(rating),
-                      fontWeight: 'bold',
-                      fontSize: '1.05em'
-                    }}
-                  >
-                    {getRatingBadge(rating)} {Math.round(rating)}
-                  </span>
-                ) : (
-                  <span style={{ color: '#999' }}>Unrated</span>
-                )}
-                {user.contestTopPercentage && rating > 0 && (
-                  <div style={{ fontSize: '0.75em', color: '#666' }}>
-                    Top {user.contestTopPercentage.toFixed(1)}%
-                  </div>
-                )}
-              </td>
-              <td className="stat-col">
-                {user.bestStreak > 0 ? (
-                  <span
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      color: user.bestStreak >= 7 ? '#FF4500' : '#FFA500'
-                    }}
-                  >
-                    <FaFire style={{ fontSize: '1.2em' }} />
-                    <strong>{user.bestStreak}</strong>
-                    <span style={{ fontSize: '0.85em' }}>days</span>
-                  </span>
-                ) : (
-                  <span style={{ color: '#999' }}>0</span>
-                )}
-              </td>
-              <td className="stat-col">
-                {user.totalActiveDays > 0 ? (
-                  <span
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    <MdCalendarToday
-                      style={{ fontSize: '1.1em', color: '#4CAF50' }}
-                    />
-                    <strong>{user.totalActiveDays}</strong>
-                    <span style={{ fontSize: '0.85em' }}>days</span>
-                  </span>
-                ) : (
-                  <span style={{ color: '#999' }}>0</span>
-                )}
-              </td>
-              <td className="stat-col" style={{ minWidth: '100px' }}>
-                {user.totalSolved > 0 ? (
-                  <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', background: 'var(--border)', width: '100%' }}>
-                    <div style={{ width: `${(user.easySolved / user.totalSolved * 100)}%`, background: 'var(--easy-color)' }} title={`Easy: ${user.easySolved}`}></div>
-                    <div style={{ width: `${(user.mediumSolved / user.totalSolved * 100)}%`, background: 'var(--medium-color)' }} title={`Medium: ${user.mediumSolved}`}></div>
-                    <div style={{ width: `${(user.hardSolved / user.totalSolved * 100)}%`, background: 'var(--hard-color)' }} title={`Hard: ${user.hardSolved}`}></div>
-                  </div>
-                ) : (
-                  <span style={{ color: 'var(--text-3)' }}>-</span>
-                )}
-              </td>
-            </tr>
+            <OverviewRow
+              key={user.userName || index}
+              user={user}
+              index={index}
+              rowClass={rowClass}
+              getRankBadge={getRankBadge}
+            />
           )
-        }
-
-        case 'problems': {
-          const easyPercent =
-            user.easySolved && user.totalSolved
-              ? ((user.easySolved / user.totalSolved) * 100).toFixed(1)
-              : 0
-          const mediumPercent =
-            user.mediumSolved && user.totalSolved
-              ? ((user.mediumSolved / user.totalSolved) * 100).toFixed(1)
-              : 0
-          const hardPercent =
-            user.hardSolved && user.totalSolved
-              ? ((user.hardSolved / user.totalSolved) * 100).toFixed(1)
-              : 0
-
-          const acceptanceRate = user.acSubmissionNum ? (() => {
-            const totalAc = user.acSubmissionNum.find(s => s.difficulty === 'All')
-            return totalAc && totalAc.submissions > 0
-              ? ((totalAc.count / totalAc.submissions) * 100).toFixed(1)
-              : '0.0'
-          })() : '0.0'
-
+        case 'problems':
           return (
-            <tr key={user.userName || index} className={rowClass}>
-              <td className="rank-col">
-                <span className="rank-badge">{getRankBadge(index)}</span>
-              </td>
-              <td className="name-col" title={user.name}>
-                <a
-                  href={`https://leetcode.com/${user.userName}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="username-link"
-                >
-                  {user.name || 'N/A'}
-                </a>
-                <div className="username-subtitle">@{user.userName}</div>
-              </td>
-              <td className="stat-col total-col">
-                <strong>{user.totalSolved || 0}</strong>
-              </td>
-              <td className="stat-col easy-col">
-                <strong>{user.easySolved || 0}</strong>
-              </td>
-              <td className="stat-col medium-col">
-                <strong>{user.mediumSolved || 0}</strong>
-              </td>
-              <td className="stat-col hard-col">
-                <strong>{user.hardSolved || 0}</strong>
-              </td>
-              <td className="stat-col easy-col">{easyPercent}%</td>
-              <td className="stat-col medium-col">{mediumPercent}%</td>
-              <td className="stat-col hard-col">{hardPercent}%</td>
-              <td className="stat-col" title="Acceptance Rate">
-                <span style={{ color: parseFloat(acceptanceRate) > 50 ? 'var(--easy-color)' : parseFloat(acceptanceRate) > 30 ? 'var(--medium-color)' : 'var(--hard-color)', fontWeight: 'bold' }}>
-                  {acceptanceRate}%
-                </span>
-              </td>
-            </tr>
+            <ProblemsRow
+              key={user.userName || index}
+              user={user}
+              index={index}
+              rowClass={rowClass}
+              getRankBadge={getRankBadge}
+            />
           )
-        }
-
         case 'contests':
           return (
-            <tr key={user.userName || index} className={rowClass}>
-              <td className="rank-col">
-                <span className="rank-badge">{getRankBadge(index)}</span>
-              </td>
-              <td className="name-col" title={user.name}>
-                <a
-                  href={`https://leetcode.com/${user.userName}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="username-link"
-                >
-                  {user.name || 'N/A'}
-                </a>
-                <div className="username-subtitle">@{user.userName}</div>
-              </td>
-              <td className="stat-col total-col">
-                <strong>
-                  {user.globalContestRating
-                    ? Math.round(user.globalContestRating)
-                    : 'N/A'}
-                </strong>
-              </td>
-              <td className="stat-col">
-                {user.globalContestRanking &&
-                user.globalContestRanking !== Infinity
-                  ? user.globalContestRanking.toLocaleString()
-                  : 'N/A'}
-              </td>
-              <td className="stat-col">
-                {user.contestTopPercentage
-                  ? `${user.contestTopPercentage.toFixed(2)}%`
-                  : 'N/A'}
-              </td>
-              <td className="stat-col">{user.attendedContestCount || 0}</td>
-              <td className="stat-col">
-                {user.bestContestRank && user.bestContestRank !== Infinity
-                  ? user.bestContestRank.toLocaleString()
-                  : 'N/A'}
-              </td>
-              <td className="stat-col" style={{ textAlign: 'center' }}>
-                {user.contestBadge ? (
-                  <span title={user.contestBadge.hoverText || user.contestBadge.name} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    {user.contestBadge.icon && (
-                      <img src={user.contestBadge.icon} alt={user.contestBadge.name} style={{ width: '20px', height: '20px' }} onError={e => { e.target.style.display = 'none' }} />
-                    )}
-                    <span style={{ fontSize: '0.8em', color: 'var(--contest-color)' }}>{user.contestBadge.name}</span>
-                  </span>
-                ) : (
-                  <span style={{ color: 'var(--text-3)' }}>-</span>
-                )}
-              </td>
-            </tr>
+            <ContestsRow
+              key={user.userName || index}
+              user={user}
+              index={index}
+              rowClass={rowClass}
+              getRankBadge={getRankBadge}
+            />
           )
-
         case 'contest-performance':
           return (
-            <tr key={user.userName || index} className={rowClass}>
-              <td className="rank-col">
-                <span className="rank-badge">{getRankBadge(index)}</span>
-              </td>
-              <td className="name-col" title={user.name}>
-                <a
-                  href={`https://leetcode.com/${user.userName}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="username-link"
-                >
-                  {user.name || 'N/A'}
-                </a>
-                <div className="username-subtitle">@{user.userName}</div>
-              </td>
-              <td className="stat-col">
-                <strong>{user.attendedContestCount || 0}</strong>
-              </td>
-              <td className="stat-col contest-4q">
-                <strong>{user.mostFourQuestionsInContest || 0}</strong>
-              </td>
-              <td className="stat-col contest-3q">
-                <strong>{user.mostThreeQuestionsInContest || 0}</strong>
-              </td>
-              <td className="stat-col contest-2q">
-                <strong>{user.mostTwoQuestionsInContest || 0}</strong>
-              </td>
-              <td className="stat-col contest-1q">
-                <strong>{user.mostOneQuestionsInContest || 0}</strong>
-              </td>
-              <td className="stat-col contest-0q">
-                <strong>{user.mostZeroQuestionsInContest || 0}</strong>
-              </td>
-              <td className="stat-col">
-                {user.averageContestRanking &&
-                user.averageContestRanking !== Infinity
-                  ? user.averageContestRanking.toLocaleString()
-                  : 'N/A'}
-              </td>
-            </tr>
+            <ContestPerformanceRow
+              key={user.userName || index}
+              user={user}
+              index={index}
+              rowClass={rowClass}
+              getRankBadge={getRankBadge}
+            />
           )
-
         case 'advanced':
           return (
-            <tr key={user.userName || index} className={rowClass}>
-              <td className="rank-col">
-                <span className="rank-badge">{getRankBadge(index)}</span>
-              </td>
-              <td className="name-col" title={user.name}>
-                <a
-                  href={`https://leetcode.com/${user.userName}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="username-link"
-                >
-                  {user.name || 'N/A'}
-                </a>
-                <div className="username-subtitle">@{user.userName}</div>
-              </td>
-              <td className="stat-col">{user.reputation || 0}</td>
-              <td className="stat-col">
-                {user.questionRanking
-                  ? user.questionRanking.toLocaleString()
-                  : 'N/A'}
-              </td>
-              <td className="stat-col">
-                {user.bestStreak ? `${user.bestStreak} days` : 'N/A'}
-              </td>
-              <td className="stat-col">{user.totalActiveDays || 0}</td>
-              <td className="stat-col">{user.badgeCount || 0}</td>
-            </tr>
+            <AdvancedRow
+              key={user.userName || index}
+              user={user}
+              index={index}
+              rowClass={rowClass}
+              getRankBadge={getRankBadge}
+            />
           )
-
         default:
           return null
       }

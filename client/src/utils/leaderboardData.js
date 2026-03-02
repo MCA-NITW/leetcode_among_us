@@ -140,7 +140,7 @@ const processLeetcoderData = (
           userContestRankingInfoData.userContestRanking.topPercentage,
           2
         )
-      : 100.0,
+      : 100,
     totalParticipants:
       userContestRankingInfoData.userContestRanking?.totalParticipants ||
       100000,

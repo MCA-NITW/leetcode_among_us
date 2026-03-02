@@ -110,7 +110,7 @@ function Home() {
       <section className="home__stats">
         <div className="home__stats-grid">
           {stats.map((stat, index) => (
-            <div key={index} className="home__stat-card">
+            <div key={stat.label} className="home__stat-card">
               <div className="home__stat-icon">{stat.icon}</div>
               <div className="home__stat-value">{stat.value}</div>
               <div className="home__stat-label">{stat.label}</div>
@@ -130,7 +130,7 @@ function Home() {
         </header>
         <div className="home__features-grid">
           {features.map((feature, index) => (
-            <div key={index} className="home__feature-card">
+            <div key={feature.title} className="home__feature-card">
               <div className="home__feature-icon">{feature.icon}</div>
               <h3 className="home__feature-title">{feature.title}</h3>
               <p className="home__feature-description">{feature.description}</p>

@@ -31,8 +31,13 @@
 }
 
 @keyframes content-loader-breathe {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ── Container ── */
@@ -75,7 +80,8 @@
   border-bottom-color: var(--accent);
   border-left-color: var(--accent);
   opacity: 0.4;
-  animation: content-loader-spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+  animation: content-loader-spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite
+    reverse;
 }
 
 .content-loader__ring:nth-child(3) {

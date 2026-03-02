@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types'
 import {
   Chart,
   CategoryScale,
@@ -6,20 +7,13 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-import useChartColors from './useChartColors';
-import './Charts.css';
-
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
   Legend
-);
+} from 'chart.js'
+import { Bar } from 'react-chartjs-2'
+import useChartColors from './useChartColors'
+import './Charts.css'
+
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 /**
  * Grouped bar chart comparing two users' difficulty breakdown.
@@ -28,9 +22,9 @@ Chart.register(
  *   { easySolved, mediumSolved, hardSolved }
  */
 function DifficultyGroupedBar({ user1Data, user2Data, user1Name, user2Name }) {
-  const colors = useChartColors();
+  const colors = useChartColors()
 
-  const labels = ['Easy', 'Medium', 'Hard'];
+  const labels = ['Easy', 'Medium', 'Hard']
 
   const data = {
     labels,
@@ -40,23 +34,23 @@ function DifficultyGroupedBar({ user1Data, user2Data, user1Name, user2Name }) {
         data: [
           user1Data?.easySolved || 0,
           user1Data?.mediumSolved || 0,
-          user1Data?.hardSolved || 0,
+          user1Data?.hardSolved || 0
         ],
         backgroundColor: colors.accent,
-        borderRadius: 4,
+        borderRadius: 4
       },
       {
         label: user2Name || 'User 2',
         data: [
           user2Data?.easySolved || 0,
           user2Data?.mediumSolved || 0,
-          user2Data?.hardSolved || 0,
+          user2Data?.hardSolved || 0
         ],
         backgroundColor: colors.secondary,
-        borderRadius: 4,
-      },
-    ],
-  };
+        borderRadius: 4
+      }
+    ]
+  }
 
   const options = {
     responsive: true,
@@ -64,36 +58,51 @@ function DifficultyGroupedBar({ user1Data, user2Data, user1Name, user2Name }) {
     plugins: {
       legend: {
         labels: {
-          color: colors.text,
-        },
-      },
+          color: colors.text
+        }
+      }
     },
     scales: {
       x: {
         ticks: {
-          color: colors.text2,
+          color: colors.text2
         },
         grid: {
-          color: colors.grid,
-        },
+          color: colors.grid
+        }
       },
       y: {
         ticks: {
-          color: colors.text2,
+          color: colors.text2
         },
         grid: {
-          color: colors.grid,
+          color: colors.grid
         },
-        beginAtZero: true,
-      },
-    },
-  };
+        beginAtZero: true
+      }
+    }
+  }
 
   return (
     <div className="chart-container" style={{ height: 300 }}>
       <Bar data={data} options={options} />
     </div>
-  );
+  )
 }
 
-export default DifficultyGroupedBar;
+DifficultyGroupedBar.propTypes = {
+  user1Data: PropTypes.shape({
+    easySolved: PropTypes.number,
+    mediumSolved: PropTypes.number,
+    hardSolved: PropTypes.number
+  }),
+  user2Data: PropTypes.shape({
+    easySolved: PropTypes.number,
+    mediumSolved: PropTypes.number,
+    hardSolved: PropTypes.number
+  }),
+  user1Name: PropTypes.string,
+  user2Name: PropTypes.string
+}
+
+export default DifficultyGroupedBar

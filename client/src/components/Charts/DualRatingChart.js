@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import {
   Chart,
   CategoryScale,
@@ -7,11 +8,11 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import useChartColors from './useChartColors';
-import './Charts.css';
+  Legend
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+import useChartColors from './useChartColors'
+import './Charts.css'
 
 Chart.register(
   CategoryScale,
@@ -21,7 +22,7 @@ Chart.register(
   Title,
   Tooltip,
   Legend
-);
+)
 
 /**
  * Dual line chart comparing two users' contest rating history.
@@ -30,68 +31,64 @@ Chart.register(
  *   { attended, rating, contest: { title, startTime } }
  */
 function DualRatingChart({ user1History, user2History, user1Name, user2Name }) {
-  const colors = useChartColors();
+  const colors = useChartColors()
 
   const { labels, user1Ratings, user2Ratings, hasData } = useMemo(() => {
     // Filter to attended contests with valid contest data and sort by startTime ascending.
-    const filterAndSort = (history) =>
+    const filterAndSort = history =>
       (history || [])
-        .filter((h) => h.attended && h.contest && h.contest.startTime)
+        .filter(h => h.attended && h.contest?.startTime)
         .slice()
-        .sort((a, b) => a.contest.startTime - b.contest.startTime);
+        .sort((a, b) => a.contest.startTime - b.contest.startTime)
 
-    const sorted1 = filterAndSort(user1History);
-    const sorted2 = filterAndSort(user2History);
+    const sorted1 = filterAndSort(user1History)
+    const sorted2 = filterAndSort(user2History)
 
     if (sorted1.length === 0 && sorted2.length === 0) {
-      return { labels: [], user1Ratings: [], user2Ratings: [], hasData: false };
+      return { labels: [], user1Ratings: [], user2Ratings: [], hasData: false }
     }
 
     // Build maps keyed by startTime for quick lookup.
-    const map1 = new Map();
-    sorted1.forEach((h) => {
-      map1.set(h.contest.startTime, h.rating);
-    });
+    const map1 = new Map()
+    sorted1.forEach(h => {
+      map1.set(h.contest.startTime, h.rating)
+    })
 
-    const map2 = new Map();
-    sorted2.forEach((h) => {
-      map2.set(h.contest.startTime, h.rating);
-    });
+    const map2 = new Map()
+    sorted2.forEach(h => {
+      map2.set(h.contest.startTime, h.rating)
+    })
 
     // Merge all unique dates and sort ascending.
-    const allDates = Array.from(
-      new Set([...map1.keys(), ...map2.keys()])
-    ).sort((a, b) => a - b);
+    const allDates = Array.from(new Set([...map1.keys(), ...map2.keys()])).sort(
+      (a, b) => a - b
+    )
 
-    const dateLabels = allDates.map((ts) => {
-      const d = new Date(ts * 1000);
+    const dateLabels = allDates.map(ts => {
+      const d = new Date(ts * 1000)
       return d.toLocaleDateString(undefined, {
         month: 'short',
-        year: '2-digit',
-      });
-    });
+        year: '2-digit'
+      })
+    })
 
-    const ratings1 = allDates.map((ts) =>
-      map1.has(ts) ? map1.get(ts) : null
-    );
-    const ratings2 = allDates.map((ts) =>
-      map2.has(ts) ? map2.get(ts) : null
-    );
+    const ratings1 = allDates.map(ts => (map1.has(ts) ? map1.get(ts) : null))
+    const ratings2 = allDates.map(ts => (map2.has(ts) ? map2.get(ts) : null))
 
     return {
       labels: dateLabels,
       user1Ratings: ratings1,
       user2Ratings: ratings2,
-      hasData: true,
-    };
-  }, [user1History, user2History]);
+      hasData: true
+    }
+  }, [user1History, user2History])
 
   if (!hasData) {
     return (
       <div className="chart-container">
         <div className="chart-no-data">No contest data available</div>
       </div>
-    );
+    )
   }
 
   const data = {
@@ -104,7 +101,7 @@ function DualRatingChart({ user1History, user2History, user1Name, user2Name }) {
         backgroundColor: colors.accent,
         pointBackgroundColor: colors.accent,
         tension: 0.3,
-        spanGaps: true,
+        spanGaps: true
       },
       {
         label: user2Name || 'User 2',
@@ -113,10 +110,10 @@ function DualRatingChart({ user1History, user2History, user1Name, user2Name }) {
         backgroundColor: colors.secondary,
         pointBackgroundColor: colors.secondary,
         tension: 0.3,
-        spanGaps: true,
-      },
-    ],
-  };
+        spanGaps: true
+      }
+    ]
+  }
 
   const options = {
     responsive: true,
@@ -124,41 +121,48 @@ function DualRatingChart({ user1History, user2History, user1Name, user2Name }) {
     plugins: {
       legend: {
         labels: {
-          color: colors.text,
-        },
+          color: colors.text
+        }
       },
       tooltip: {
         mode: 'index',
-        intersect: false,
-      },
+        intersect: false
+      }
     },
     scales: {
       x: {
         ticks: {
           color: colors.text2,
           maxRotation: 45,
-          autoSkip: true,
+          autoSkip: true
         },
         grid: {
-          color: colors.grid,
-        },
+          color: colors.grid
+        }
       },
       y: {
         ticks: {
-          color: colors.text2,
+          color: colors.text2
         },
         grid: {
-          color: colors.grid,
-        },
-      },
-    },
-  };
+          color: colors.grid
+        }
+      }
+    }
+  }
 
   return (
     <div className="chart-container" style={{ height: 300 }}>
       <Line data={data} options={options} />
     </div>
-  );
+  )
 }
 
-export default DualRatingChart;
+DualRatingChart.propTypes = {
+  user1History: PropTypes.array,
+  user2History: PropTypes.array,
+  user1Name: PropTypes.string,
+  user2Name: PropTypes.string
+}
+
+export default DualRatingChart

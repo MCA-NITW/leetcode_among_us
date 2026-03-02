@@ -1,16 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import {
   Chart as ChartJS,
   LinearScale,
   PointElement,
   Tooltip,
-  Legend,
-} from 'chart.js';
-import { Scatter } from 'react-chartjs-2';
-import useChartColors from './useChartColors';
-import './Charts.css';
+  Legend
+} from 'chart.js'
+import { Scatter } from 'react-chartjs-2'
+import useChartColors from './useChartColors'
+import './Charts.css'
 
-ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
+ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
 
 /**
  * Scatter chart plotting contest performance:
@@ -23,28 +24,26 @@ ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
  *                     contest: { title, startTime } }
  */
 function ContestScatterChart({ contestHistory = [] }) {
-  const colors = useChartColors();
+  const colors = useChartColors()
 
   const attended = useMemo(() => {
-    return contestHistory.filter((c) => c.attended);
-  }, [contestHistory]);
+    return contestHistory.filter(c => c.attended)
+  }, [contestHistory])
 
   // Assign each point a color based on problems solved.
-  const pointColor = (solved) => {
-    if (solved <= 1) return colors.hard;
-    if (solved === 2) return colors.medium;
-    return colors.easy; // 3 or 4
-  };
+  const pointColor = solved => {
+    if (solved <= 1) return colors.hard
+    if (solved === 2) return colors.medium
+    return colors.easy // 3 or 4
+  }
 
   const data = useMemo(() => {
-    const points = attended.map((c) => ({
+    const points = attended.map(c => ({
       x: c.rating,
-      y: c.problemsSolved ?? 0,
-    }));
+      y: c.problemsSolved ?? 0
+    }))
 
-    const pointColors = attended.map((c) =>
-      pointColor(c.problemsSolved ?? 0)
-    );
+    const pointColors = attended.map(c => pointColor(c.problemsSolved ?? 0))
 
     return {
       datasets: [
@@ -54,12 +53,12 @@ function ContestScatterChart({ contestHistory = [] }) {
           backgroundColor: pointColors,
           borderColor: pointColors,
           pointRadius: 5,
-          pointHoverRadius: 8,
-        },
-      ],
-    };
+          pointHoverRadius: 8
+        }
+      ]
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attended, colors]);
+  }, [attended, colors])
 
   const options = useMemo(() => {
     return {
@@ -67,13 +66,13 @@ function ContestScatterChart({ contestHistory = [] }) {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: false
         },
         title: {
           display: true,
           text: 'Contest Performance',
           color: colors.text,
-          font: { size: 14, weight: '600' },
+          font: { size: 14, weight: '600' }
         },
         tooltip: {
           backgroundColor: colors.bgRaised || 'rgba(0,0,0,0.8)',
@@ -82,46 +81,46 @@ function ContestScatterChart({ contestHistory = [] }) {
           borderColor: colors.grid,
           borderWidth: 1,
           callbacks: {
-            label: (ctx) => {
-              const idx = ctx.dataIndex;
-              const entry = attended[idx];
-              const title = entry?.contest?.title || '';
+            label: ctx => {
+              const idx = ctx.dataIndex
+              const entry = attended[idx]
+              const title = entry?.contest?.title || ''
               return [
                 `Rating: ${ctx.parsed.x}`,
                 `Solved: ${ctx.parsed.y}`,
-                title,
-              ];
-            },
-          },
-        },
+                title
+              ]
+            }
+          }
+        }
       },
       scales: {
         x: {
           title: {
             display: true,
             text: 'Rating',
-            color: colors.text2,
+            color: colors.text2
           },
           ticks: { color: colors.text2 },
-          grid: { color: colors.grid, drawBorder: false },
+          grid: { color: colors.grid, drawBorder: false }
         },
         y: {
           title: {
             display: true,
             text: 'Problems Solved',
-            color: colors.text2,
+            color: colors.text2
           },
           min: 0,
           max: 4,
           ticks: {
             stepSize: 1,
-            color: colors.text2,
+            color: colors.text2
           },
-          grid: { color: colors.grid, drawBorder: false },
-        },
-      },
-    };
-  }, [colors, attended]);
+          grid: { color: colors.grid, drawBorder: false }
+        }
+      }
+    }
+  }, [colors, attended])
 
   if (!attended.length) {
     return (
@@ -130,14 +129,18 @@ function ContestScatterChart({ contestHistory = [] }) {
           No contest data available.
         </p>
       </div>
-    );
+    )
   }
 
   return (
     <div className="chart-container" style={{ height: 300 }}>
       <Scatter data={data} options={options} />
     </div>
-  );
+  )
 }
 
-export default ContestScatterChart;
+ContestScatterChart.propTypes = {
+  contestHistory: PropTypes.array
+}
+
+export default ContestScatterChart

@@ -20,8 +20,7 @@ function App() {
       try {
         const filteredLeetcoders = leetcoders
           .filter(
-            leetcoder =>
-              leetcoder.userName && leetcoder.userName.trim() !== ''
+            leetcoder => leetcoder.userName && leetcoder.userName.trim() !== ''
           )
           .map(leetcoder => ({
             ...leetcoder,
@@ -44,6 +43,7 @@ function App() {
         setData(successfullyFetchedUsers)
         setLoading(false)
       } catch (error) {
+        console.error('Error fetching leaderboard data:', error)
         setLoading(false)
       }
     }
@@ -53,9 +53,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <NavBar />
         <Routes>
           <Route path="/" element={<Home />} />

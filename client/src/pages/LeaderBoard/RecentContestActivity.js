@@ -87,7 +87,7 @@ function RecentContestActivity({ data }) {
             <div className="contest-card__stats">
               <span className="contest-card__stat">
                 {contest.participants.length} participant
-                {contest.participants.length !== 1 ? 's' : ''}
+                {contest.participants.length === 1 ? '' : 's'}
               </span>
             </div>
 

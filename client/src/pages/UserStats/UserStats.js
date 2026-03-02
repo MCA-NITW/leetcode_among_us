@@ -43,8 +43,8 @@ const sanitizeUrl = url => {
     if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
       return parsed.href
     }
-  } catch {
-    // invalid URL
+  } catch (error) {
+    console.error('Error fetching user data:', error)
   }
   return ''
 }
@@ -136,12 +136,12 @@ function UserStats() {
               >
                 {loading ? (
                   <>
-                    <span className="user-stats__search-spinner"></span>
+                    <span className="user-stats__search-spinner"></span>{' '}
                     Searching...
                   </>
                 ) : (
                   <>
-                    Search
+                    Search{' '}
                     <span className="user-stats__search-arrow">
                       <FaArrowRight />
                     </span>
@@ -236,7 +236,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaUser />
-                    </span>
+                    </span>{' '}
                     Profile Information
                   </h3>
                   <div className="user-stats__card-content">
@@ -322,7 +322,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaChartBar />
-                    </span>
+                    </span>{' '}
                     Quick Stats
                   </h3>
                   <div className="user-stats__card-content">
@@ -397,7 +397,7 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaGlobeAmericas />
-                      </span>
+                      </span>{' '}
                       Social Links
                     </h3>
                     <div className="user-stats__card-content">
@@ -408,90 +408,111 @@ function UserStats() {
                           flexWrap: 'wrap'
                         }}
                       >
-                        {userData.githubUrl && sanitizeUrl(userData.githubUrl) && (
-                          <a
-                            href={sanitizeUrl(userData.githubUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              background: '#24292e',
-                              color: 'white',
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              fontSize: '0.9rem',
-                              transition: 'all 0.3s ease'
-                            }}
-                            onMouseOver={e =>
-                              (e.currentTarget.style.background = '#1a1e22')
-                            }
-                            onMouseOut={e =>
-                              (e.currentTarget.style.background = '#24292e')
-                            }
-                          >
-                            <FaLink style={{ fontSize: '16px' }} />
-                            GitHub
-                          </a>
-                        )}
-                        {userData.linkedinUrl && sanitizeUrl(userData.linkedinUrl) && (
-                          <a
-                            href={sanitizeUrl(userData.linkedinUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              background: '#0077b5',
-                              color: 'white',
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              fontSize: '0.9rem',
-                              transition: 'all 0.3s ease'
-                            }}
-                            onMouseOver={e =>
-                              (e.currentTarget.style.background = '#005885')
-                            }
-                            onMouseOut={e =>
-                              (e.currentTarget.style.background = '#0077b5')
-                            }
-                          >
-                            <FaLink style={{ fontSize: '16px' }} />
-                            LinkedIn
-                          </a>
-                        )}
-                        {userData.twitterUrl && sanitizeUrl(userData.twitterUrl) && (
-                          <a
-                            href={sanitizeUrl(userData.twitterUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              background: '#1DA1F2',
-                              color: 'white',
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              fontSize: '0.9rem',
-                              transition: 'all 0.3s ease'
-                            }}
-                            onMouseOver={e =>
-                              (e.currentTarget.style.background = '#0d8bd9')
-                            }
-                            onMouseOut={e =>
-                              (e.currentTarget.style.background = '#1DA1F2')
-                            }
-                          >
-                            <FaLink style={{ fontSize: '16px' }} />
-                            Twitter
-                          </a>
-                        )}
+                        {userData.githubUrl &&
+                          sanitizeUrl(userData.githubUrl) && (
+                            <a
+                              href={sanitizeUrl(userData.githubUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '8px 16px',
+                                background: '#24292e',
+                                color: 'white',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.3s ease'
+                              }}
+                              onMouseOver={e =>
+                                (e.currentTarget.style.background = '#1a1e22')
+                              }
+                              onFocus={e =>
+                                (e.currentTarget.style.background = '#1a1e22')
+                              }
+                              onMouseOut={e =>
+                                (e.currentTarget.style.background = '#24292e')
+                              }
+                              onBlur={e =>
+                                (e.currentTarget.style.background = '#24292e')
+                              }
+                            >
+                              <FaLink style={{ fontSize: '16px' }} />
+                              GitHub
+                            </a>
+                          )}
+                        {userData.linkedinUrl &&
+                          sanitizeUrl(userData.linkedinUrl) && (
+                            <a
+                              href={sanitizeUrl(userData.linkedinUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '8px 16px',
+                                background: '#0077b5',
+                                color: 'white',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.3s ease'
+                              }}
+                              onMouseOver={e =>
+                                (e.currentTarget.style.background = '#005885')
+                              }
+                              onFocus={e =>
+                                (e.currentTarget.style.background = '#005885')
+                              }
+                              onMouseOut={e =>
+                                (e.currentTarget.style.background = '#0077b5')
+                              }
+                              onBlur={e =>
+                                (e.currentTarget.style.background = '#0077b5')
+                              }
+                            >
+                              <FaLink style={{ fontSize: '16px' }} />
+                              LinkedIn
+                            </a>
+                          )}
+                        {userData.twitterUrl &&
+                          sanitizeUrl(userData.twitterUrl) && (
+                            <a
+                              href={sanitizeUrl(userData.twitterUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '8px 16px',
+                                background: '#1DA1F2',
+                                color: 'white',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.3s ease'
+                              }}
+                              onMouseOver={e =>
+                                (e.currentTarget.style.background = '#0d8bd9')
+                              }
+                              onFocus={e =>
+                                (e.currentTarget.style.background = '#0d8bd9')
+                              }
+                              onMouseOut={e =>
+                                (e.currentTarget.style.background = '#1DA1F2')
+                              }
+                              onBlur={e =>
+                                (e.currentTarget.style.background = '#1DA1F2')
+                              }
+                            >
+                              <FaLink style={{ fontSize: '16px' }} />
+                              Twitter
+                            </a>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -502,13 +523,13 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaLightbulb />
-                      </span>
+                      </span>{' '}
                       Skills & Expertise
                     </h3>
                     <div className="user-stats__card-content">
                       <div className="user-stats__skills">
-                        {userData.skillTags.map((skill, index) => (
-                          <span key={index} className="user-stats__skill-tag">
+                        {userData.skillTags.map(skill => (
+                          <span key={skill} className="user-stats__skill-tag">
                             {skill}
                           </span>
                         ))}
@@ -522,7 +543,7 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaFileAlt />
-                      </span>
+                      </span>{' '}
                       About
                     </h3>
                     <div className="user-stats__card-content">
@@ -538,14 +559,14 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaLink />
-                      </span>
+                      </span>{' '}
                       Websites & Links
                     </h3>
                     <div className="user-stats__card-content">
                       <div className="user-stats__websites">
-                        {userData.websites.map((website, index) => (
+                        {userData.websites.map(website => (
                           <a
-                            key={index}
+                            key={website}
                             href={website}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -563,7 +584,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaChartLine />
-                    </span>
+                    </span>{' '}
                     Problem Solving Distribution
                   </h3>
                   <div className="user-stats__card-content">
@@ -645,7 +666,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaCheckCircle />
-                    </span>
+                    </span>{' '}
                     Total Problems
                   </h3>
                   <div className="user-stats__card-content">
@@ -662,8 +683,8 @@ function UserStats() {
 
                 <div className="user-stats__card">
                   <h3 className="user-stats__card-title">
-                    <span className="user-stats__card-icon">🟢</span>
-                    Easy Problems
+                    <span className="user-stats__card-icon">🟢</span> Easy
+                    Problems
                   </h3>
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
@@ -679,8 +700,8 @@ function UserStats() {
 
                 <div className="user-stats__card">
                   <h3 className="user-stats__card-title">
-                    <span className="user-stats__card-icon">🟡</span>
-                    Medium Problems
+                    <span className="user-stats__card-icon">🟡</span> Medium
+                    Problems
                   </h3>
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
@@ -696,8 +717,8 @@ function UserStats() {
 
                 <div className="user-stats__card">
                   <h3 className="user-stats__card-title">
-                    <span className="user-stats__card-icon">🔴</span>
-                    Hard Problems
+                    <span className="user-stats__card-icon">🔴</span> Hard
+                    Problems
                   </h3>
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
@@ -715,7 +736,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <MdLeaderboard />
-                    </span>
+                    </span>{' '}
                     Global Ranking
                   </h3>
                   <div className="user-stats__card-content">
@@ -736,7 +757,7 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaRocket />
-                      </span>
+                      </span>{' '}
                       Performance Comparison
                     </h3>
                     <div className="user-stats__card-content">
@@ -782,10 +803,15 @@ function UserStats() {
 
                 <div className="user-stats__card user-stats__card--wide">
                   <h3 className="user-stats__card-title">
-                    <span className="user-stats__card-icon"><FaChartBar /></span>
+                    <span className="user-stats__card-icon">
+                      <FaChartBar />
+                    </span>{' '}
                     Difficulty Distribution
                   </h3>
-                  <div className="user-stats__card-content" style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div
+                    className="user-stats__card-content"
+                    style={{ display: 'flex', justifyContent: 'center' }}
+                  >
                     <DifficultyDoughnut
                       easySolved={userData.easySolved || 0}
                       mediumSolved={userData.mediumSolved || 0}
@@ -796,7 +822,9 @@ function UserStats() {
 
                 <div className="user-stats__card user-stats__card--wide">
                   <h3 className="user-stats__card-title">
-                    <span className="user-stats__card-icon"><FaChartLine /></span>
+                    <span className="user-stats__card-icon">
+                      <FaChartLine />
+                    </span>{' '}
                     Acceptance Rate by Difficulty
                   </h3>
                   <div className="user-stats__card-content">
@@ -819,7 +847,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <AiOutlineBarChart />
-                    </span>
+                    </span>{' '}
                     Contest Rating
                   </h3>
                   <div className="user-stats__card-content">
@@ -838,7 +866,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaGlobeAmericas />
-                    </span>
+                    </span>{' '}
                     Global Ranking
                   </h3>
                   <div className="user-stats__card-content">
@@ -855,7 +883,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <AiFillTrophy />
-                    </span>
+                    </span>{' '}
                     Best Rank
                   </h3>
                   <div className="user-stats__card-content">
@@ -874,7 +902,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaCalendarAlt />
-                    </span>
+                    </span>{' '}
                     Contests Attended
                   </h3>
                   <div className="user-stats__card-content">
@@ -893,7 +921,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <BiTargetLock />
-                    </span>
+                    </span>{' '}
                     Contest Performance
                   </h3>
                   <div className="user-stats__card-content">
@@ -958,7 +986,7 @@ function UserStats() {
                       <h3 className="user-stats__card-title">
                         <span className="user-stats__card-icon">
                           <FaHistory />
-                        </span>
+                        </span>{' '}
                         Recent Contest Activity
                       </h3>
                       <div className="user-stats__card-content">
@@ -1030,16 +1058,21 @@ function UserStats() {
                                   const ratingChange = contest.attended
                                     ? contest.rating - prevRating
                                     : 0
+                                  const trendEmojiMap = {
+                                    UP: '📈',
+                                    DOWN: '📉'
+                                  }
                                   const trendEmoji =
-                                    contest.trendDirection === 'UP'
-                                      ? '📈'
-                                      : contest.trendDirection === 'DOWN'
-                                      ? '📉'
-                                      : '➡️'
+                                    trendEmojiMap[contest.trendDirection] ||
+                                    '➡️'
 
                                   return (
                                     <tr
-                                      key={index}
+                                      key={
+                                        contest.contest?.title ||
+                                        contest.contest?.startTime ||
+                                        `contest-${contest.rating}-${contest.ranking}`
+                                      }
                                       style={{
                                         borderBottom: '1px solid #f0f0f0',
                                         backgroundColor:
@@ -1177,29 +1210,39 @@ function UserStats() {
                     </div>
                   )}
 
-                {userData.contestHistory && userData.contestHistory.length > 0 && (
-                  <div className="user-stats__card user-stats__card--full">
-                    <h3 className="user-stats__card-title">
-                      <span className="user-stats__card-icon"><FaChartLine /></span>
-                      Contest Rating Timeline
-                    </h3>
-                    <div className="user-stats__card-content">
-                      <ContestRatingChart contestHistory={userData.contestHistory} />
+                {userData.contestHistory &&
+                  userData.contestHistory.length > 0 && (
+                    <div className="user-stats__card user-stats__card--full">
+                      <h3 className="user-stats__card-title">
+                        <span className="user-stats__card-icon">
+                          <FaChartLine />
+                        </span>{' '}
+                        Contest Rating Timeline
+                      </h3>
+                      <div className="user-stats__card-content">
+                        <ContestRatingChart
+                          contestHistory={userData.contestHistory}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {userData.contestHistory && userData.contestHistory.length > 0 && (
-                  <div className="user-stats__card user-stats__card--full">
-                    <h3 className="user-stats__card-title">
-                      <span className="user-stats__card-icon"><BiTargetLock /></span>
-                      Contest Performance Scatter
-                    </h3>
-                    <div className="user-stats__card-content">
-                      <ContestScatterChart contestHistory={userData.contestHistory} />
+                {userData.contestHistory &&
+                  userData.contestHistory.length > 0 && (
+                    <div className="user-stats__card user-stats__card--full">
+                      <h3 className="user-stats__card-title">
+                        <span className="user-stats__card-icon">
+                          <BiTargetLock />
+                        </span>{' '}
+                        Contest Performance Scatter
+                      </h3>
+                      <div className="user-stats__card-content">
+                        <ContestScatterChart
+                          contestHistory={userData.contestHistory}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             )}
 
@@ -1209,7 +1252,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaChartBar />
-                    </span>
+                    </span>{' '}
                     Top Percentage
                   </h3>
                   <div className="user-stats__card-content">
@@ -1228,7 +1271,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaUsers />
-                    </span>
+                    </span>{' '}
                     Total Participants
                   </h3>
                   <div className="user-stats__card-content">
@@ -1247,7 +1290,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaRocket />
-                    </span>
+                    </span>{' '}
                     Average Ranking
                   </h3>
                   <div className="user-stats__card-content">
@@ -1266,7 +1309,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaBullseye />
-                    </span>
+                    </span>{' '}
                     Problem Completion Stats
                   </h3>
                   <div className="user-stats__card-content">
@@ -1336,11 +1379,15 @@ function UserStats() {
                 {userData.tagProblemCounts && (
                   <div className="user-stats__card user-stats__card--wide">
                     <h3 className="user-stats__card-title">
-                      <span className="user-stats__card-icon"><FaChartLine /></span>
+                      <span className="user-stats__card-icon">
+                        <FaChartLine />
+                      </span>{' '}
                       Topic Proficiency Radar
                     </h3>
                     <div className="user-stats__card-content">
-                      <TopicRadarChart tagProblemCounts={userData.tagProblemCounts} />
+                      <TopicRadarChart
+                        tagProblemCounts={userData.tagProblemCounts}
+                      />
                     </div>
                   </div>
                 )}
@@ -1353,7 +1400,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaFire />
-                    </span>
+                    </span>{' '}
                     Best Streak
                   </h3>
                   <div className="user-stats__card-content">
@@ -1370,7 +1417,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaCalendarAlt />
-                    </span>
+                    </span>{' '}
                     Active Days
                   </h3>
                   <div className="user-stats__card-content">
@@ -1389,7 +1436,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaStar />
-                    </span>
+                    </span>{' '}
                     Reputation
                   </h3>
                   <div className="user-stats__card-content">
@@ -1406,7 +1453,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaAward />
-                    </span>
+                    </span>{' '}
                     Total Badges
                   </h3>
                   <div className="user-stats__card-content">
@@ -1419,17 +1466,22 @@ function UserStats() {
                   </div>
                 </div>
 
-                {userData.submissionCalendar && Object.keys(userData.submissionCalendar).length > 0 && (
-                  <div className="user-stats__card user-stats__card--full">
-                    <h3 className="user-stats__card-title">
-                      <span className="user-stats__card-icon"><FaCalendarAlt /></span>
-                      Submission Heatmap
-                    </h3>
-                    <div className="user-stats__card-content">
-                      <SubmissionHeatmap submissionCalendar={userData.submissionCalendar} />
+                {userData.submissionCalendar &&
+                  Object.keys(userData.submissionCalendar).length > 0 && (
+                    <div className="user-stats__card user-stats__card--full">
+                      <h3 className="user-stats__card-title">
+                        <span className="user-stats__card-icon">
+                          <FaCalendarAlt />
+                        </span>{' '}
+                        Submission Heatmap
+                      </h3>
+                      <div className="user-stats__card-content">
+                        <SubmissionHeatmap
+                          submissionCalendar={userData.submissionCalendar}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             )}
 
@@ -1439,7 +1491,7 @@ function UserStats() {
                   <h3 className="user-stats__card-title">
                     <span className="user-stats__card-icon">
                       <FaMedal />
-                    </span>
+                    </span>{' '}
                     Badge Summary
                   </h3>
                   <div className="user-stats__card-content">
@@ -1454,7 +1506,7 @@ function UserStats() {
                     {userData.badgeCount > 0 && (
                       <p className="user-stats__badge-note">
                         This user has earned {userData.badgeCount} badge
-                        {userData.badgeCount !== 1 ? 's' : ''} for their
+                        {userData.badgeCount === 1 ? '' : 's'} for their
                         achievements on LeetCode!
                       </p>
                     )}
@@ -1466,7 +1518,7 @@ function UserStats() {
                     <h3 className="user-stats__card-title">
                       <span className="user-stats__card-icon">
                         <FaStar />
-                      </span>
+                      </span>{' '}
                       Star Rating
                     </h3>
                     <div className="user-stats__card-content">
@@ -1475,18 +1527,20 @@ function UserStats() {
                           {userData.starRating}
                         </span>
                         <div className="user-stats__star-icons">
-                          {[...Array(5)].map((_, i) => (
-                            <span
-                              key={i}
-                              className={`user-stats__star-icon ${
-                                i < Math.floor(userData.starRating)
-                                  ? 'user-stats__star-icon--filled'
-                                  : ''
-                              }`}
-                            >
-                              <FaStar />
-                            </span>
-                          ))}
+                          {Array.from({ length: 5 }, (_, i) => i + 1).map(
+                            starNum => (
+                              <span
+                                key={`star-${starNum}`}
+                                className={`user-stats__star-icon ${
+                                  starNum <= Math.floor(userData.starRating)
+                                    ? 'user-stats__star-icon--filled'
+                                    : ''
+                                }`}
+                              >
+                                <FaStar />
+                              </span>
+                            )
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1583,80 +1637,83 @@ function UserStats() {
                             gap: '16px'
                           }}
                         >
-                          {userData.upcomingBadges.map((badge, idx) => (
-                            <div
-                              key={idx}
-                              style={{
-                                padding: '12px',
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                background: '#fafafa'
-                              }}
-                            >
+                          {userData.upcomingBadges.map(badge => {
+                            let progressColor = '#3498db'
+                            if (badge.progress >= 80) {
+                              progressColor = '#4CAF50'
+                            } else if (badge.progress >= 50) {
+                              progressColor = '#FFA500'
+                            }
+                            return (
                               <div
+                                key={badge.name || badge.id}
                                 style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '12px',
-                                  marginBottom: '8px'
-                                }}
-                              >
-                                {badge.icon && (
-                                  <img
-                                    src={badge.icon}
-                                    alt={badge.name}
-                                    style={{
-                                      width: '32px',
-                                      height: '32px',
-                                      opacity: 0.6
-                                    }}
-                                  />
-                                )}
-                                <div style={{ flex: 1 }}>
-                                  <div
-                                    style={{
-                                      fontWeight: '600',
-                                      color: '#333',
-                                      marginBottom: '4px'
-                                    }}
-                                  >
-                                    {badge.name}
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: '0.85em',
-                                      color: '#666'
-                                    }}
-                                  >
-                                    Progress: {badge.progress || 0}%
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                style={{
-                                  width: '100%',
-                                  height: '8px',
-                                  background: '#e0e0e0',
-                                  borderRadius: '4px',
-                                  overflow: 'hidden'
+                                  padding: '12px',
+                                  border: '1px solid #e0e0e0',
+                                  borderRadius: '8px',
+                                  background: '#fafafa'
                                 }}
                               >
                                 <div
                                   style={{
-                                    width: `${badge.progress || 0}%`,
-                                    height: '100%',
-                                    background:
-                                      badge.progress >= 80
-                                        ? '#4CAF50'
-                                        : badge.progress >= 50
-                                        ? '#FFA500'
-                                        : '#3498db',
-                                    transition: 'width 0.3s ease'
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    marginBottom: '8px'
                                   }}
-                                />
+                                >
+                                  {badge.icon && (
+                                    <img
+                                      src={badge.icon}
+                                      alt={badge.name}
+                                      style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        opacity: 0.6
+                                      }}
+                                    />
+                                  )}
+                                  <div style={{ flex: 1 }}>
+                                    <div
+                                      style={{
+                                        fontWeight: '600',
+                                        color: '#333',
+                                        marginBottom: '4px'
+                                      }}
+                                    >
+                                      {badge.name}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: '0.85em',
+                                        color: '#666'
+                                      }}
+                                    >
+                                      Progress: {badge.progress || 0}%
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  style={{
+                                    width: '100%',
+                                    height: '8px',
+                                    background: '#e0e0e0',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden'
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: `${badge.progress || 0}%`,
+                                      height: '100%',
+                                      background: progressColor,
+                                      transition: 'width 0.3s ease'
+                                    }}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     </div>

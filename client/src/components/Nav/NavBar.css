@@ -47,7 +47,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  transition: color 0.25s ease, transform 0.25s var(--ease-spring);
+  transition:
+    color 0.25s ease,
+    transform 0.25s var(--ease-spring);
 }
 
 .navbar__brand a:hover {

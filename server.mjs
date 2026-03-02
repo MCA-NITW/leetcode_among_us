@@ -2,8 +2,8 @@ import express from 'express'
 import fetch from 'node-fetch'
 import cors from 'cors'
 import helmet from 'helmet'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import rateLimit from 'express-rate-limit'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -17,14 +17,14 @@ const MAX_USERNAME_LENGTH = 40
 const LEETCODE_GRAPHQL_URL = 'https://leetcode.com/graphql'
 const BODY_SIZE_LIMIT = '1mb'
 
-const ALLOWED_ORIGINS = [
+const ALLOWED_ORIGINS = new Set([
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5000',
   'https://leetcode-among-us.onrender.com',
   'https://sagargupta.live'
-]
+])
 
 const app = express()
 app.disable('x-powered-by')
@@ -33,14 +33,11 @@ app.disable('x-powered-by')
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) {
-      // Block requests with no origin in production
-      if (process.env.NODE_ENV === 'production') {
-        return callback(new Error('Not allowed by CORS'))
-      }
+      // Allow requests with no origin (same-origin, server-to-server, health checks)
       return callback(null, true)
     }
 
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    if (ALLOWED_ORIGINS.has(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
@@ -83,6 +80,12 @@ const isValidUsername = username => {
     username.length <= MAX_USERNAME_LENGTH &&
     /^[a-zA-Z0-9_-]+$/.test(username)
   )
+}
+
+// Sanitize user input for safe logging (prevents log injection)
+const sanitizeForLog = str => {
+  if (typeof str !== 'string') return String(str)
+  return str.replace(/[\r\n\t]/g, '_').slice(0, MAX_USERNAME_LENGTH)
 }
 
 // Helper function to make GraphQL requests
@@ -271,7 +274,7 @@ const fetchUserData = async username => {
       )
       return [key, data]
     } catch (error) {
-      console.error(`Error fetching ${key} for ${username}:`, error.message)
+      console.error('Error fetching %s for user:', key, error.message)
       return [key, null]
     }
   })
@@ -310,7 +313,8 @@ const fetchUserData = async username => {
       await new Promise(resolve => setTimeout(resolve, CALENDAR_DELAY_MS))
     } catch (error) {
       console.error(
-        `Error fetching calendar data for ${username}, year ${year}:`,
+        'Error fetching calendar data for year %d:',
+        year,
         error.message
       )
       calendarResults.push(null)
@@ -324,13 +328,8 @@ const fetchUserData = async username => {
   let activeYears = []
 
   calendarResults.forEach(result => {
-    if (
-      result &&
-      result.data &&
-      result.data.matchedUser &&
-      result.data.matchedUser.userCalendar
-    ) {
-      const calendar = result.data.matchedUser.userCalendar
+    const calendar = result?.data?.matchedUser?.userCalendar
+    if (calendar) {
       if (calendar.streak > bestStreak) {
         bestStreak = calendar.streak
       }
@@ -349,7 +348,12 @@ const fetchUserData = async username => {
     }
   })
 
-  userData.calendarData = { bestStreak, totalActiveDays, submissionCalendar, activeYears }
+  userData.calendarData = {
+    bestStreak,
+    totalActiveDays,
+    submissionCalendar,
+    activeYears
+  }
 
   return userData
 }
@@ -405,7 +409,7 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
         const userData = await fetchUserData(username)
         return { username, success: true, data: userData }
       } catch (error) {
-        console.error(`Error fetching data for user ${username}:`, error.message)
+        console.error('Error fetching data for user:', error.message)
         return { username, success: false, error: 'Failed to fetch user data' }
       }
     })
@@ -428,7 +432,7 @@ app.post('/leetcode/batch-user-data', leetcodeLimiter, async (req, res) => {
 app.use(express.static(path.join(__dirname, 'client', 'build')))
 
 // Serve React app for all routes that don't match API endpoints (Express 5 compatible)
-app.get(/^(?!\/leetcode).*/, (req, res) => {
+app.get(/^(?!\/leetcode).*/, leetcodeLimiter, (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
 })
 
