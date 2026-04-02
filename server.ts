@@ -109,6 +109,7 @@ interface ErrorResponse {
 
 const app = express()
 app.disable('x-powered-by')
+app.set('trust proxy', 1)
 
 // CORS configuration - restrict to allowed origins
 const corsOptions: CorsOptions = {
@@ -580,14 +581,14 @@ app.post(
   }
 )
 
-app.use(express.static(path.join(__dirname, 'client', 'dist')))
+app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 
 // Serve React app for all routes that don't match API endpoints (Express 5 compatible)
 app.get(
   /^(?!\/leetcode).*/,
   leetcodeLimiter,
   (_req: Request, res: Response): void => {
-    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
+    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'))
   }
 )
 
