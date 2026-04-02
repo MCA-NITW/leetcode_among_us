@@ -13,6 +13,9 @@
     "build": "pnpm install && pnpm build:server && pnpm build:client",
     "format": "prettier --write ."
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "author": "",
   "license": "ISC",
   "keywords": [],
