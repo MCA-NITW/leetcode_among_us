@@ -37,3 +37,8 @@ node_modules
 .claude
 
 CLAUDE.md
+# Added for consistency
+.env.*.local
+node_modules/
+dist/
+.next/
