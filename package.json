@@ -22,17 +22,17 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.3.2",
+    "express-rate-limit": "^8.4.1",
     "helmet": "^8.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.2",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.6.0",
     "concurrently": "^9.2.1",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.3",
     "tsx": "^4.19.4",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "packageManager": "pnpm@10.28.2",
   "pnpm": {
