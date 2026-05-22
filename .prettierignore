@@ -1,0 +1,16 @@
+# Auto-generated files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Renovate config
+renovate.json
+
+# Build artifacts
+**/dist/
+**/build/
+**/coverage/
+**/node_modules/
+
+# Logs
+*.log
