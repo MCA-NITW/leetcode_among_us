@@ -35,8 +35,7 @@ interface BatchResult {
   data?: BackendUserData
 }
 
-const getApiBaseUrl = (): string =>
-  import.meta.env.VITE_API_URL || ''
+const getApiBaseUrl = (): string => import.meta.env.VITE_API_URL || ''
 
 // Optimized single user data fetch using the new backend endpoint
 export const fetchOptimizedUserData = async (
