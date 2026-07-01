@@ -594,17 +594,21 @@ function UserStats() {
                     </h3>
                     <div className="user-stats__card-content">
                       <div className="user-stats__websites">
-                        {userData.websites.map(website => (
-                          <a
-                            key={website}
-                            href={website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="user-stats__website-link"
-                          >
-                            {website}
-                          </a>
-                        ))}
+                        {userData.websites.map(website => {
+                          const safeHref = sanitizeUrl(website)
+                          if (!safeHref) return null
+                          return (
+                            <a
+                              key={website}
+                              href={safeHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="user-stats__website-link"
+                            >
+                              {website}
+                            </a>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
