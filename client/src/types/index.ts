@@ -55,7 +55,6 @@ export interface UserData extends LeetcoderEntry {
   mostThreeQuestionsInContest: number
   mostTwoQuestionsInContest: number
   mostOneQuestionsInContest: number
-  mostOneQuestionInContest?: number
   mostZeroQuestionsInContest: number
   averageContestRanking: number
   totalActiveDays: number

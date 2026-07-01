@@ -594,17 +594,21 @@ function UserStats() {
                     </h3>
                     <div className="user-stats__card-content">
                       <div className="user-stats__websites">
-                        {userData.websites.map(website => (
-                          <a
-                            key={website}
-                            href={website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="user-stats__website-link"
-                          >
-                            {website}
-                          </a>
-                        ))}
+                        {userData.websites.map(website => {
+                          const safeHref = sanitizeUrl(website)
+                          if (!safeHref) return null
+                          return (
+                            <a
+                              key={website}
+                              href={safeHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="user-stats__website-link"
+                            >
+                              {website}
+                            </a>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
@@ -980,7 +984,7 @@ function UserStats() {
                           1 Question
                         </span>
                         <span className="user-stats__contest-value">
-                          {formatValue(userData.mostOneQuestionInContest, '0')}
+                          {formatValue(userData.mostOneQuestionsInContest, '0')}
                         </span>
                       </div>
                       <div className="user-stats__contest-stat user-stats__contest-stat--0q">
