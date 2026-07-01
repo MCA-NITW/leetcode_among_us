@@ -980,7 +980,7 @@ function UserStats() {
                           1 Question
                         </span>
                         <span className="user-stats__contest-value">
-                          {formatValue(userData.mostOneQuestionInContest, '0')}
+                          {formatValue(userData.mostOneQuestionsInContest, '0')}
                         </span>
                       </div>
                       <div className="user-stats__contest-stat user-stats__contest-stat--0q">
