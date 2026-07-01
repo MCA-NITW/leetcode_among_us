@@ -629,7 +629,23 @@ const Compare = () => {
                     ? 1
                     : 0
                 ].reduce((a, b) => a + b, 0)
-                const score2 = 5 - score1
+                const score2 = [
+                  (user2Data.totalSolved ?? 0) > (user1Data.totalSolved ?? 0)
+                    ? 1
+                    : 0,
+                  rank2 < rank1 ? 1 : 0,
+                  (user2Data.globalContestRating || 0) >
+                  (user1Data.globalContestRating || 0)
+                    ? 1
+                    : 0,
+                  (user2Data.bestStreak || 0) > (user1Data.bestStreak || 0)
+                    ? 1
+                    : 0,
+                  (user2Data.badges?.length || 0) >
+                  (user1Data.badges?.length || 0)
+                    ? 1
+                    : 0
+                ].reduce((a, b) => a + b, 0)
                 if (score1 > score2) {
                   return (
                     <div className="winner-text user1-winner">
