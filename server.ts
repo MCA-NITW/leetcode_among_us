@@ -428,8 +428,7 @@ const fetchUserData = async (username: string): Promise<UserData> => {
 
   calendarResults.forEach(result => {
     const matchedUser = result?.data?.matchedUser as
-      | { userCalendar?: UserCalendar }
-      | undefined
+      { userCalendar?: UserCalendar } | undefined
     const calendar = matchedUser?.userCalendar
     if (calendar) {
       if (calendar.streak > bestStreak) {
