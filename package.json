@@ -29,22 +29,10 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.2",
     "@types/node": "^25.6.0",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.0",
     "prettier": "^3.8.3",
     "tsx": "^4.19.4",
     "typescript": "^6.0.3"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ],
-    "overrides": {
-      "shell-quote": ">=1.8.4",
-      "react-router": ">=7.15.0",
-      "qs": ">=6.15.2",
-      "ip-address": ">=10.1.1",
-      "esbuild": ">=0.28.1"
-    }
-  }
+  "packageManager": "pnpm@11.17.0"
 }
