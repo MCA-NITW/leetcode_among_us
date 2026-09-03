@@ -1,6 +1,6 @@
 {
   "name": "leetcode_among_us",
-  "version": "2.0.0",
+  "version": "3.0.1",
   "description": "LeetCode tracking platform for MCA students at NIT Warangal",
   "main": "dist/server.js",
   "type": "module",
