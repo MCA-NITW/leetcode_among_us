@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2] - 2026-09-03
+
+### Security
+
+- Bump transitive qs to 6.16.0 (alerts #127, #128: array-limit bypass, isBuffer
+  DoS).
+
 ## [3.0.1] - 2026-09-03
 
 - Security: bump nanoid (3.3.16 -> 3.3.18), postcss (8.5.22 -> 8.5.26),
