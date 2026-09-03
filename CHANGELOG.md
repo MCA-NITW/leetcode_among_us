@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.1] - 2026-09-03
+
+- Security: bump nanoid (3.3.16 -> 3.3.18), postcss (8.5.22 -> 8.5.26),
+  ip-address (10.2.0 -> 10.7.0) via pnpm overrides to resolve all 5 open
+  Dependabot alerts
+- Fix Compare page Overall Winner score miscomputation (#168)
+- Dependency maintenance: Vite security updates, express path-to-regexp fix,
+  monthly Renovate updates
+- Adopt org reusable CI workflows and Renovate automerge config
+
 ## [3.0.0] - 2026-03-02
 
 - Full-stack rewrite with pnpm workspace
