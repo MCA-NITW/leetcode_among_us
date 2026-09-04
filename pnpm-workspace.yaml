@@ -11,5 +11,5 @@ overrides:
   qs: '>=6.15.2'
   ip-address: '>=10.3.1'
   esbuild: '>=0.28.1'
-  nanoid: '>=3.3.18 <4'
+  nanoid: '<7'
   postcss: '>=8.5.23'
