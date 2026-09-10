@@ -11,21 +11,74 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const REQUIRED_FIELDS = ['id', 'name', 'userName', 'batch', 'gender']
+const REQUIRED_FIELD_SET = new Set(REQUIRED_FIELDS)
 // Mirrors isValidUsername in server.ts. Keep the two in sync.
 const USERNAME_PATTERN = /^[a-zA-Z0-9_-]{1,40}$/
 const BATCH_PATTERN = /^\d{4}$/
 const GENDERS = new Set(['male', 'female', 'other'])
+
+/** @returns {string[]} problems with the shape of one entry */
+function checkShape(entry, where) {
+  const errors = []
+  for (const field of REQUIRED_FIELDS) {
+    if (typeof entry[field] !== 'string' || entry[field].trim() === '') {
+      errors.push(`${where}: "${field}" must be a non-empty string.`)
+    }
+  }
+  const extra = Object.keys(entry).filter(k => !REQUIRED_FIELD_SET.has(k))
+  if (extra.length > 0) {
+    errors.push(`${where}: unexpected field(s): ${extra.join(', ')}.`)
+  }
+  return errors
+}
+
+/** @returns {string[]} problems with field values (not uniqueness) */
+function checkValues(entry, where) {
+  const errors = []
+  const { userName, batch, gender } = entry
+  if (typeof userName === 'string' && !USERNAME_PATTERN.test(userName)) {
+    errors.push(
+      `${where}: userName "${userName}" must be 1-40 letters, digits, hyphens or underscores.`
+    )
+  }
+  if (typeof batch === 'string' && !BATCH_PATTERN.test(batch)) {
+    errors.push(`${where}: batch "${batch}" must be a four-digit year.`)
+  }
+  if (typeof gender === 'string' && !GENDERS.has(gender.toLowerCase())) {
+    errors.push(
+      `${where}: gender "${gender}" must be one of ${[...GENDERS].join(', ')}.`
+    )
+  }
+  return errors
+}
+
+/**
+ * Records `value` under `label` in `seen`; returns an error when it was
+ * already there. Keys are case-folded: LeetCode usernames are
+ * case-insensitive, so two spellings would produce a duplicate leaderboard row.
+ * @returns {string | null}
+ */
+function checkUnique(seen, label, value, where, index) {
+  if (typeof value !== 'string') return null
+  const key = value.trim().toLowerCase()
+  const previous = seen.get(key)
+  if (previous !== undefined) {
+    return `${where}: duplicate ${label} "${value}" (also entry #${previous}).`
+  }
+  seen.set(key, index + 1)
+  return null
+}
 
 /**
  * @param {unknown} data parsed JSON
  * @returns {string[]} list of problems; empty when valid
  */
 export function validateRoster(data) {
-  const errors = []
   if (!Array.isArray(data)) {
     return ['Roster must be a JSON array of entries.']
   }
 
+  const errors = []
   const seenIds = new Map()
   const seenUserNames = new Map()
 
@@ -36,57 +89,18 @@ export function validateRoster(data) {
       return
     }
 
-    for (const field of REQUIRED_FIELDS) {
-      if (typeof entry[field] !== 'string' || entry[field].trim() === '') {
-        errors.push(`${where}: "${field}" must be a non-empty string.`)
-      }
-    }
+    errors.push(...checkShape(entry, where), ...checkValues(entry, where))
 
-    const extra = Object.keys(entry).filter(k => !REQUIRED_FIELDS.includes(k))
-    if (extra.length > 0) {
-      errors.push(`${where}: unexpected field(s): ${extra.join(', ')}.`)
-    }
-
-    const { id, userName, batch, gender } = entry
-
-    if (typeof id === 'string') {
-      const key = id.trim().toUpperCase()
-      if (seenIds.has(key)) {
-        errors.push(
-          `${where}: duplicate id "${id}" (also entry #${seenIds.get(key)}).`
-        )
-      } else {
-        seenIds.set(key, index + 1)
-      }
-    }
-
-    if (typeof userName === 'string') {
-      if (!USERNAME_PATTERN.test(userName)) {
-        errors.push(
-          `${where}: userName "${userName}" must be 1-40 letters, digits, hyphens or underscores.`
-        )
-      }
-      // LeetCode usernames are case-insensitive, so two spellings of the same
-      // name would produce a duplicate leaderboard row.
-      const key = userName.toLowerCase()
-      if (seenUserNames.has(key)) {
-        errors.push(
-          `${where}: duplicate userName "${userName}" (also entry #${seenUserNames.get(key)}).`
-        )
-      } else {
-        seenUserNames.set(key, index + 1)
-      }
-    }
-
-    if (typeof batch === 'string' && !BATCH_PATTERN.test(batch)) {
-      errors.push(`${where}: batch "${batch}" must be a four-digit year.`)
-    }
-
-    if (typeof gender === 'string' && !GENDERS.has(gender.toLowerCase())) {
-      errors.push(
-        `${where}: gender "${gender}" must be one of ${[...GENDERS].join(', ')}.`
-      )
-    }
+    const dupId = checkUnique(seenIds, 'id', entry.id, where, index)
+    if (dupId) errors.push(dupId)
+    const dupName = checkUnique(
+      seenUserNames,
+      'userName',
+      entry.userName,
+      where,
+      index
+    )
+    if (dupName) errors.push(dupName)
   })
 
   return errors

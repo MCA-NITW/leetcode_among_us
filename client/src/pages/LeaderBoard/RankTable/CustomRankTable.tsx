@@ -466,14 +466,11 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
         const bValue = readValue(b)
 
         if (typeof aValue === 'string' || typeof bValue === 'string') {
+          const aText = typeof aValue === 'string' ? aValue : ''
+          const bText = typeof bValue === 'string' ? bValue : ''
           return (
-            String(aValue ?? '').localeCompare(
-              String(bValue ?? ''),
-              undefined,
-              {
-                sensitivity: 'base'
-              }
-            ) * direction
+            aText.localeCompare(bText, undefined, { sensitivity: 'base' }) *
+            direction
           )
         }
 

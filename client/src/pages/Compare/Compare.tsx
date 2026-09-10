@@ -222,8 +222,9 @@ const Compare = () => {
         isUserNotFound(rawData2) ? username2.trim() : null
       ].filter((name): name is string => name !== null)
       if (missing.length > 0) {
+        const quoted = missing.map(name => `"${name}"`).join(' and ')
         setError(
-          `No LeetCode profile found for ${missing.map(name => `"${name}"`).join(' and ')}. Check the spelling and try again.`
+          `No LeetCode profile found for ${quoted}. Check the spelling and try again.`
         )
         return
       }

@@ -30,12 +30,13 @@
     <script>
       try {
         var saved = localStorage.getItem('theme')
-        var theme =
-          saved === 'light' || saved === 'dark'
-            ? saved
-            : window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
+        var theme = saved === 'light' || saved === 'dark' ? saved : null
+        if (!theme) {
+          var prefersDark = window.matchMedia(
+            '(prefers-color-scheme: dark)'
+          ).matches
+          theme = prefersDark ? 'dark' : 'light'
+        }
         document.documentElement.dataset.theme = theme
       } catch (e) {
         /* storage unavailable: fall back to CSS default */

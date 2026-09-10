@@ -184,12 +184,6 @@ const isValidUsername = (username: unknown): username is string => {
   )
 }
 
-/** Sanitize user input for safe logging (prevents log injection). */
-const sanitizeForLog = (str: unknown): string => {
-  if (typeof str !== 'string') return String(str)
-  return str.replace(/[\r\n\t]/g, '_').slice(0, MAX_USERNAME_LENGTH)
-}
-
 /** Make a single GraphQL request to the LeetCode API. */
 const fetchGraphQLData = async (
   operationName: string,
@@ -453,11 +447,7 @@ const fetchUserData = async (username: string): Promise<UserData> => {
     activeYears = extractCalendar(overview)?.activeYears ?? []
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    console.error(
-      'Error fetching calendar overview for %s:',
-      sanitizeForLog(username),
-      message
-    )
+    console.error('Error fetching calendar overview:', message)
   }
   const yearsToFetch =
     activeYears.length > 0 ? activeYears : [new Date().getFullYear()]
@@ -653,11 +643,7 @@ app.post(
           } catch (error) {
             const message =
               error instanceof Error ? error.message : String(error)
-            console.error(
-              'Error fetching data for user %s:',
-              sanitizeForLog(username),
-              message
-            )
+            console.error('Error fetching data for batch user:', message)
             return {
               username,
               success: false,
@@ -691,10 +677,16 @@ app.all(/^\/leetcode(\/.*)?$/, (_req: Request, res: Response): void => {
 
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 
-// Serve React app for all routes that don't match API endpoints (Express 5 compatible)
-app.get(/^(?!\/leetcode).*/, (_req: Request, res: Response): void => {
-  res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'))
-})
+// Serve React app for all routes that don't match API endpoints (Express 5
+// compatible). Rate limited because it touches the file system (CodeQL
+// js/missing-rate-limiting); hashed assets are served by express.static above.
+app.get(
+  /^(?!\/leetcode).*/,
+  leetcodeLimiter,
+  (_req: Request, res: Response): void => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'))
+  }
+)
 
 // Final error handler. Without this Express prints the stack trace into the
 // response body when NODE_ENV is not 'production'.

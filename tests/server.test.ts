@@ -122,7 +122,7 @@ describe('POST /leetcode/user-data', () => {
       .post('/leetcode/user-data')
       .send({ username: 'alice' })
     expect(res.status).toBe(200)
-    expect(fetchMock.mock.calls.length).toBe(upstreamCalls)
+    expect(fetchMock.mock.calls).toHaveLength(upstreamCalls)
 
     const health = await request(app).get('/health')
     expect(health.body.cachedUsers).toBe(1)
@@ -132,7 +132,7 @@ describe('POST /leetcode/user-data', () => {
     await request(app).post('/leetcode/user-data').send({ username: 'ghost1' })
     const first = fetchMock.mock.calls.length
     await request(app).post('/leetcode/user-data').send({ username: 'ghost1' })
-    expect(fetchMock.mock.calls.length).toBe(first * 2)
+    expect(fetchMock.mock.calls).toHaveLength(first * 2)
   })
 
   it('maps an upstream failure to 502 without leaking details', async () => {
@@ -190,7 +190,7 @@ describe('POST /leetcode/batch-user-data', () => {
     expect(res.body.results.every((r: { success: boolean }) => r.success)).toBe(
       true
     )
-    expect(fetchMock.mock.calls.length).toBe(callsForOneUser)
+    expect(fetchMock.mock.calls).toHaveLength(callsForOneUser)
   })
 })
 
