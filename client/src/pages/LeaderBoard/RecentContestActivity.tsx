@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
+import type { CSSProperties, SyntheticEvent } from 'react'
 import { FaTrophy, FaArrowUp, FaArrowDown } from 'react-icons/fa'
 import { MdAccessTime } from 'react-icons/md'
 import './RecentContestActivity.css'
 import type { UserData } from '../../types'
+import { useReveal } from '../../hooks/useReveal'
 
 interface RecentContestActivityProps {
   data: Partial<UserData>[]
@@ -68,6 +70,8 @@ function RecentContestActivity({ data }: RecentContestActivityProps) {
       }))
   }, [data])
 
+  const sectionRef = useReveal<HTMLDivElement>()
+
   if (recentContests.length === 0) return null
 
   const formatDate = (timestamp: number): string => {
@@ -80,7 +84,7 @@ function RecentContestActivity({ data }: RecentContestActivityProps) {
   }
 
   return (
-    <div className="recent-contests">
+    <div className="recent-contests reveal" ref={sectionRef}>
       <div className="recent-contests__header">
         <h2 className="recent-contests__title">
           <FaTrophy /> Recent Contest Activity
@@ -95,7 +99,7 @@ function RecentContestActivity({ data }: RecentContestActivityProps) {
           <div
             key={contest.title}
             className="contest-card"
-            style={{ animationDelay: `${index * 0.08}s` }}
+            style={{ '--i': index } as CSSProperties}
           >
             <div className="contest-card__header">
               <h3 className="contest-card__title">{contest.title}</h3>
@@ -121,9 +125,7 @@ function RecentContestActivity({ data }: RecentContestActivityProps) {
                         src={p.avatar}
                         alt={p.name}
                         className="participant-avatar"
-                        onError={(
-                          e: React.SyntheticEvent<HTMLImageElement>
-                        ) => {
+                        onError={(e: SyntheticEvent<HTMLImageElement>) => {
                           ;(e.target as HTMLImageElement).style.display = 'none'
                         }}
                       />

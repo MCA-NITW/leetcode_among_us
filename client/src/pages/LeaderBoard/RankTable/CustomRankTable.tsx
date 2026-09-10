@@ -109,10 +109,10 @@ const OverviewRow = ({
             {getRatingBadge(rating)} {Math.round(rating)}
           </span>
         ) : (
-          <span style={{ color: '#999' }}>Unrated</span>
+          <span style={{ color: 'var(--text-3)' }}>Unrated</span>
         )}
         {user.contestTopPercentage && rating > 0 && (
-          <div style={{ fontSize: '0.75em', color: '#666' }}>
+          <div style={{ fontSize: '0.75em', color: 'var(--text-2)' }}>
             Top {user.contestTopPercentage.toFixed(1)}%
           </div>
         )}
@@ -124,7 +124,8 @@ const OverviewRow = ({
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              color: (user.bestStreak ?? 0) >= 7 ? '#FF4500' : '#FFA500'
+              color:
+                (user.bestStreak ?? 0) >= 7 ? 'var(--danger)' : 'var(--warning)'
             }}
           >
             <FaFire style={{ fontSize: '1.2em' }} />
@@ -132,7 +133,7 @@ const OverviewRow = ({
             <span style={{ fontSize: '0.85em' }}>days</span>
           </span>
         ) : (
-          <span style={{ color: '#999' }}>0</span>
+          <span style={{ color: 'var(--text-3)' }}>0</span>
         )}
       </td>
       <td className="stat-col">
@@ -144,12 +145,14 @@ const OverviewRow = ({
               gap: '4px'
             }}
           >
-            <MdCalendarToday style={{ fontSize: '1.1em', color: '#4CAF50' }} />
+            <MdCalendarToday
+              style={{ fontSize: '1.1em', color: 'var(--success)' }}
+            />
             <strong>{user.totalActiveDays}</strong>
             <span style={{ fontSize: '0.85em' }}>days</span>
           </span>
         ) : (
-          <span style={{ color: '#999' }}>0</span>
+          <span style={{ color: 'var(--text-3)' }}>0</span>
         )}
       </td>
       <td className="stat-col" style={{ minWidth: '100px' }}>
@@ -501,9 +504,9 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
   }
 
   const getRankBadge = (index: number): React.ReactNode => {
-    if (index === 0) return <FaMedal style={{ color: '#FFD700' }} />
-    if (index === 1) return <FaMedal style={{ color: '#C0C0C0' }} />
-    if (index === 2) return <FaMedal style={{ color: '#CD7F32' }} />
+    if (index === 0) return <FaMedal style={{ color: 'var(--gold)' }} />
+    if (index === 1) return <FaMedal style={{ color: 'var(--silver)' }} />
+    if (index === 2) return <FaMedal style={{ color: 'var(--bronze)' }} />
     return index + 1
   }
 

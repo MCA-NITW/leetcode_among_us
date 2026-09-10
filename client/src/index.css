@@ -82,6 +82,16 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Motion scale. Every transition/animation in the app should use one of
+     these so hover, reveal and loading motion feel like one system. */
+  --dur-fast: 0.2s; /* hover, focus, colour changes */
+  --dur-base: 0.35s; /* card lift, tab switch, small reveals */
+  --dur-slow: 0.6s; /* section / page entrance */
+  --stagger: 60ms; /* delay step between siblings, see .stagger */
+  --lift: -3px; /* hover translateY for cards and buttons */
+  --reveal-distance: 20px; /* translateY start for entrance reveals */
+
   --glass-border: 1px solid var(--border);
 
   --radius-sm: 8px;
@@ -186,6 +196,8 @@
 /* ── BASE ── */
 html {
   scroll-behavior: smooth;
+  /* Keep layout stable when a scrollbar appears/disappears between pages. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -408,6 +420,71 @@ a:hover {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+
+  /* Reveals must land in their final, visible state immediately. */
+  .reveal,
+  .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── SHARED MOTION UTILITIES ──
+   .reveal          hidden until useReveal() adds .is-visible (viewport entry)
+   .stagger         children animate in sequence using --i (set inline)
+   .card-lift       the one hover recipe for interactive surfaces
+   .surface         standard glass card: bg, border, radius, padding
+*/
+
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity var(--dur-slow) var(--ease-out-expo),
+    transform var(--dur-slow) var(--ease-out-expo);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.stagger > * {
+  animation: g-fadeInUp var(--dur-base) var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+/* Inside a .reveal wrapper, hold the stagger until the wrapper is on screen. */
+.reveal .stagger > * {
+  animation-play-state: paused;
+}
+.reveal.is-visible .stagger > * {
+  animation-play-state: running;
+}
+
+.card-lift {
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    border-color var(--dur-fast) ease,
+    box-shadow var(--dur-base) ease,
+    background var(--dur-fast) ease;
+}
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(var(--lift));
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-md), var(--glow-primary);
+  }
+}
+.card-lift:focus-within {
+  border-color: var(--accent-border);
+}
+
+.surface {
+  background: var(--bg-glass);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
 }

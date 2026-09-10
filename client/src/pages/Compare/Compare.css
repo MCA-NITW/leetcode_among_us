@@ -4,16 +4,7 @@
    ============================================ */
 
 /* ── KEYFRAMES ── */
-@keyframes compareFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Entrance fades/scales use the shared g-fadeInUp / g-scaleIn from index.css. */
 
 @keyframes compareBarGrow {
   from {
@@ -22,21 +13,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes compareScaleIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.03);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -115,10 +91,10 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: var(--space-xl);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: var(--glass-border);
   box-shadow: var(--shadow-md);
-  animation: compareScaleIn 0.5s var(--ease-out-expo) 0.1s both;
+  animation: g-scaleIn var(--dur-base) var(--ease-out-expo) 0.1s both;
 }
 
 .input-group {
@@ -219,7 +195,7 @@
   text-align: center;
   font-weight: 500;
   font-size: var(--font-sm);
-  animation: compareFadeIn 0.2s ease;
+  animation: g-fadeInUp var(--dur-fast) ease;
 }
 
 /* ── RESULTS CONTAINER ── */
@@ -228,33 +204,31 @@
   margin: 0 auto;
 }
 
+/* Result blocks cascade in, one stagger step per block. */
 .comparison-results > * {
-  animation: compareFadeIn 0.3s ease both;
+  animation: g-fadeInUp var(--dur-base) var(--ease-out-expo) both;
 }
 
-.comparison-results > *:nth-child(1) {
-  animation-delay: 0s;
-}
 .comparison-results > *:nth-child(2) {
-  animation-delay: 0.08s;
+  animation-delay: calc(1 * var(--stagger));
 }
 .comparison-results > *:nth-child(3) {
-  animation-delay: 0.16s;
+  animation-delay: calc(2 * var(--stagger));
 }
 .comparison-results > *:nth-child(4) {
-  animation-delay: 0.24s;
+  animation-delay: calc(3 * var(--stagger));
 }
 .comparison-results > *:nth-child(5) {
-  animation-delay: 0.32s;
+  animation-delay: calc(4 * var(--stagger));
 }
 .comparison-results > *:nth-child(6) {
-  animation-delay: 0.4s;
+  animation-delay: calc(5 * var(--stagger));
 }
 .comparison-results > *:nth-child(7) {
-  animation-delay: 0.48s;
+  animation-delay: calc(6 * var(--stagger));
 }
 .comparison-results > *:nth-child(8) {
-  animation-delay: 0.56s;
+  animation-delay: calc(7 * var(--stagger));
 }
 
 /* ── USER HEADERS ── */
@@ -270,22 +244,22 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: var(--space-xl);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: var(--glass-border);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   gap: var(--space-lg);
   transition:
-    transform 0.35s var(--ease-spring),
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) ease,
+    border-color var(--dur-fast) ease;
 }
 
 .user-header:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-hover);
+  transform: translateY(var(--lift));
+  box-shadow: var(--shadow-md), var(--glow-primary);
+  border-color: var(--accent-border);
 }
 
 /* User 1 — Accent top border */
@@ -358,15 +332,18 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: var(--space-xl);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   margin-bottom: var(--space-lg);
   border: var(--glass-border);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow var(--dur-base) ease,
+    border-color var(--dur-fast) ease;
 }
 
 .comparison-section:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
 }
 
 .section-title {
@@ -619,7 +596,7 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: var(--space-xl);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-hover);
   box-shadow: var(--shadow-md);
   text-align: center;
