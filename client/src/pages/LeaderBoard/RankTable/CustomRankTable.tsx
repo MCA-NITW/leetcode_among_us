@@ -397,7 +397,9 @@ const AdvancedRow = ({
     </td>
     <td className="stat-col">{user.reputation || 0}</td>
     <td className="stat-col">
-      {user.questionRanking ? user.questionRanking.toLocaleString() : 'N/A'}
+      {user.questionRanking && user.questionRanking !== Infinity
+        ? user.questionRanking.toLocaleString()
+        : 'N/A'}
     </td>
     <td className="stat-col">
       {user.bestStreak ? `${user.bestStreak} days` : 'N/A'}
@@ -451,19 +453,35 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
 
     // Sorting
     if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        const aValue =
-          ((a as Record<string, unknown>)[sortConfig.key] as number) || 0
-        const bValue =
-          ((b as Record<string, unknown>)[sortConfig.key] as number) || 0
+      // Accept % is derived at render time, not stored on the user object, so
+      // it needs its own accessor or the sort silently compares 0 with 0.
+      const readValue = (user: PartialUser): unknown =>
+        sortConfig.key === 'acceptanceRate'
+          ? Number.parseFloat(computeAcceptanceRate(user))
+          : (user as Record<string, unknown>)[sortConfig.key]
 
-        if (aValue < bValue) {
-          return sortConfig.direction === 'asc' ? -1 : 1
+      const direction = sortConfig.direction === 'asc' ? 1 : -1
+      filtered.sort((a, b) => {
+        const aValue = readValue(a)
+        const bValue = readValue(b)
+
+        if (typeof aValue === 'string' || typeof bValue === 'string') {
+          const aText = typeof aValue === 'string' ? aValue : ''
+          const bText = typeof bValue === 'string' ? bValue : ''
+          return (
+            aText.localeCompare(bText, undefined, { sensitivity: 'base' }) *
+            direction
+          )
         }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'asc' ? 1 : -1
-        }
-        return 0
+
+        // Missing values and Infinity placeholders always sink to the bottom
+        // regardless of direction so "N/A" rows never take a medal.
+        const aNum = typeof aValue === 'number' && Number.isFinite(aValue)
+        const bNum = typeof bValue === 'number' && Number.isFinite(bValue)
+        if (!aNum && !bNum) return 0
+        if (!aNum) return 1
+        if (!bNum) return -1
+        return ((aValue as number) - (bValue as number)) * direction
       })
     }
 
@@ -583,9 +601,9 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
             >
               Hard {getSortIcon('hardSolved')}
             </th>
-            <th className="sortable">Easy %</th>
-            <th className="sortable">Medium %</th>
-            <th className="sortable">Hard %</th>
+            <th>Easy %</th>
+            <th>Medium %</th>
+            <th>Hard %</th>
             <th
               onClick={() => handleSort('acceptanceRate')}
               className="sortable"
@@ -808,7 +826,7 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
             onClick={() => setActiveTab(tab.id)}
           >
             <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label.replace(/^.*?\s/, '')}</span>
+            <span className="tab-label">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -822,6 +840,7 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
           <input
             type="text"
             placeholder="Search by name or username..."
+            aria-label="Search by name or username"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSearchTerm(e.target.value)

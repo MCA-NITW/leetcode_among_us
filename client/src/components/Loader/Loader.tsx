@@ -1,4 +1,3 @@
-import React from 'react'
 import './Loader.css'
 import { MdSpeed } from 'react-icons/md'
 

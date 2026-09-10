@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 import {
@@ -13,6 +12,11 @@ import {
 } from 'react-icons/fa'
 import { MdLeaderboard } from 'react-icons/md'
 import { BiTargetLock } from 'react-icons/bi'
+import leetcoders from '../../assets/leetcoders_data.json'
+
+const trackedUsers = leetcoders.filter(
+  entry => entry.userName && entry.userName.trim() !== ''
+).length
 
 function Home() {
   const features = [
@@ -56,7 +60,7 @@ function Home() {
   const stats = [
     { value: '5+', label: 'Stat Categories', icon: <FaChartBar /> },
     { value: 'Real-time', label: 'Data Updates', icon: <FaRocket /> },
-    { value: '100+', label: 'Users Tracked', icon: <FaUser /> },
+    { value: String(trackedUsers), label: 'Users Tracked', icon: <FaUser /> },
     { value: '30+', label: 'Metrics', icon: <FaCheckCircle /> }
   ]
 

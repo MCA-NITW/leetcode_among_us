@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import type { Plugin } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'

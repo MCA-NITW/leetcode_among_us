@@ -67,8 +67,6 @@ export interface UserData extends LeetcoderEntry {
     submissions: number
   }>
   tagProblemCounts?: TagProblemCounts
-  ranking?: number
-  attendedContestsCount?: number
 }
 
 export interface ContestEntry {

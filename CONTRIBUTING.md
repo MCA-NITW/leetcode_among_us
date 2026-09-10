@@ -1,69 +1,72 @@
-# Contributing Guide - Adding Your LeetCode ID
+# Contributing
 
-Welcome to LeetCode Among Us! This guide will help you add your LeetCode ID to
-join the leaderboard.
+Thanks for helping keep the leaderboard alive. Most contributions are one of two
+kinds: adding yourself to the roster, or improving the app.
 
-## Quick Steps
+## Adding your LeetCode ID
 
-1. **Fork this repository** to your GitHub account
-2. **Clone your fork** locally
-3. **Edit the JSON file** at `client/src/assets/leetcoders_data.json`
-4. **Add your entry** following the format below
-5. **Submit a Pull Request**
+1. Fork this repository and clone your fork.
+2. Open `client/src/assets/leetcoders_data.json`.
+3. Add an entry in this exact shape (template: `TEMPLATE_ENTRY.json`):
 
-## JSON Format
+   ```json
+   {
+     "id": "22MCF1R01",
+     "name": "Your Full Name",
+     "userName": "your_leetcode_username",
+     "batch": "2025",
+     "gender": "male"
+   }
+   ```
 
-Add your entry to the `leetcoders_data.json` file in this exact format:
+4. Run `pnpm install` once, then `pnpm validate:data`. Fix anything it reports.
+5. Commit, push, and open a pull request.
 
-```json
-{
-  "id": "YOUR_STUDENT_ID",
-  "name": "Your Full Name",
-  "userName": "your_leetcode_username",
-  "batch": "YYYY",
-  "gender": "male/female"
-}
+### Field rules
+
+| Field      | Rule                                                     |
+| ---------- | -------------------------------------------------------- |
+| `id`       | Your official student ID, unique in the file             |
+| `name`     | Your full name (LeetCode's `realName` is shown if set)   |
+| `userName` | Your LeetCode username: 1-40 letters, digits, `_` or `-` |
+| `batch`    | Graduation year, four digits                             |
+| `gender`   | `male`, `female` or `other`                              |
+
+Notes:
+
+- LeetCode usernames are case-insensitive; the validator treats `Jane_Doe` and
+  `jane_doe` as duplicates. Use the spelling shown on your profile URL.
+- Your LeetCode profile must be public or no data can be fetched.
+- Keep entries in order by student ID.
+- Do not add extra fields; the validator rejects them.
+
+The same validator runs before every client build, so CI will fail on a bad
+entry before it can reach production.
+
+## Working on the app
+
+```bash
+pnpm install
+pnpm dev            # API on :3001, client on :3000
+pnpm test           # server + client tests
+pnpm build          # what CI and Render run
+pnpm format         # Prettier
 ```
 
-## Example
+Conventions:
 
-```json
-{
-  "id": "22MCF1R01",
-  "name": "John Doe",
-  "userName": "john_coder",
-  "batch": "2025",
-  "gender": "male"
-}
-```
+- Prettier is enforced in CI; run `pnpm format` before pushing.
+- TypeScript is strict with unused-code checks on both client and server.
+- Server changes need a Supertest case in `tests/server.test.ts` when they touch
+  validation, caching or error handling. Client data-shaping changes go in
+  `client/tests/`.
+- Keep `server.ts` free of anything that would require LeetCode credentials.
+- Commit messages follow Conventional Commits (`feat:`, `fix:`, `docs:`,
+  `chore:`, `test:`, `refactor:`).
+- Bump the version in both `package.json` files and add a `CHANGELOG.md` entry
+  in the same PR as a user-visible change.
 
-## Field Requirements
+## Reporting problems
 
-| Field      | Description                                    | Example                |
-| ---------- | ---------------------------------------------- | ---------------------- |
-| `id`       | Your official student ID                       | `"22MCF1R01"`          |
-| `name`     | Your full name                                 | `"John Doe"`           |
-| `userName` | Your exact LeetCode username (case-sensitive!) | `"john_coder"`         |
-| `batch`    | Your graduation year                           | `"2025"`               |
-| `gender`   | Your gender                                    | `"male"` or `"female"` |
-
-## Important Notes
-
-- ⚠️ **Username must be exact**: Your LeetCode username is case-sensitive
-- 📝 **No duplicates**: Check if your ID already exists
-- 📋 **JSON format**: Make sure to follow the exact structure
-- 🔤 **Alphabetical order**: Add your entry in order by student ID
-
-## Common Mistakes
-
-❌ **Wrong username case**: `"John_Coder"` vs `"john_coder"` ❌ **Missing
-quotes**: `name: John Doe` instead of `"name": "John Doe"` ❌ **Missing comma**:
-Between JSON objects ❌ **Typos in student ID**: Double-check your official ID
-
-## Need Help?
-
-- Check the existing entries in the JSON file for reference
-- Open an issue if you need assistance
-- Contact the maintainers
-
-Happy coding! 🚀
+Open an issue with the page, the username involved (if any), and what you
+expected. For security issues follow [SECURITY.md](SECURITY.md) instead.

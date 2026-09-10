@@ -145,9 +145,15 @@ function RecentContestActivity({ data }: RecentContestActivityProps) {
                     <span className="participant-rank">
                       #{p.ranking.toLocaleString()}
                     </span>
-                    {p.trendDirection && (
+                    {(p.trendDirection === 'UP' ||
+                      p.trendDirection === 'DOWN') && (
                       <span
                         className={`participant-trend trend-${p.trendDirection.toLowerCase()}`}
+                        aria-label={
+                          p.trendDirection === 'UP'
+                            ? 'Rating went up'
+                            : 'Rating went down'
+                        }
                       >
                         {p.trendDirection === 'UP' ? (
                           <FaArrowUp />

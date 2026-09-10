@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/leetcode': 'http://localhost:3001'
+      '/leetcode': 'http://localhost:3001',
+      '/health': 'http://localhost:3001'
     }
   },
   build: {

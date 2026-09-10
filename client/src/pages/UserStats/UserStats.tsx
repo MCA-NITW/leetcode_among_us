@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import './UserStats.css'
 import ContentLoader from '../../components/Loader/ContentLoader'
 import { fetchDataForLeetcoder } from '../../utils/optimizedLeaderboardData'
@@ -44,8 +44,8 @@ const sanitizeUrl = (url: string): string => {
     if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
       return parsed.href
     }
-  } catch (error) {
-    console.error('Error fetching user data:', error)
+  } catch {
+    // Not a parseable URL: drop the link rather than render a broken href.
   }
   return ''
 }
@@ -71,8 +71,17 @@ function UserStats() {
       const fetchedData = await fetchDataForLeetcoder({
         userName: username.toLowerCase()
       })
+      // fetchDataForLeetcoder never throws: a missing user or an upstream
+      // failure both come back as the bare input object. totalSolved is only
+      // present when a real profile was processed.
+      if (fetchedData.totalSolved === undefined) {
+        setError(
+          `No LeetCode profile found for "${username.trim()}". Check the spelling, or try again if LeetCode is slow to respond.`
+        )
+        return
+      }
       setUserData(fetchedData)
-    } catch (err) {
+    } catch {
       setError(
         'Failed to fetch user data. Please check the username and try again.'
       )
@@ -80,6 +89,18 @@ function UserStats() {
       setLoading(false)
     }
   }
+
+  // LeetCode's history is returned oldest-first; the "Recent" table wants
+  // newest-first, and the rating delta must compare against the chronologically
+  // previous contest (the next row in this order).
+  const recentContests = useMemo(() => {
+    const history = userData?.contestHistory ?? []
+    return [...history].sort(
+      (a, b) => (b.contest?.startTime ?? 0) - (a.contest?.startTime ?? 0)
+    )
+  }, [userData])
+
+  const isUnrated = (userData?.attendedContestCount ?? 0) === 0
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -207,7 +228,9 @@ function UserStats() {
               </div>
               <div className="user-stats__quick-stat">
                 <span className="user-stats__quick-stat-value">
-                  {formatValue(userData.globalContestRating, 'N/A')}
+                  {isUnrated
+                    ? 'Unrated'
+                    : formatValue(userData.globalContestRating, 'N/A')}
                 </span>
                 <span className="user-stats__quick-stat-label">Rating</span>
               </div>
@@ -345,7 +368,12 @@ function UserStats() {
                         Contest Rating:
                       </span>
                       <span className="user-stats__info-value user-stats__info-value--success">
-                        {formatValue(userData.globalContestRating, 'Unrated')}
+                        {isUnrated
+                          ? 'Unrated'
+                          : formatValue(
+                              userData.globalContestRating,
+                              'Unrated'
+                            )}
                       </span>
                     </div>
                     <div className="user-stats__info-item">
@@ -880,7 +908,12 @@ function UserStats() {
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
                       <span className="user-stats__big-stat-value user-stats__big-stat-value--contest">
-                        {formatValue(userData.globalContestRating, 'Unrated')}
+                        {isUnrated
+                          ? 'Unrated'
+                          : formatValue(
+                              userData.globalContestRating,
+                              'Unrated'
+                            )}
                       </span>
                       <span className="user-stats__big-stat-label">
                         Global Rating
@@ -1068,13 +1101,12 @@ function UserStats() {
                               </tr>
                             </thead>
                             <tbody>
-                              {userData.contestHistory
+                              {recentContests
                                 .slice(0, 15)
                                 .map((contest, index) => {
                                   const prevRating =
-                                    index < userData.contestHistory!.length - 1
-                                      ? userData.contestHistory![index + 1]
-                                          .rating
+                                    index < recentContests.length - 1
+                                      ? recentContests[index + 1].rating
                                       : contest.rating
                                   const ratingChange = contest.attended
                                     ? contest.rating - prevRating
@@ -1275,7 +1307,9 @@ function UserStats() {
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
                       <span className="user-stats__big-stat-value user-stats__big-stat-value--contest">
-                        {formatValue(userData.contestTopPercentage, 'N/A')}%
+                        {isUnrated
+                          ? 'N/A'
+                          : `${formatValue(userData.contestTopPercentage, 'N/A')}%`}
                       </span>
                       <span className="user-stats__big-stat-label">
                         Top Percentile
@@ -1293,7 +1327,9 @@ function UserStats() {
                   <div className="user-stats__card-content">
                     <div className="user-stats__big-stat">
                       <span className="user-stats__big-stat-value">
-                        {formatValue(userData.totalParticipants, 'N/A')}
+                        {isUnrated
+                          ? 'N/A'
+                          : formatValue(userData.totalParticipants, 'N/A')}
                       </span>
                       <span className="user-stats__big-stat-label">
                         Contest Pool

@@ -1,5 +1,5 @@
 import express from 'express'
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
 import helmet from 'helmet'
@@ -18,6 +18,19 @@ const CALENDAR_DELAY_MS = 100
 const MAX_USERNAME_LENGTH = 40
 const LEETCODE_GRAPHQL_URL = 'https://leetcode.com/graphql'
 const BODY_SIZE_LIMIT = '1mb'
+const FETCH_TIMEOUT_MS = 15_000
+const SHUTDOWN_TIMEOUT_MS = 10_000
+// How long a fetched user profile is served from memory before LeetCode is
+// asked again. Every page load used to trigger ~10 upstream GraphQL calls per
+// user; with ~35 roster users that was ~350 calls per visitor.
+const CACHE_TTL_MS =
+  Number(process.env.CACHE_TTL_MINUTES ?? 10) * 60 * 1000 || 10 * 60 * 1000
+const UPSTREAM_HEADERS: Record<string, string> = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  Referer: 'https://leetcode.com',
+  'User-Agent': 'Mozilla/5.0 (compatible; LeetCodeAmongUs/3.1)'
+}
 
 const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
   'http://localhost:3000',
@@ -140,10 +153,10 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         imgSrc: ["'self'", 'https:', 'data:'],
-        connectSrc: ["'self'", 'https://leetcode.com'],
-        fontSrc: ["'self'", 'https:', 'data:']
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:']
       }
     },
     crossOriginEmbedderPolicy: false
@@ -154,7 +167,9 @@ app.use(express.json({ limit: BODY_SIZE_LIMIT }))
 
 const leetcodeLimiter = rateLimit({
   windowMs: RATE_LIMIT_WINDOW_MS,
-  max: RATE_LIMIT_MAX
+  limit: RATE_LIMIT_MAX,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
 })
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -169,15 +184,6 @@ const isValidUsername = (username: unknown): username is string => {
   )
 }
 
-/** Sanitize user input for safe logging (prevents log injection). */
-const sanitizeForLog = (str: unknown): string => {
-  if (typeof str !== 'string') return String(str)
-  return str.replace(/[\r\n\t]/g, '_').slice(0, MAX_USERNAME_LENGTH)
-}
-
-// Keep sanitizeForLog reachable so the compiler does not flag it as unused.
-void sanitizeForLog
-
 /** Make a single GraphQL request to the LeetCode API. */
 const fetchGraphQLData = async (
   operationName: string,
@@ -186,29 +192,47 @@ const fetchGraphQLData = async (
 ): Promise<GraphQLResponse> => {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify({ operationName, variables, query })
+    headers: UPSTREAM_HEADERS,
+    body: JSON.stringify({ operationName, variables, query }),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
   })
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.statusText}`)
+    throw new Error(
+      `LeetCode responded ${response.status} ${response.statusText}`
+    )
   }
 
   return (await response.json()) as GraphQLResponse
 }
 
-/** Return an array of years from 2022 up to and including the current year. */
-const getCalendarYears = (): number[] => {
-  const currentYear = new Date().getFullYear()
-  const startYear = 2022
-  const years: number[] = []
-  for (let year = startYear; year <= currentYear; year++) {
-    years.push(year)
+const sleep = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms))
+
+// ─── Cache ───────────────────────────────────────────────────────────────────
+
+interface CacheEntry {
+  data: UserData
+  expiresAt: number
+}
+
+const userCache = new Map<string, CacheEntry>()
+/** Requests currently being fetched, so concurrent callers share one upstream round-trip. */
+const inFlight = new Map<string, Promise<UserData>>()
+
+const cacheKey = (username: string): string => username.toLowerCase()
+
+const evictExpired = (): void => {
+  const now = Date.now()
+  for (const [key, entry] of userCache) {
+    if (entry.expiresAt <= now) userCache.delete(key)
   }
-  return years
+}
+
+/** Exposed for tests. */
+export const clearUserCache = (): void => {
+  userCache.clear()
+  inFlight.clear()
 }
 
 // ─── Core data fetching ──────────────────────────────────────────────────────
@@ -384,12 +408,15 @@ const fetchUserData = async (username: string): Promise<UserData> => {
     GraphQLResponse | null
   >
 
-  // Fetch calendar data for multiple years with delay to avoid rate limiting
-  const years = getCalendarYears()
+  // Calendar data is per-year on LeetCode's side. One call without a year
+  // returns the trailing 12 months plus the user's activeYears list, which we
+  // then use to fetch exactly the years that have activity instead of a
+  // hardcoded range (the previous 2022..now loop lost pre-2022 history and
+  // wasted calls for later joiners).
   const calendarQuery: Omit<GraphQLQueryDefinition, 'variables'> = {
     operationName: 'userProfileCalendar',
     query: `
-      query userProfileCalendar($username: String!, $year: Int!) {
+      query userProfileCalendar($username: String!, $year: Int) {
         matchedUser(username: $username) {
           userCalendar(year: $year) {
             activeYears
@@ -402,9 +429,33 @@ const fetchUserData = async (username: string): Promise<UserData> => {
     `
   }
 
-  // Fetch calendar data sequentially with delay to avoid rate limiting
+  const extractCalendar = (
+    result: GraphQLResponse | null
+  ): UserCalendar | undefined => {
+    const matchedUser = result?.data?.matchedUser as
+      { userCalendar?: UserCalendar } | undefined
+    return matchedUser?.userCalendar
+  }
+
+  let activeYears: number[] = []
+  try {
+    const overview = await fetchGraphQLData(
+      calendarQuery.operationName,
+      { username },
+      calendarQuery.query
+    )
+    activeYears = extractCalendar(overview)?.activeYears ?? []
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('Error fetching calendar overview:', message)
+  }
+  const yearsToFetch =
+    activeYears.length > 0 ? activeYears : [new Date().getFullYear()]
+
+  // Fetch each active year sequentially with a small delay to stay polite
+  // towards LeetCode's rate limiting.
   const calendarResults: Array<GraphQLResponse | null> = []
-  for (const year of years) {
+  for (const year of yearsToFetch) {
     try {
       const data = await fetchGraphQLData(
         calendarQuery.operationName,
@@ -412,7 +463,7 @@ const fetchUserData = async (username: string): Promise<UserData> => {
         calendarQuery.query
       )
       calendarResults.push(data)
-      await new Promise<void>(resolve => setTimeout(resolve, CALENDAR_DELAY_MS))
+      await sleep(CALENDAR_DELAY_MS)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       console.error('Error fetching calendar data for year %d:', year, message)
@@ -424,20 +475,14 @@ const fetchUserData = async (username: string): Promise<UserData> => {
   let bestStreak = 0
   let totalActiveDays = 0
   let submissionCalendar: Record<string, number> = {}
-  let activeYears: number[] = []
 
   calendarResults.forEach(result => {
-    const matchedUser = result?.data?.matchedUser as
-      { userCalendar?: UserCalendar } | undefined
-    const calendar = matchedUser?.userCalendar
+    const calendar = extractCalendar(result)
     if (calendar) {
       if (calendar.streak > bestStreak) {
         bestStreak = calendar.streak
       }
       totalActiveDays += calendar.totalActiveDays
-      if (calendar.activeYears) {
-        activeYears = calendar.activeYears
-      }
       if (calendar.submissionCalendar) {
         try {
           const parsed = JSON.parse(calendar.submissionCalendar) as Record<
@@ -469,7 +514,50 @@ const fetchUserData = async (username: string): Promise<UserData> => {
   }
 }
 
+/** Cached, de-duplicated front for fetchUserData. */
+const getUserData = (username: string): Promise<UserData> => {
+  const key = cacheKey(username)
+  const cached = userCache.get(key)
+  if (cached && cached.expiresAt > Date.now()) {
+    return Promise.resolve(cached.data)
+  }
+
+  const pending = inFlight.get(key)
+  if (pending) return pending
+
+  const request = fetchUserData(username)
+    .then(data => {
+      // Only cache real profiles; a missing user or a fully failed fetch should
+      // be retried on the next request rather than pinned for the TTL.
+      const matched = (
+        data.userPublicProfile?.data as { matchedUser?: unknown } | undefined
+      )?.matchedUser
+      if (matched) {
+        evictExpired()
+        userCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS })
+      }
+      return data
+    })
+    .finally(() => {
+      inFlight.delete(key)
+    })
+
+  inFlight.set(key, request)
+  return request
+}
+
 // ─── Routes ──────────────────────────────────────────────────────────────────
+
+// Liveness probe for Render / uptime monitors. Deliberately makes no upstream
+// call so a LeetCode outage cannot make the platform restart healthy instances.
+app.get('/health', (_req: Request, res: Response): void => {
+  res.json({
+    status: 'ok',
+    uptime: Math.round(process.uptime()),
+    cachedUsers: userCache.size,
+    timestamp: new Date().toISOString()
+  })
+})
 
 // Optimized endpoint for fetching user data in parallel
 app.post(
@@ -484,7 +572,7 @@ app.post(
     res: Response<UserDataSuccessResponse | ErrorResponse>
   ): Promise<void> => {
     try {
-      const { username } = req.body
+      const { username } = req.body ?? {}
 
       if (!isValidUsername(username)) {
         res.status(400).json({
@@ -494,13 +582,13 @@ app.post(
         return
       }
 
-      const userData = await fetchUserData(username)
+      const userData = await getUserData(username)
       res.json({ success: true, data: userData })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       console.error('Error in user-data endpoint:', message)
       res
-        .status(500)
+        .status(502)
         .json({ error: 'An error occurred while fetching user data' })
     }
   }
@@ -519,7 +607,7 @@ app.post(
     res: Response<BatchUserDataSuccessResponse | ErrorResponse>
   ): Promise<void> => {
     try {
-      const { usernames } = req.body
+      const { usernames } = req.body ?? {}
 
       if (!usernames || !Array.isArray(usernames)) {
         res.status(400).json({ error: 'Usernames array is required' })
@@ -533,27 +621,29 @@ app.post(
         return
       }
 
-      // Validate all usernames
-      const invalidUsernames = usernames.filter(
+      // Validate all usernames. Do not echo the offending values back: they
+      // failed validation precisely because they are arbitrary input.
+      const invalidCount = usernames.filter(
         (u: unknown) => !isValidUsername(u)
-      )
-      if (invalidUsernames.length > 0) {
+      ).length
+      if (invalidCount > 0) {
         res.status(400).json({
-          error: `Invalid usernames: ${invalidUsernames.join(', ')}`
+          error: `${invalidCount} invalid username(s). Each must be 1-40 alphanumeric characters, hyphens, or underscores.`
         })
         return
       }
 
-      // Process all users in parallel using the shared function directly
+      // Process all users in parallel. Duplicate names in one batch share a
+      // single fetch via the in-flight map inside getUserData.
       const userPromises = usernames.map(
         async (username: string): Promise<BatchUserResult> => {
           try {
-            const userData = await fetchUserData(username)
+            const userData = await getUserData(username)
             return { username, success: true, data: userData }
           } catch (error) {
             const message =
               error instanceof Error ? error.message : String(error)
-            console.error('Error fetching data for user:', message)
+            console.error('Error fetching data for batch user:', message)
             return {
               username,
               success: false,
@@ -580,9 +670,16 @@ app.post(
   }
 )
 
+// Unknown API paths get a JSON 404 instead of the SPA shell.
+app.all(/^\/leetcode(\/.*)?$/, (_req: Request, res: Response): void => {
+  res.status(404).json({ error: 'Not found' })
+})
+
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 
-// Serve React app for all routes that don't match API endpoints (Express 5 compatible)
+// Serve React app for all routes that don't match API endpoints (Express 5
+// compatible). Rate limited because it touches the file system (CodeQL
+// js/missing-rate-limiting); hashed assets are served by express.static above.
 app.get(
   /^(?!\/leetcode).*/,
   leetcodeLimiter,
@@ -591,7 +688,45 @@ app.get(
   }
 )
 
-const PORT: string | number = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+// Final error handler. Without this Express prints the stack trace into the
+// response body when NODE_ENV is not 'production'.
+app.use(
+  (
+    err: Error & { type?: string; status?: number },
+    _req: Request,
+    res: Response<ErrorResponse>,
+    _next: NextFunction
+  ): void => {
+    if (err.message === 'Not allowed by CORS') {
+      res.status(403).json({ error: 'Origin not allowed' })
+      return
+    }
+    if (err.type === 'entity.parse.failed' || err.type === 'entity.too.large') {
+      res.status(err.status ?? 400).json({ error: 'Invalid request body' })
+      return
+    }
+    console.error('Unhandled error:', err.message)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+)
+
+export { app, isValidUsername }
+
+// ─── Startup ─────────────────────────────────────────────────────────────────
+
+if (process.env.NODE_ENV !== 'test') {
+  const PORT: string | number = process.env.PORT || 3001
+  const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
+
+  // Render (and most hosts) send SIGTERM on deploy; finish in-flight requests
+  // before exiting instead of dropping them.
+  const shutdown = (signal: string): void => {
+    console.log(`${signal} received, shutting down`)
+    server.close(() => process.exit(0))
+    setTimeout(() => process.exit(1), SHUTDOWN_TIMEOUT_MS).unref()
+  }
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
+}

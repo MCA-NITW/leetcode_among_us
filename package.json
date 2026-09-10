@@ -1,6 +1,6 @@
 {
   "name": "leetcode_among_us",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "LeetCode tracking platform for MCA students at NIT Warangal",
   "main": "dist/server.js",
   "type": "module",
@@ -11,14 +11,30 @@
     "build:server": "tsc --project tsconfig.server.json",
     "build:client": "cd client && pnpm build",
     "build": "pnpm install && pnpm build:server && pnpm build:client",
-    "format": "prettier --write ."
+    "validate:data": "node scripts/validate-data.mjs",
+    "test": "pnpm run test:server && pnpm run test:client",
+    "test:server": "vitest run",
+    "test:client": "cd client && pnpm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": ">=22.0.0"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MCA-NITW/leetcode_among_us.git"
+  },
+  "homepage": "https://leetcode-among-us.onrender.com",
+  "author": "MCA-NITW",
   "license": "ISC",
-  "keywords": [],
+  "keywords": [
+    "leetcode",
+    "leaderboard",
+    "nit-warangal",
+    "express",
+    "react"
+  ],
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -29,10 +45,13 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.2",
     "@types/node": "^25.6.0",
+    "@types/supertest": "^7.0.0",
     "concurrently": "^10.0.0",
     "prettier": "^3.8.3",
+    "supertest": "^7.2.2",
     "tsx": "^4.19.4",
-    "typescript": "^7.0.0"
+    "typescript": "^7.0.0",
+    "vitest": "^5.0.0"
   },
   "packageManager": "pnpm@12.3.4"
 }

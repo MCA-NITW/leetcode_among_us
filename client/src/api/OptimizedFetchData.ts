@@ -37,6 +37,53 @@ interface BatchResult {
 
 const getApiBaseUrl = (): string => import.meta.env.VITE_API_URL || ''
 
+const LEETCODE_ORIGIN = 'https://leetcode.com'
+
+/**
+ * LeetCode returns most asset URLs absolute (assets.leetcode.com) but Daily
+ * Coding Challenge badge icons arrive as site-relative paths such as
+ * "/static/images/badges/dcc-2025-1.png". Rendered as-is they resolve against
+ * this app's origin and 404. Prefix them with the LeetCode origin.
+ */
+export const resolveLeetCodeAsset = (
+  url: string | null | undefined
+): string => {
+  if (!url) return ''
+  if (url.startsWith('/')) return `${LEETCODE_ORIGIN}${url}`
+  return url
+}
+
+type RawBadge = Record<string, unknown> & {
+  icon?: string | null
+  medal?: { config?: { iconGif?: string | null } } | null
+}
+
+const normaliseBadge = <T extends RawBadge>(badge: T): T => {
+  const medalGif = badge.medal?.config?.iconGif
+  return {
+    ...badge,
+    icon: resolveLeetCodeAsset(badge.icon),
+    medal: medalGif
+      ? {
+          ...badge.medal,
+          config: {
+            ...badge.medal?.config,
+            iconGif: resolveLeetCodeAsset(medalGif)
+          }
+        }
+      : badge.medal
+  }
+}
+
+/** True when the backend reports that LeetCode has no such user. */
+export const isUserNotFound = (backendData: unknown): boolean => {
+  const data = backendData as
+    | { userPublicProfile?: { data?: { matchedUser?: unknown } } | null }
+    | null
+    | undefined
+  return !data?.userPublicProfile?.data?.matchedUser
+}
+
 // Optimized single user data fetch using the new backend endpoint
 export const fetchOptimizedUserData = async (
   username: string
@@ -95,8 +142,7 @@ export const processUserDataResponse = (
   leetcoder: Partial<LeetcoderEntry>,
   backendData: BackendUserData
 ): Partial<UserData> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (!(backendData as any)?.userPublicProfile?.data?.matchedUser) {
+  if (isUserNotFound(backendData)) {
     return leetcoder
   }
 
@@ -110,20 +156,24 @@ export const processUserDataResponse = (
       calendarData
     } = backendData
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /* Upstream GraphQL payloads are loosely typed; casts are contained here. */
     const publicProfile = userPublicProfile.data.matchedUser as any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const contestRanking = userContestRankingInfo.data.userContestRanking as any
     const contestHistory =
       userContestRankingInfo.data.userContestRankingHistory || []
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const problemsData = userProblemsSolved.data as any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const badges = (userBadges.data.matchedUser as any)?.badges || []
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const upcomingBadges =
+    const badges = ((userBadges.data.matchedUser as any)?.badges || []).map(
+      normaliseBadge
+    )
+    const upcomingBadges = (
       (userBadges.data.matchedUser as any)?.upcomingBadges || []
-    const contestBadge = publicProfile?.contestBadge || null
+    ).map(normaliseBadge)
+    const contestBadge = publicProfile?.contestBadge
+      ? {
+          ...publicProfile.contestBadge,
+          icon: resolveLeetCodeAsset(publicProfile.contestBadge.icon)
+        }
+      : null
     const beatsStats = problemsData.matchedUser?.problemsSolvedBeatsStats || []
 
     // Helper functions

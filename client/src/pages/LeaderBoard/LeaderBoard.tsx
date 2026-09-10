@@ -1,14 +1,14 @@
-import React from 'react'
 import CustomRankTable from './RankTable/CustomRankTable'
 import RecentContestActivity from './RecentContestActivity'
 import Loader from '../../components/Loader/Loader'
 import './LeaderBoard.css'
-import { FaChartBar } from 'react-icons/fa'
+import { FaChartBar, FaExclamationTriangle } from 'react-icons/fa'
 import type { UserData } from '../../types'
 
 interface LeaderBoardProps {
   data: Partial<UserData>[]
   loading: boolean
+  error?: string | null
   loadingProgress?: number
   currentlyProcessing?: string
 }
@@ -16,6 +16,7 @@ interface LeaderBoardProps {
 function LeaderBoard({
   data,
   loading,
+  error,
   loadingProgress,
   currentlyProcessing
 }: LeaderBoardProps) {
@@ -35,6 +36,25 @@ function LeaderBoard({
           <CustomRankTable data={data} />
           <RecentContestActivity data={data} />
         </>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="leaderboard__empty" role="alert">
+          <div className="leaderboard__empty-icon" aria-hidden="true">
+            <FaExclamationTriangle />
+          </div>
+          <h2 className="leaderboard__empty-title">Could Not Load Data</h2>
+          <p className="leaderboard__empty-description">{error}</p>
+          <button
+            type="button"
+            className="leaderboard__retry"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
       )
     }
 
