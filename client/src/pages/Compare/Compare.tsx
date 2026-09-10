@@ -11,6 +11,7 @@ import {
 import ContentLoader from '../../components/Loader/ContentLoader'
 import {
   fetchOptimizedUserData,
+  isUserNotFound,
   processUserDataResponse
 } from '../../api/OptimizedFetchData'
 import './Compare.css'
@@ -24,6 +25,10 @@ const getDifficultyColor = (difficulty: string): string => {
   if (difficulty === 'Medium') return '#ffc01e'
   return '#ef4743'
 }
+
+/** Rankings default to Infinity when LeetCode has none; never print "#Infinity". */
+const formatRank = (rank: number | undefined): string =>
+  rank && Number.isFinite(rank) ? `#${rank.toLocaleString()}` : 'N/A'
 
 const getWinner = (
   val1: string | number | undefined,
@@ -130,7 +135,7 @@ const DifficultyComparison = ({
           <div
             className="bar-fill"
             style={{
-              width: `${((solved1 ?? 0) / (total ?? 1)) * 100}%`,
+              width: `${total ? ((solved1 ?? 0) / total) * 100 : 0}%`,
               backgroundColor: color
             }}
           >
@@ -144,7 +149,7 @@ const DifficultyComparison = ({
           <div
             className="bar-fill"
             style={{
-              width: `${((solved2 ?? 0) / (total ?? 1)) * 100}%`,
+              width: `${total ? ((solved2 ?? 0) / total) * 100 : 0}%`,
               backgroundColor: color
             }}
           >
@@ -212,13 +217,24 @@ const Compare = () => {
         fetchOptimizedUserData(username2.trim().toLowerCase())
       ])
 
+      const missing = [
+        isUserNotFound(rawData1) ? username1.trim() : null,
+        isUserNotFound(rawData2) ? username2.trim() : null
+      ].filter((name): name is string => name !== null)
+      if (missing.length > 0) {
+        setError(
+          `No LeetCode profile found for ${missing.map(name => `"${name}"`).join(' and ')}. Check the spelling and try again.`
+        )
+        return
+      }
+
       // Process the raw backend data into the format we need
       const processedData1 = processUserDataResponse(
-        { userName: username1 },
+        { userName: username1.trim() },
         rawData1
       )
       const processedData2 = processUserDataResponse(
-        { userName: username2 },
+        { userName: username2.trim() },
         rawData2
       )
 
@@ -256,6 +272,7 @@ const Compare = () => {
           <input
             type="text"
             placeholder="Enter first username"
+            aria-label="First LeetCode username"
             value={username1}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setUsername1(e.target.value)
@@ -267,6 +284,7 @@ const Compare = () => {
           <input
             type="text"
             placeholder="Enter second username"
+            aria-label="Second LeetCode username"
             value={username2}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setUsername2(e.target.value)
@@ -310,8 +328,8 @@ const Compare = () => {
                 />
               )}
               <div className="user-info">
-                <h2>{user1Data.name || username1}</h2>
-                <p className="username">@{username1}</p>
+                <h2>{user1Data.name || user1Data.userName}</h2>
+                <p className="username">@{user1Data.userName}</p>
               </div>
             </div>
             <div className="header-spacer"></div>
@@ -324,8 +342,8 @@ const Compare = () => {
                 />
               )}
               <div className="user-info">
-                <h2>{user2Data.name || username2}</h2>
-                <p className="username">@{username2}</p>
+                <h2>{user2Data.name || user2Data.userName}</h2>
+                <p className="username">@{user2Data.userName}</p>
               </div>
             </div>
           </div>
@@ -343,16 +361,8 @@ const Compare = () => {
             />
             <ComparisonRow
               label="Global Ranking"
-              value1={
-                user1Data.ranking || user1Data.questionRanking
-                  ? `#${(user1Data.ranking || user1Data.questionRanking!).toLocaleString()}`
-                  : 'N/A'
-              }
-              value2={
-                user2Data.ranking || user2Data.questionRanking
-                  ? `#${(user2Data.ranking || user2Data.questionRanking!).toLocaleString()}`
-                  : 'N/A'
-              }
+              value1={formatRank(user1Data.questionRanking)}
+              value2={formatRank(user2Data.questionRanking)}
               higherIsBetter={false}
             />
             <ComparisonRow
@@ -476,16 +486,8 @@ const Compare = () => {
             />
             <ComparisonRow
               label="Contests Attended"
-              value1={
-                user1Data.attendedContestCount ||
-                user1Data.attendedContestsCount ||
-                0
-              }
-              value2={
-                user2Data.attendedContestCount ||
-                user2Data.attendedContestsCount ||
-                0
-              }
+              value1={user1Data.attendedContestCount || 0}
+              value2={user2Data.attendedContestCount || 0}
               icon={<FaMedal />}
             />
           </div>
@@ -608,10 +610,8 @@ const Compare = () => {
             <h3>🏆 Overall Winner</h3>
             <div className="winner-announcement">
               {(() => {
-                const rank1 =
-                  user1Data.ranking || user1Data.questionRanking || Infinity
-                const rank2 =
-                  user2Data.ranking || user2Data.questionRanking || Infinity
+                const rank1 = user1Data.questionRanking || Infinity
+                const rank2 = user2Data.questionRanking || Infinity
                 const score1 = [
                   (user1Data.totalSolved ?? 0) > (user2Data.totalSolved ?? 0)
                     ? 1

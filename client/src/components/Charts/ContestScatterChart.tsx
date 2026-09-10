@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   Chart as ChartJS,
   LinearScale,
@@ -59,7 +59,6 @@ function ContestScatterChart({
         }
       ]
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attended, colors])
 
   const options = useMemo(() => {

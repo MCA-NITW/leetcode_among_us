@@ -226,6 +226,29 @@
   line-height: 1.6;
 }
 
+.leaderboard__retry {
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.leaderboard__retry:hover,
+.leaderboard__retry:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: var(--glow-primary);
+  outline: none;
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */

@@ -5,10 +5,13 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07070e" />
-    <meta name="LeetCode Among Us" content="LeetCode Among Us" />
+    <meta
+      name="description"
+      content="LeetCode leaderboard, profile analytics and head-to-head comparison for MCA students at NIT Warangal."
+    />
     <meta
       http-equiv="Content-Security-Policy"
-      content="img-src 'self' data: assets.leetcode.com s3-us-west-1.amazonaws.com; font-src 'self' fonts.gstatic.com;"
+      content="img-src 'self' data: https://assets.leetcode.com https://leetcode.com https://s3-us-west-1.amazonaws.com; font-src 'self' https://fonts.gstatic.com;"
     />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,6 +23,24 @@
     />
 
     <title>LeetCode Among Us</title>
+    <!--
+      Apply the saved theme before React mounts so light-theme users do not see
+      a dark first paint. Must stay in sync with ThemeContext (key: "theme").
+    -->
+    <script>
+      try {
+        var saved = localStorage.getItem('theme')
+        var theme =
+          saved === 'light' || saved === 'dark'
+            ? saved
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        document.documentElement.dataset.theme = theme
+      } catch (e) {
+        /* storage unavailable: fall back to CSS default */
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

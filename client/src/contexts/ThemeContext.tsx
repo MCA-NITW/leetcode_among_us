@@ -27,11 +27,36 @@ export const useTheme = (): ThemeContextValue => {
   return context
 }
 
+const THEME_STORAGE_KEY = 'theme'
+
+const readStoredTheme = (): string | null => {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+const writeStoredTheme = (theme: string): void => {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  } catch {
+    // Storage unavailable (private mode, disabled cookies): theme is
+    // session-only, which is an acceptable degradation.
+  }
+}
+
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  // Check localStorage or system preference for initial theme
+  // Prefer whatever the pre-paint script in index.html already applied so the
+  // first render matches the document; fall back to storage, then system.
   const getInitialTheme = (): string => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) {
+    const applied = document.documentElement.dataset.theme
+    if (applied === 'light' || applied === 'dark') {
+      return applied
+    }
+
+    const savedTheme = readStoredTheme()
+    if (savedTheme === 'light' || savedTheme === 'dark') {
       return savedTheme
     }
 
@@ -52,8 +77,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     // Apply theme to document root
     document.documentElement.dataset.theme = theme
 
-    // Save to localStorage
-    localStorage.setItem('theme', theme)
+    writeStoredTheme(theme)
   }, [theme])
 
   const toggleTheme = () => {
