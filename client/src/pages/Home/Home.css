@@ -3,16 +3,7 @@
    ============================================ */
 
 /* ── KEYFRAMES ── */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Entrance fades use the shared g-fadeInUp from index.css. */
 
 @keyframes heroFloat {
   0%,
@@ -171,7 +162,7 @@
 /* ── Hero Title ── */
 .home__hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 5.5vw, var(--font-3xl));
+  font-size: clamp(var(--font-3xl), 5.5vw, 3.25rem);
   font-weight: 700;
   color: var(--text-1);
   margin-bottom: var(--space-lg);
@@ -249,21 +240,28 @@
   gap: var(--space-lg);
   justify-content: center;
   flex-wrap: wrap;
-  animation: fadeIn 0.6s var(--ease-out-expo) 0.5s both;
+  animation: g-fadeInUp var(--dur-slow) var(--ease-out-expo) 0.5s both;
 }
 
 .home__cta {
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: 12px 28px;
+  padding: calc(var(--space-sm) + var(--space-xs))
+    calc(var(--space-lg) + var(--space-xs));
   border-radius: var(--radius-md);
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: var(--font-base);
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) ease,
+    background var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    opacity var(--dur-fast) ease;
   border: none;
   letter-spacing: 0.2px;
 }
@@ -275,7 +273,7 @@
 }
 
 .home__cta--primary:hover {
-  transform: translateY(-3px);
+  transform: translateY(var(--lift));
   box-shadow: var(--shadow-md), var(--glow-primary);
   color: var(--bg-base);
   opacity: 0.92;
@@ -297,7 +295,7 @@
   border-color: var(--accent-border);
   color: var(--accent);
   background: var(--bg-glass-hover);
-  transform: translateY(-2px);
+  transform: translateY(var(--lift));
   box-shadow: var(--shadow-sm);
 }
 
@@ -306,7 +304,7 @@
 }
 
 .home__cta--large {
-  padding: 14px 36px;
+  padding: var(--space-md) calc(var(--space-xl) + var(--space-xs));
   font-size: var(--font-lg);
 }
 
@@ -336,43 +334,26 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 .home__stat-card {
   text-align: center;
   padding: var(--space-xl) var(--space-lg);
   background: var(--bg-glass);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: var(--glass-border);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  transition:
-    transform 0.35s var(--ease-spring),
-    box-shadow 0.3s ease,
-    background 0.25s ease,
-    border-color 0.25s ease;
-  animation: scaleSpring 0.5s var(--ease-out-expo) both;
 }
 
-.home__stat-card:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.home__stat-card:nth-child(2) {
-  animation-delay: 0.18s;
-}
-.home__stat-card:nth-child(3) {
-  animation-delay: 0.26s;
-}
-.home__stat-card:nth-child(4) {
-  animation-delay: 0.34s;
+/* Entrance: parent grid carries .stagger, cards set --i inline. */
+.home__stats-grid.stagger > .home__stat-card {
+  animation-name: g-scaleIn;
 }
 
 .home__stat-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: var(--shadow-lg), var(--glow-primary);
   background: var(--bg-glass-hover);
-  border-color: var(--accent-border);
 }
 
 .home__stat-icon {
@@ -423,12 +404,11 @@
 .home__section-header {
   text-align: center;
   margin-bottom: var(--space-2xl);
-  animation: fadeIn 0.5s ease both;
 }
 
 .home__section-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.6rem, 3vw, var(--font-2xl));
+  font-size: clamp(var(--font-2xl), 3vw, 2rem);
   font-weight: 700;
   margin-bottom: var(--space-md);
   color: var(--text-1);
@@ -448,49 +428,21 @@
 .home__features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 /* ── Feature Card ── */
 .home__feature-card {
   padding: var(--space-xl);
   background: var(--bg-glass);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: var(--glass-border);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  transition:
-    transform 0.35s var(--ease-spring),
-    box-shadow 0.3s ease,
-    background 0.25s ease,
-    border-color 0.25s ease;
-  animation: fadeIn 0.5s var(--ease-out-expo) both;
-}
-
-.home__feature-card:nth-child(1) {
-  animation-delay: 0.08s;
-}
-.home__feature-card:nth-child(2) {
-  animation-delay: 0.16s;
-}
-.home__feature-card:nth-child(3) {
-  animation-delay: 0.24s;
-}
-.home__feature-card:nth-child(4) {
-  animation-delay: 0.32s;
-}
-.home__feature-card:nth-child(5) {
-  animation-delay: 0.4s;
-}
-.home__feature-card:nth-child(6) {
-  animation-delay: 0.48s;
 }
 
 .home__feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
   background: var(--bg-glass-hover);
-  border-color: var(--accent-border);
 }
 
 /* ── Feature Icon ── */
@@ -550,7 +502,6 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow-md);
-  animation: fadeIn 0.5s ease both;
 }
 
 .home__cta-title {
@@ -581,8 +532,8 @@
 }
 
 .home__cta-section .home__cta--large:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(var(--lift));
+  box-shadow: var(--shadow-md), var(--glow-primary);
   opacity: 0.92;
   color: var(--bg-base);
 }

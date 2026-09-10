@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 import {
@@ -13,12 +14,17 @@ import {
 import { MdLeaderboard } from 'react-icons/md'
 import { BiTargetLock } from 'react-icons/bi'
 import leetcoders from '../../assets/leetcoders_data.json'
+import { useReveal } from '../../hooks/useReveal'
 
 const trackedUsers = leetcoders.filter(
   entry => entry.userName && entry.userName.trim() !== ''
 ).length
 
 function Home() {
+  const statsRef = useReveal<HTMLElement>()
+  const featuresRef = useReveal<HTMLElement>()
+  const ctaRef = useReveal<HTMLElement>()
+
   const features = [
     {
       icon: <MdLeaderboard />,
@@ -111,10 +117,14 @@ function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="home__stats">
-        <div className="home__stats-grid">
-          {stats.map(stat => (
-            <div key={stat.label} className="home__stat-card">
+      <section className="home__stats reveal" ref={statsRef}>
+        <div className="home__stats-grid stagger">
+          {stats.map((stat, index) => (
+            <div
+              key={stat.label}
+              className="home__stat-card card-lift"
+              style={{ '--i': index } as CSSProperties}
+            >
               <div className="home__stat-icon">{stat.icon}</div>
               <div className="home__stat-value">{stat.value}</div>
               <div className="home__stat-label">{stat.label}</div>
@@ -124,7 +134,7 @@ function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="home__features">
+      <section className="home__features reveal" ref={featuresRef}>
         <header className="home__section-header">
           <h2 className="home__section-title">Powerful Features</h2>
           <p className="home__section-subtitle">
@@ -132,9 +142,13 @@ function Home() {
             programming skills
           </p>
         </header>
-        <div className="home__features-grid">
-          {features.map(feature => (
-            <div key={feature.title} className="home__feature-card">
+        <div className="home__features-grid stagger">
+          {features.map((feature, index) => (
+            <div
+              key={feature.title}
+              className="home__feature-card card-lift"
+              style={{ '--i': index } as CSSProperties}
+            >
               <div className="home__feature-icon">{feature.icon}</div>
               <h3 className="home__feature-title">{feature.title}</h3>
               <p className="home__feature-description">{feature.description}</p>
@@ -144,7 +158,7 @@ function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="home__cta-section">
+      <section className="home__cta-section reveal" ref={ctaRef}>
         <div className="home__cta-card">
           <h2 className="home__cta-title">Ready to Start?</h2>
           <p className="home__cta-description">

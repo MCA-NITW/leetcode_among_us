@@ -1,5 +1,53 @@
 # Changelog
 
+## [3.2.0] - 2026-09-10
+
+UI consistency and motion release. No data or API changes.
+
+### Added
+
+- Motion design tokens in `client/src/index.css`: `--dur-fast/base/slow`,
+  `--stagger`, `--lift`, `--reveal-distance`. Every transition and entrance
+  animation now reads from these instead of ad-hoc literals.
+- Shared utilities: `.reveal` (scroll-triggered entrance, driven by the new
+  `useReveal` IntersectionObserver hook), `.stagger` (siblings cascade in via an
+  inline `--i` index), `.card-lift` (the single hover recipe for cards and
+  buttons) and `.surface`. Pattern borrowed from portfolio-react; zero
+  dependencies.
+- Home page sections below the fold reveal on scroll; stat and feature cards
+  stagger in. Recent Contest Activity on the leaderboard reveals when reached.
+- Reduced-motion handling now also pins reveals/staggers to their final visible
+  state and stops infinite loops after one iteration.
+
+### Changed
+
+- One card recipe across pages: `--radius-lg` corners, `--space-lg` grid gaps,
+  hover lifts by `--lift` with accent border and soft glow. Previously lifts
+  ranged from -1px to -6px with and without scale, and card radii were split
+  between 16px and 24px.
+- User Stats: the Social Links buttons, Recent Contest Activity table and
+  Upcoming Badges list were inline-styled with light-only colours (`#fafafa`,
+  `white`, `#e0e0e0`, `#333`) and JavaScript hover handlers, so they broke in
+  dark mode. Rebuilt as CSS classes on the theme tokens; the progress bar now
+  has an accessible `progressbar` role.
+- Leaderboard, Compare and User Stats inline greys and status colours moved to
+  tokens (`--text-2/3`, `--success`, `--warning`, `--danger`, medal tokens).
+  Compare's second difficulty palette replaced by the shared
+  `--easy/medium/hard-color` tokens.
+- Duplicate page-level keyframes (`fadeIn` was defined twice with different
+  bodies in Home.css and UserStats.css, plus `fadeInUp`, `scaleIn`,
+  `compareFadeIn`, `compareScaleIn`) removed in favour of the shared `g-*` set.
+  Hardcoded `nth-child` delay ladders replaced by `--stagger` maths.
+- Home CTA paddings tokenised; `transition: all` removed.
+- `scrollbar-gutter: stable` on `html` so the layout no longer shifts when a
+  page grows a scrollbar.
+
+### Fixed
+
+- Home hero and section titles used inverted `clamp()` bounds (max below min),
+  so they never scaled with the viewport.
+- Leaderboard retry button removed its focus ring on `:focus-visible`.
+
 ## [3.1.0] - 2026-09-10
 
 Audit release: server hardening, client bug fixes, first test suite, and a

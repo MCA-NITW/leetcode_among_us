@@ -338,7 +338,10 @@ function UserStats() {
                         </span>
                         <span className="user-stats__info-value">
                           <FaStar
-                            style={{ color: '#ffa500', marginRight: '4px' }}
+                            style={{
+                              color: 'var(--warning)',
+                              marginRight: '4px'
+                            }}
                           />{' '}
                           {userData.starRating}
                         </span>
@@ -435,53 +438,16 @@ function UserStats() {
                       Social Links
                     </h3>
                     <div className="user-stats__card-content">
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '15px',
-                          flexWrap: 'wrap'
-                        }}
-                      >
+                      <div className="user-stats__social-links">
                         {userData.githubUrl &&
                           sanitizeUrl(userData.githubUrl) && (
                             <a
                               href={sanitizeUrl(userData.githubUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '8px 16px',
-                                background: '#24292e',
-                                color: 'white',
-                                borderRadius: '6px',
-                                textDecoration: 'none',
-                                fontSize: '0.9rem',
-                                transition: 'all 0.3s ease'
-                              }}
-                              onMouseOver={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#1a1e22')
-                              }
-                              onFocus={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#1a1e22')
-                              }
-                              onMouseOut={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#24292e')
-                              }
-                              onBlur={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#24292e')
-                              }
+                              className="user-stats__social-link user-stats__social-link--github"
                             >
-                              <FaLink style={{ fontSize: '16px' }} />
+                              <FaLink aria-hidden="true" />
                               GitHub
                             </a>
                           )}
@@ -491,40 +457,9 @@ function UserStats() {
                               href={sanitizeUrl(userData.linkedinUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '8px 16px',
-                                background: '#0077b5',
-                                color: 'white',
-                                borderRadius: '6px',
-                                textDecoration: 'none',
-                                fontSize: '0.9rem',
-                                transition: 'all 0.3s ease'
-                              }}
-                              onMouseOver={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#005885')
-                              }
-                              onFocus={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#005885')
-                              }
-                              onMouseOut={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#0077b5')
-                              }
-                              onBlur={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#0077b5')
-                              }
+                              className="user-stats__social-link user-stats__social-link--linkedin"
                             >
-                              <FaLink style={{ fontSize: '16px' }} />
+                              <FaLink aria-hidden="true" />
                               LinkedIn
                             </a>
                           )}
@@ -534,40 +469,9 @@ function UserStats() {
                               href={sanitizeUrl(userData.twitterUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '8px 16px',
-                                background: '#1DA1F2',
-                                color: 'white',
-                                borderRadius: '6px',
-                                textDecoration: 'none',
-                                fontSize: '0.9rem',
-                                transition: 'all 0.3s ease'
-                              }}
-                              onMouseOver={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#0d8bd9')
-                              }
-                              onFocus={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#0d8bd9')
-                              }
-                              onMouseOut={(
-                                e: React.MouseEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#1DA1F2')
-                              }
-                              onBlur={(
-                                e: React.FocusEvent<HTMLAnchorElement>
-                              ) =>
-                                (e.currentTarget.style.background = '#1DA1F2')
-                              }
+                              className="user-stats__social-link user-stats__social-link--twitter"
                             >
-                              <FaLink style={{ fontSize: '16px' }} />
+                              <FaLink aria-hidden="true" />
                               Twitter
                             </a>
                           )}
@@ -1044,60 +948,16 @@ function UserStats() {
                         Recent Contest Activity
                       </h3>
                       <div className="user-stats__card-content">
-                        <div style={{ overflowX: 'auto' }}>
-                          <table
-                            style={{
-                              width: '100%',
-                              borderCollapse: 'collapse'
-                            }}
-                          >
+                        <div className="user-stats__table-wrap">
+                          <table className="user-stats__table">
                             <thead>
-                              <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                                <th
-                                  style={{ padding: '8px', textAlign: 'left' }}
-                                >
-                                  Contest
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '8px',
-                                    textAlign: 'center'
-                                  }}
-                                >
-                                  Status
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '8px',
-                                    textAlign: 'center'
-                                  }}
-                                >
-                                  Rank
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '8px',
-                                    textAlign: 'center'
-                                  }}
-                                >
-                                  Solved
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '8px',
-                                    textAlign: 'center'
-                                  }}
-                                >
-                                  Rating
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '8px',
-                                    textAlign: 'center'
-                                  }}
-                                >
-                                  Trend
-                                </th>
+                              <tr>
+                                <th className="is-left">Contest</th>
+                                <th>Status</th>
+                                <th>Rank</th>
+                                <th>Solved</th>
+                                <th>Rating</th>
+                                <th>Trend</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1124,83 +984,35 @@ function UserStats() {
                                         contest.contest?.startTime ||
                                         `contest-${contest.rating}-${contest.ranking}`
                                       }
-                                      style={{
-                                        borderBottom: '1px solid #f0f0f0',
-                                        backgroundColor:
-                                          index % 2 === 0 ? '#fafafa' : 'white'
-                                      }}
                                     >
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          fontSize: '0.9em'
-                                        }}
-                                      >
+                                      <td className="is-left">
                                         <div>
                                           {contest.contest?.title || 'Contest'}
                                         </div>
-                                        <div
-                                          style={{
-                                            fontSize: '0.8em',
-                                            color: '#666'
-                                          }}
-                                        >
+                                        <div className="user-stats__table-sub">
                                           {contest.contest?.startTime &&
                                             new Date(
                                               contest.contest.startTime * 1000
                                             ).toLocaleDateString()}
                                         </div>
                                       </td>
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          textAlign: 'center'
-                                        }}
-                                      >
+                                      <td>
                                         {contest.attended ? (
-                                          <span
-                                            style={{
-                                              backgroundColor: '#4CAF50',
-                                              color: 'white',
-                                              padding: '4px 8px',
-                                              borderRadius: '12px',
-                                              fontSize: '0.75em',
-                                              fontWeight: 'bold'
-                                            }}
-                                          >
-                                            ✓ Attended
+                                          <span className="user-stats__pill user-stats__pill--success">
+                                            Attended
                                           </span>
                                         ) : (
-                                          <span
-                                            style={{
-                                              backgroundColor: '#999',
-                                              color: 'white',
-                                              padding: '4px 8px',
-                                              borderRadius: '12px',
-                                              fontSize: '0.75em'
-                                            }}
-                                          >
+                                          <span className="user-stats__pill">
                                             Skipped
                                           </span>
                                         )}
                                       </td>
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          textAlign: 'center',
-                                          fontWeight: 'bold'
-                                        }}
-                                      >
+                                      <td className="is-strong">
                                         {contest.attended && contest.ranking > 0
                                           ? `#${contest.ranking.toLocaleString()}`
                                           : '-'}
                                       </td>
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          textAlign: 'center'
-                                        }}
-                                      >
+                                      <td>
                                         {contest.attended ? (
                                           <span>
                                             <strong>
@@ -1215,13 +1027,8 @@ function UserStats() {
                                           '-'
                                         )}
                                       </td>
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          textAlign: 'center'
-                                        }}
-                                      >
-                                        <div style={{ fontWeight: 'bold' }}>
+                                      <td>
+                                        <div className="is-strong">
                                           {contest.attended
                                             ? Math.round(contest.rating)
                                             : '-'}
@@ -1229,26 +1036,18 @@ function UserStats() {
                                         {contest.attended &&
                                           ratingChange !== 0 && (
                                             <div
-                                              style={{
-                                                fontSize: '0.8em',
-                                                color:
-                                                  ratingChange > 0
-                                                    ? '#4CAF50'
-                                                    : '#f44336'
-                                              }}
+                                              className={`user-stats__delta ${
+                                                ratingChange > 0
+                                                  ? 'user-stats__delta--up'
+                                                  : 'user-stats__delta--down'
+                                              }`}
                                             >
                                               {ratingChange > 0 ? '+' : ''}
                                               {Math.round(ratingChange)}
                                             </div>
                                           )}
                                       </td>
-                                      <td
-                                        style={{
-                                          padding: '10px',
-                                          textAlign: 'center',
-                                          fontSize: '1.2em'
-                                        }}
-                                      >
+                                      <td className="user-stats__table-emoji">
                                         {contest.attended ? trendEmoji : '-'}
                                       </td>
                                     </tr>
@@ -1647,7 +1446,7 @@ function UserStats() {
                                   <p
                                     style={{
                                       fontSize: '0.75em',
-                                      color: '#666',
+                                      color: 'var(--text-2)',
                                       marginTop: '4px',
                                       lineHeight: '1.3'
                                     }}
@@ -1673,84 +1472,48 @@ function UserStats() {
                         Upcoming Badges ({userData.upcomingBadges.length})
                       </h3>
                       <div className="user-stats__card-content">
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px'
-                          }}
-                        >
+                        <div className="user-stats__upcoming-list">
                           {userData.upcomingBadges.map(badge => {
-                            let progressColor = '#3498db'
-                            if ((badge.progress ?? 0) >= 80)
-                              progressColor = '#4CAF50'
-                            else if ((badge.progress ?? 0) >= 50)
-                              progressColor = '#FFA500'
+                            const progress = badge.progress ?? 0
+                            const tier =
+                              progress >= 80
+                                ? 'user-stats__progress--high'
+                                : progress >= 50
+                                  ? 'user-stats__progress--mid'
+                                  : ''
                             return (
                               <div
                                 key={badge.name || badge.id}
-                                style={{
-                                  padding: '12px',
-                                  border: '1px solid #e0e0e0',
-                                  borderRadius: '8px',
-                                  background: '#fafafa'
-                                }}
+                                className="user-stats__upcoming-item"
                               >
-                                <div
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    marginBottom: '8px'
-                                  }}
-                                >
+                                <div className="user-stats__upcoming-head">
                                   {badge.icon && (
                                     <img
                                       src={badge.icon}
-                                      alt={badge.name}
-                                      style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        opacity: 0.6
-                                      }}
+                                      alt=""
+                                      className="user-stats__upcoming-icon"
                                     />
                                   )}
-                                  <div style={{ flex: 1 }}>
-                                    <div
-                                      style={{
-                                        fontWeight: '600',
-                                        color: '#333',
-                                        marginBottom: '4px'
-                                      }}
-                                    >
+                                  <div className="user-stats__upcoming-meta">
+                                    <div className="user-stats__upcoming-name">
                                       {badge.name}
                                     </div>
-                                    <div
-                                      style={{
-                                        fontSize: '0.85em',
-                                        color: '#666'
-                                      }}
-                                    >
-                                      Progress: {badge.progress || 0}%
+                                    <div className="user-stats__upcoming-progress-label">
+                                      Progress: {progress}%
                                     </div>
                                   </div>
                                 </div>
                                 <div
-                                  style={{
-                                    width: '100%',
-                                    height: '8px',
-                                    background: '#e0e0e0',
-                                    borderRadius: '4px',
-                                    overflow: 'hidden'
-                                  }}
+                                  className={`user-stats__progress ${tier}`}
+                                  role="progressbar"
+                                  aria-valuenow={progress}
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                  aria-label={`${badge.name} progress`}
                                 >
                                   <div
-                                    style={{
-                                      width: `${badge.progress || 0}%`,
-                                      height: '100%',
-                                      background: progressColor,
-                                      transition: 'width 0.3s ease'
-                                    }}
+                                    className="user-stats__progress-fill"
+                                    style={{ width: `${progress}%` }}
                                   />
                                 </div>
                               </div>

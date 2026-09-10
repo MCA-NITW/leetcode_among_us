@@ -21,9 +21,9 @@ import DifficultyGroupedBar from '../../components/Charts/DifficultyGroupedBar'
 import type { UserData } from '../../types'
 
 const getDifficultyColor = (difficulty: string): string => {
-  if (difficulty === 'Easy') return '#00b8a3'
-  if (difficulty === 'Medium') return '#ffc01e'
-  return '#ef4743'
+  if (difficulty === 'Easy') return 'var(--easy-color)'
+  if (difficulty === 'Medium') return 'var(--medium-color)'
+  return 'var(--hard-color)'
 }
 
 /** Rankings default to Infinity when LeetCode has none; never print "#Infinity". */

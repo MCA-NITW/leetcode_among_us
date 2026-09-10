@@ -131,32 +131,17 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition:
-    transform 0.35s var(--ease-spring),
-    border-color 0.25s ease,
-    box-shadow 0.3s ease;
-  animation: g-scaleIn 0.4s var(--ease-out-expo) both;
-}
-
-.leaderboard__stat:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.leaderboard__stat:nth-child(2) {
-  animation-delay: 0.18s;
-}
-.leaderboard__stat:nth-child(3) {
-  animation-delay: 0.26s;
-}
-.leaderboard__stat:nth-child(4) {
-  animation-delay: 0.34s;
-}
-.leaderboard__stat:nth-child(5) {
-  animation-delay: 0.42s;
+    transform var(--dur-base) var(--ease-out-expo),
+    border-color var(--dur-fast) ease,
+    box-shadow var(--dur-base) ease;
+  animation: g-scaleIn var(--dur-base) var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
 }
 
 .leaderboard__stat:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(var(--lift));
   border-color: var(--accent-border);
-  box-shadow: var(--shadow-lg), var(--glow-primary);
+  box-shadow: var(--shadow-md), var(--glow-primary);
 }
 
 .leaderboard__stat-value {
@@ -229,24 +214,24 @@
 .leaderboard__retry {
   margin-top: var(--space-lg);
   padding: var(--space-sm) var(--space-lg);
-  font-family: var(--font-body);
+  font-family: var(--font-heading);
   font-size: var(--font-sm);
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) ease,
+    background var(--dur-fast) ease;
 }
 
-.leaderboard__retry:hover,
-.leaderboard__retry:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: var(--glow-primary);
-  outline: none;
+.leaderboard__retry:hover {
+  transform: translateY(var(--lift));
+  box-shadow: var(--shadow-sm), var(--glow-primary);
+  background: var(--bg-glass-hover);
 }
 
 /* ============================================

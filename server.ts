@@ -29,7 +29,7 @@ const UPSTREAM_HEADERS: Record<string, string> = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
   Referer: 'https://leetcode.com',
-  'User-Agent': 'Mozilla/5.0 (compatible; LeetCodeAmongUs/3.1)'
+  'User-Agent': 'Mozilla/5.0 (compatible; LeetCodeAmongUs/3.2)'
 }
 
 const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([

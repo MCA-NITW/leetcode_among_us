@@ -1,7 +1,7 @@
 # LeetCode Among Us
 
 [![CI](https://img.shields.io/github/actions/workflow/status/MCA-NITW/leetcode_among_us/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/MCA-NITW/leetcode_among_us/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-3.1.0-blue?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.2.0-blue?style=flat-square)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](package.json)
 [![pnpm](https://img.shields.io/badge/pnpm-12-F69220?style=flat-square&logo=pnpm&logoColor=white)](pnpm-workspace.yaml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-yellow?style=flat-square)](LICENSE)
@@ -151,6 +151,7 @@ the full guide.
 │       ├── components/Charts/            Chart.js wrappers
 │       ├── components/{Nav,Loader,ThemeToggle}/
 │       ├── contexts/ThemeContext.tsx
+│       ├── hooks/useReveal.ts             Scroll-triggered entrance reveals
 │       ├── pages/{Home,LeaderBoard,UserStats,Compare}/
 │       └── types/index.ts
 ├── .github/workflows/ci.yml     Calls mca-nitw/.github reusable workflows
@@ -161,6 +162,12 @@ the full guide.
 
 - Formatting is enforced by Prettier in CI (`pnpm format:check`). Single quotes,
   no semicolons, 2 spaces, 80 columns.
+- Design tokens live in `client/src/index.css` (colours, spacing, radius,
+  shadows, motion). Use them; do not add literal colours or durations. For
+  motion, reuse the shared utilities: `.reveal` + `useReveal()` for scroll
+  entrances, `.stagger` with an inline `--i` for cascading siblings,
+  `.card-lift` for hover, and the `g-*` keyframes. Reduced motion is handled
+  globally.
 - TypeScript runs with `strict`, `noUnusedLocals`, `noUnusedParameters` and
   `noFallthroughCasesInSwitch` on both sides.
 - There is no ESLint/Biome yet; adding Biome 2 (lint-only, Prettier stays) is
