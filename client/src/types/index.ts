@@ -16,6 +16,11 @@ export interface UserData extends LeetcoderEntry {
   websites?: string[]
   skillTags?: string[]
   starRating?: number
+  postViewCount?: number
+  solutionCount?: number
+  categoryDiscussCount?: number
+  languageStats?: Array<{ languageName: string; problemsSolved: number }>
+  lastSolved?: { title: string; titleSlug: string; timestamp: number }
   githubUrl?: string
   linkedinUrl?: string
   twitterUrl?: string

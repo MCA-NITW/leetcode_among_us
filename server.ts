@@ -269,7 +269,19 @@ const fetchUserData = async (username: string): Promise<UserData> => {
               skillTags
               reputation
               starRating
+              postViewCount
+              solutionCount
+              categoryDiscussCount
             }
+            languageProblemCount {
+              languageName
+              problemsSolved
+            }
+          }
+          recentAcSubmissionList(username: $username, limit: 1) {
+            title
+            titleSlug
+            timestamp
           }
         }
       `
@@ -377,6 +389,11 @@ const fetchUserData = async (username: string): Promise<UserData> => {
                   iconGifBackground
                 }
               }
+            }
+            upcomingBadges {
+              name
+              icon
+              progress
             }
           }
         }
