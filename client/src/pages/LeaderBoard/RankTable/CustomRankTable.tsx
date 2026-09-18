@@ -1,9 +1,19 @@
-import React, { useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import './CustomRankTable.css'
-import { FaChartBar, FaTrophy, FaSearch, FaMedal, FaFire } from 'react-icons/fa'
+import {
+  FaChartBar,
+  FaTrophy,
+  FaSearch,
+  FaMedal,
+  FaFire,
+  FaArrowUp,
+  FaArrowDown,
+  FaStar
+} from 'react-icons/fa'
 import { BiTargetLock } from 'react-icons/bi'
-import { MdSpeed, MdCalendarToday } from 'react-icons/md'
+import { MdCalendarToday } from 'react-icons/md'
 import type { UserData } from '../../../types'
+import { enrichUser, type EnrichedUser } from '../../../utils/derivedStats'
 
 type PartialUser = Partial<UserData>
 
@@ -17,216 +27,278 @@ const getRatingColor = (rating: number): string => {
 }
 
 const getRatingBadge = (rating: number): string => {
-  if (rating >= 2200) return '\uD83D\uDC51'
-  if (rating >= 1900) return '\u2B50'
-  if (rating >= 1600) return '\uD83D\uDC8E'
-  if (rating >= 1400) return '\uD83D\uDD35'
-  if (rating >= 1200) return '\uD83C\uDF0A'
+  if (rating >= 2200) return '👑'
+  if (rating >= 1900) return '⭐'
+  if (rating >= 1600) return '💎'
+  if (rating >= 1400) return '🔵'
+  if (rating >= 1200) return '🌊'
   return ''
 }
 
-const computeAcceptanceRate = (user: PartialUser): string => {
-  if (!user.acSubmissionNum) return '0.0'
-  const totalAc = user.acSubmissionNum.find(s => s.difficulty === 'All')
-  if (totalAc && totalAc.submissions > 0) {
-    return ((totalAc.count / totalAc.submissions) * 100).toFixed(1)
-  }
-  return '0.0'
-}
-
-const getAcceptanceRateColor = (acceptanceRate: string): string => {
-  const rate = Number.parseFloat(acceptanceRate)
+const getAcceptanceRateColor = (rate: number): string => {
   if (rate > 50) return 'var(--easy-color)'
   if (rate > 30) return 'var(--medium-color)'
   return 'var(--hard-color)'
 }
 
-interface RowComponentProps {
-  user: PartialUser
-  index: number
-  rowClass: string
-  getRankBadge: (index: number) => React.ReactNode
+const MUTED = { color: 'var(--text-3)' } as const
+
+/** Integers with thousands separators; "N/A" for the Infinity placeholders. */
+const rankValue = (value: number | undefined): string =>
+  value !== undefined && Number.isFinite(value) ? value.toLocaleString() : 'N/A'
+
+const Placeholder = () => <span style={MUTED}>-</span>
+
+/** Compact relative age: 4h, 3d, 5w. */
+const formatAge = (hours: number): string => {
+  if (hours < 1) return 'now'
+  if (hours < 24) return `${Math.floor(hours)}h`
+  const days = Math.floor(hours / 24)
+  if (days < 14) return `${days}d`
+  return `${Math.floor(days / 7)}w`
 }
 
-const OverviewRow = ({
-  user,
-  index,
-  rowClass,
-  getRankBadge
-}: RowComponentProps) => {
-  const rating = user.globalContestRating || 0
-
+/**
+ * Freshness. A leaderboard that cannot show who solved something this morning
+ * reads like a historical record rather than a live competition.
+ */
+const LastSolvedCell = ({ user }: { user: EnrichedUser }) => {
+  if (!Number.isFinite(user.hoursSinceLastSolve)) return <Placeholder />
+  const hours = user.hoursSinceLastSolve
+  const colour =
+    hours < 24
+      ? 'var(--success)'
+      : hours < 24 * 7
+        ? 'var(--warning)'
+        : 'var(--text-3)'
   return (
-    <tr key={user.userName || index} className={rowClass}>
-      <td className="rank-col">
-        <span className="rank-badge">{getRankBadge(index)}</span>
-      </td>
-      <td className="name-col" title={user.name}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {user.avatar && (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                ;(e.target as HTMLImageElement).style.display = 'none'
-              }}
-            />
-          )}
-          <div>
-            <a
-              href={`https://leetcode.com/${user.userName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="username-link"
-            >
-              {user.name || 'N/A'}
-            </a>
-            <div className="username-subtitle">@{user.userName}</div>
-          </div>
-        </div>
-      </td>
-      <td className="batch-col">
-        <span className="batch-badge">{user.batch || 'N/A'}</span>
-      </td>
-      <td className="stat-col total-col">
-        <strong>{user.totalSolved || 0}</strong>
-      </td>
-      <td className="stat-col">
-        {rating > 0 ? (
-          <span
-            style={{
-              color: getRatingColor(rating),
-              fontWeight: 'bold',
-              fontSize: '1.05em'
-            }}
-          >
-            {getRatingBadge(rating)} {Math.round(rating)}
-          </span>
-        ) : (
-          <span style={{ color: 'var(--text-3)' }}>Unrated</span>
-        )}
-        {user.contestTopPercentage && rating > 0 && (
-          <div style={{ fontSize: '0.75em', color: 'var(--text-2)' }}>
-            Top {user.contestTopPercentage.toFixed(1)}%
-          </div>
-        )}
-      </td>
-      <td className="stat-col">
-        {(user.bestStreak ?? 0) > 0 ? (
-          <span
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              color:
-                (user.bestStreak ?? 0) >= 7 ? 'var(--danger)' : 'var(--warning)'
-            }}
-          >
-            <FaFire style={{ fontSize: '1.2em' }} />
-            <strong>{user.bestStreak}</strong>
-            <span style={{ fontSize: '0.85em' }}>days</span>
-          </span>
-        ) : (
-          <span style={{ color: 'var(--text-3)' }}>0</span>
-        )}
-      </td>
-      <td className="stat-col">
-        {(user.totalActiveDays ?? 0) > 0 ? (
-          <span
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <MdCalendarToday
-              style={{ fontSize: '1.1em', color: 'var(--success)' }}
-            />
-            <strong>{user.totalActiveDays}</strong>
-            <span style={{ fontSize: '0.85em' }}>days</span>
-          </span>
-        ) : (
-          <span style={{ color: 'var(--text-3)' }}>0</span>
-        )}
-      </td>
-      <td className="stat-col" style={{ minWidth: '100px' }}>
-        {(user.totalSolved ?? 0) > 0 ? (
-          <div
-            style={{
-              display: 'flex',
-              height: '8px',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              background: 'var(--border)',
-              width: '100%'
-            }}
-          >
-            <div
-              style={{
-                width: `${((user.easySolved ?? 0) / (user.totalSolved ?? 1)) * 100}%`,
-                background: 'var(--easy-color)'
-              }}
-              title={`Easy: ${user.easySolved}`}
-            ></div>
-            <div
-              style={{
-                width: `${((user.mediumSolved ?? 0) / (user.totalSolved ?? 1)) * 100}%`,
-                background: 'var(--medium-color)'
-              }}
-              title={`Medium: ${user.mediumSolved}`}
-            ></div>
-            <div
-              style={{
-                width: `${((user.hardSolved ?? 0) / (user.totalSolved ?? 1)) * 100}%`,
-                background: 'var(--hard-color)'
-              }}
-              title={`Hard: ${user.hardSolved}`}
-            ></div>
-          </div>
-        ) : (
-          <span style={{ color: 'var(--text-3)' }}>-</span>
-        )}
-      </td>
-    </tr>
+    <span style={{ color: colour }} title={user.lastSolvedTitle}>
+      {formatAge(hours)}
+    </span>
   )
 }
 
-const ProblemsRow = ({
-  user,
-  index,
-  rowClass,
-  getRankBadge
-}: RowComponentProps) => {
-  const easyPercent =
-    user.easySolved && user.totalSolved
-      ? ((user.easySolved / user.totalSolved) * 100).toFixed(1)
-      : 0
-  const mediumPercent =
-    user.mediumSolved && user.totalSolved
-      ? ((user.mediumSolved / user.totalSolved) * 100).toFixed(1)
-      : 0
-  const hardPercent =
-    user.hardSolved && user.totalSolved
-      ? ((user.hardSolved / user.totalSolved) * 100).toFixed(1)
-      : 0
+/** This month's Daily Coding Challenge badge progress. */
+const DccCell = ({ user }: { user: EnrichedUser }) => {
+  if (user.dccProgress <= 0) return <Placeholder />
+  return (
+    <span className="dcc-cell" title={`${user.dccLabel}: ${user.dccProgress}%`}>
+      <span className="dcc-cell__track">
+        <span
+          className="dcc-cell__fill"
+          style={{ width: `${Math.min(user.dccProgress, 100)}%` }}
+        />
+      </span>
+      <span className="dcc-cell__value">{user.dccProgress}%</span>
+    </span>
+  )
+}
 
-  const acceptanceRate = computeAcceptanceRate(user)
-  const acceptanceColor = getAcceptanceRateColor(acceptanceRate)
+/* ============================================
+   CELL RENDERERS
+   ============================================ */
+
+const DifficultyMix = ({ user }: { user: EnrichedUser }) => {
+  const total = user.totalSolved ?? 0
+  if (total <= 0) return <Placeholder />
+
+  const segments = [
+    { count: user.easySolved ?? 0, color: 'var(--easy-color)', label: 'Easy' },
+    {
+      count: user.mediumSolved ?? 0,
+      color: 'var(--medium-color)',
+      label: 'Medium'
+    },
+    { count: user.hardSolved ?? 0, color: 'var(--hard-color)', label: 'Hard' }
+  ]
 
   return (
-    <tr key={user.userName || index} className={rowClass}>
-      <td className="rank-col">
-        <span className="rank-badge">{getRankBadge(index)}</span>
-      </td>
-      <td className="name-col" title={user.name}>
+    <div
+      className="mix-bar"
+      title={segments.map(s => `${s.label}: ${s.count}`).join('  ')}
+    >
+      {segments.map(segment => (
+        <div
+          key={segment.label}
+          className="mix-bar__segment"
+          style={{
+            width: `${(segment.count / total) * 100}%`,
+            background: segment.color
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+const CONTEST_SPREAD = [
+  { key: 'mostFourQuestionsInContest', label: '4 solved', tone: 'contest-4q' },
+  { key: 'mostThreeQuestionsInContest', label: '3 solved', tone: 'contest-3q' },
+  { key: 'mostTwoQuestionsInContest', label: '2 solved', tone: 'contest-2q' },
+  { key: 'mostOneQuestionsInContest', label: '1 solved', tone: 'contest-1q' },
+  { key: 'mostZeroQuestionsInContest', label: '0 solved', tone: 'contest-0q' }
+] as const
+
+/**
+ * Replaces the five separate "N Qs" columns. Same information, one cell, and it
+ * reads as a shape so a strong contestant is recognisable at a glance.
+ */
+const ContestSpread = ({ user }: { user: EnrichedUser }) => {
+  const counts = CONTEST_SPREAD.map(
+    entry => (user[entry.key] as number | undefined) ?? 0
+  )
+  const total = counts.reduce((sum, count) => sum + count, 0)
+  if (total <= 0) return <Placeholder />
+
+  return (
+    <div
+      className="spread-bar"
+      title={CONTEST_SPREAD.map(
+        (entry, index) => `${entry.label}: ${counts[index]}`
+      ).join('  ')}
+    >
+      {CONTEST_SPREAD.map((entry, index) => (
+        <div
+          key={entry.key}
+          className={`spread-bar__segment ${entry.tone}`}
+          style={{ width: `${(counts[index] / total) * 100}%` }}
+        />
+      ))}
+    </div>
+  )
+}
+
+const StreakCell = ({ days }: { days: number }) => {
+  if (days <= 0) return <span style={MUTED}>0</span>
+  return (
+    <span
+      className="streak-cell"
+      style={{ color: days >= 7 ? 'var(--danger)' : 'var(--warning)' }}
+    >
+      <FaFire />
+      <strong>{days}</strong>
+      <span className="unit">d</span>
+    </span>
+  )
+}
+
+const RatingCell = ({ user }: { user: EnrichedUser }) => {
+  const rating = user.globalContestRating ?? 0
+  if (rating <= 0) return <span style={MUTED}>Unrated</span>
+  return (
+    <span
+      className="rating-cell"
+      style={{ color: getRatingColor(rating) }}
+      title={
+        user.contestTopPercentage
+          ? `Top ${user.contestTopPercentage.toFixed(1)}%`
+          : undefined
+      }
+    >
+      {getRatingBadge(rating)} {Math.round(rating)}
+    </span>
+  )
+}
+
+const TrendCell = ({ delta }: { delta: number }) => {
+  if (!delta) return <Placeholder />
+  const up = delta > 0
+  return (
+    <span
+      className="trend-cell"
+      style={{ color: up ? 'var(--success)' : 'var(--danger)' }}
+      title={`${up ? 'Gained' : 'Lost'} ${Math.abs(delta)} rating in the last contest`}
+    >
+      {up ? <FaArrowUp /> : <FaArrowDown />}
+      {Math.abs(delta)}
+    </span>
+  )
+}
+
+const BadgesCell = ({ user }: { user: EnrichedUser }) => {
+  const badges = user.badges ?? []
+  if (badges.length === 0) return <span style={MUTED}>0</span>
+  const shown = badges.slice(0, 3)
+  return (
+    <span
+      className="badges-cell"
+      title={badges.map(badge => badge.displayName || badge.name).join('  ')}
+    >
+      {shown.map(badge =>
+        badge.icon ? (
+          <img
+            key={badge.id}
+            src={badge.icon}
+            alt=""
+            onError={(event: React.SyntheticEvent<HTMLImageElement>) => {
+              ;(event.target as HTMLImageElement).style.display = 'none'
+            }}
+          />
+        ) : null
+      )}
+      <strong>{badges.length}</strong>
+    </span>
+  )
+}
+
+const ContestBadgeCell = ({ user }: { user: EnrichedUser }) => {
+  const badge = user.contestBadge
+  if (!badge) return <Placeholder />
+  return (
+    <span
+      className="badges-cell"
+      title={badge.hoverText || badge.name}
+      style={{ color: 'var(--contest-color)' }}
+    >
+      {badge.icon && (
+        <img
+          src={badge.icon}
+          alt=""
+          onError={(event: React.SyntheticEvent<HTMLImageElement>) => {
+            ;(event.target as HTMLImageElement).style.display = 'none'
+          }}
+        />
+      )}
+      <span className="badges-cell__name">{badge.name}</span>
+    </span>
+  )
+}
+
+/* ============================================
+   COLUMN MODEL
+   ============================================ */
+
+interface ColumnDef {
+  /** Sort key on the enriched row. Omitted for derived-visual columns. */
+  key?: string
+  label: string
+  title?: string
+  cellClass?: string
+  /** Rendered inside the mobile card stat grid. */
+  inCard?: boolean
+  render: (user: EnrichedUser) => React.ReactNode
+}
+
+const nameColumn: ColumnDef = {
+  key: 'name',
+  label: 'Name',
+  cellClass: 'name-col',
+  inCard: false,
+  render: user => (
+    <div className="name-cell">
+      {user.avatar && (
+        <img
+          className="name-cell__avatar"
+          src={user.avatar}
+          alt=""
+          onError={(event: React.SyntheticEvent<HTMLImageElement>) => {
+            ;(event.target as HTMLImageElement).style.display = 'none'
+          }}
+        />
+      )}
+      <div className="name-cell__text">
         <a
-          href={`https://leetcode.com/${user.userName}`}
+          href={`https://leetcode.com/u/${user.userName}/`}
           target="_blank"
           rel="noopener noreferrer"
           className="username-link"
@@ -234,273 +306,470 @@ const ProblemsRow = ({
           {user.name || 'N/A'}
         </a>
         <div className="username-subtitle">@{user.userName}</div>
-      </td>
-      <td className="stat-col total-col">
-        <strong>{user.totalSolved || 0}</strong>
-      </td>
-      <td className="stat-col easy-col">
-        <strong>{user.easySolved || 0}</strong>
-      </td>
-      <td className="stat-col medium-col">
-        <strong>{user.mediumSolved || 0}</strong>
-      </td>
-      <td className="stat-col hard-col">
-        <strong>{user.hardSolved || 0}</strong>
-      </td>
-      <td className="stat-col easy-col">{easyPercent}%</td>
-      <td className="stat-col medium-col">{mediumPercent}%</td>
-      <td className="stat-col hard-col">{hardPercent}%</td>
-      <td className="stat-col" title="Acceptance Rate">
-        <span style={{ color: acceptanceColor, fontWeight: 'bold' }}>
-          {acceptanceRate}%
-        </span>
-      </td>
-    </tr>
+      </div>
+    </div>
   )
 }
 
-const ContestsRow = ({
-  user,
-  index,
-  rowClass,
-  getRankBadge
-}: RowComponentProps) => (
-  <tr key={user.userName || index} className={rowClass}>
-    <td className="rank-col">
-      <span className="rank-badge">{getRankBadge(index)}</span>
-    </td>
-    <td className="name-col" title={user.name}>
-      <a
-        href={`https://leetcode.com/${user.userName}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="username-link"
-      >
-        {user.name || 'N/A'}
-      </a>
-      <div className="username-subtitle">@{user.userName}</div>
-    </td>
-    <td className="stat-col total-col">
-      <strong>
-        {user.globalContestRating
-          ? Math.round(user.globalContestRating)
-          : 'N/A'}
-      </strong>
-    </td>
-    <td className="stat-col">
-      {user.globalContestRanking && user.globalContestRanking !== Infinity
-        ? user.globalContestRanking.toLocaleString()
-        : 'N/A'}
-    </td>
-    <td className="stat-col">
-      {user.contestTopPercentage
-        ? `${user.contestTopPercentage.toFixed(2)}%`
-        : 'N/A'}
-    </td>
-    <td className="stat-col">{user.attendedContestCount || 0}</td>
-    <td className="stat-col">
-      {user.bestContestRank && user.bestContestRank !== Infinity
-        ? user.bestContestRank.toLocaleString()
-        : 'N/A'}
-    </td>
-    <td className="stat-col" style={{ textAlign: 'center' }}>
-      {user.contestBadge ? (
-        <span
-          title={user.contestBadge.hoverText || user.contestBadge.name}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-        >
-          {user.contestBadge.icon && (
-            <img
-              src={user.contestBadge.icon}
-              alt={user.contestBadge.name}
-              style={{ width: '20px', height: '20px' }}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                ;(e.target as HTMLImageElement).style.display = 'none'
-              }}
-            />
-          )}
-          <span style={{ fontSize: '0.8em', color: 'var(--contest-color)' }}>
-            {user.contestBadge.name}
+const batchColumn: ColumnDef = {
+  key: 'batch',
+  label: 'Batch',
+  cellClass: 'batch-col',
+  inCard: false,
+  render: user => <span className="batch-badge">{user.batch || 'N/A'}</span>
+}
+
+const solvedColumn = (label: string): ColumnDef => ({
+  key: 'totalSolved',
+  label,
+  cellClass: 'stat-col total-col',
+  render: user => <strong>{user.totalSolved ?? 0}</strong>
+})
+
+/** Reads a runtime-named field. Sort keys and shared columns are strings. */
+const readField = (user: EnrichedUser, key: string): unknown =>
+  (user as unknown as Record<string, unknown>)[key]
+
+const streakColumn = (key: string, label: string): ColumnDef => ({
+  key,
+  label,
+  cellClass: 'stat-col',
+  render: user => <StreakCell days={(readField(user, key) as number) ?? 0} />
+})
+
+interface TabDef {
+  id: string
+  label: string
+  hint: string
+  icon: React.ReactNode
+  defaultSort: string
+  columns: ColumnDef[]
+}
+
+const TABS: TabDef[] = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    hint: 'Who is winning overall',
+    icon: <FaChartBar />,
+    defaultSort: 'totalSolved',
+    columns: [
+      nameColumn,
+      batchColumn,
+      solvedColumn('Solved'),
+      {
+        key: 'completionPct',
+        label: 'Done %',
+        title: 'Share of all LeetCode problems solved',
+        cellClass: 'stat-col',
+        render: user => (
+          <span
+            title={`${user.totalSolved ?? 0} of ${user.totalQuestions ?? 0}`}
+          >
+            {user.completionPct.toFixed(1)}%
           </span>
-        </span>
-      ) : (
-        <span style={{ color: 'var(--text-3)' }}>-</span>
-      )}
-    </td>
-  </tr>
-)
+        )
+      },
+      {
+        label: 'Mix',
+        title: 'Easy / Medium / Hard split',
+        cellClass: 'stat-col mix-col',
+        render: user => <DifficultyMix user={user} />
+      },
+      {
+        key: 'globalContestRating',
+        label: 'Rating',
+        cellClass: 'stat-col',
+        render: user => <RatingCell user={user} />
+      },
+      {
+        key: 'ratingDelta',
+        label: 'Trend',
+        title: 'Rating change in the most recent contest',
+        cellClass: 'stat-col',
+        render: user => <TrendCell delta={user.ratingDelta} />
+      },
+      streakColumn('currentStreak', 'Streak'),
+      {
+        key: 'hoursSinceLastSolve',
+        label: 'Last Solved',
+        title: 'Time since the most recent accepted submission',
+        cellClass: 'stat-col',
+        render: user => <LastSolvedCell user={user} />
+      }
+    ]
+  },
+  {
+    id: 'problems',
+    label: 'Problems',
+    hint: 'Who solves what',
+    icon: <BiTargetLock />,
+    defaultSort: 'totalSolved',
+    columns: [
+      nameColumn,
+      batchColumn,
+      solvedColumn('Total'),
+      {
+        key: 'easySolved',
+        label: 'Easy',
+        cellClass: 'stat-col easy-col',
+        render: user => <strong>{user.easySolved ?? 0}</strong>
+      },
+      {
+        key: 'mediumSolved',
+        label: 'Medium',
+        cellClass: 'stat-col medium-col',
+        render: user => <strong>{user.mediumSolved ?? 0}</strong>
+      },
+      {
+        key: 'hardSolved',
+        label: 'Hard',
+        cellClass: 'stat-col hard-col',
+        render: user => <strong>{user.hardSolved ?? 0}</strong>
+      },
+      {
+        label: 'Mix',
+        title: 'Easy / Medium / Hard split',
+        cellClass: 'stat-col mix-col',
+        render: user => <DifficultyMix user={user} />
+      },
+      {
+        key: 'acceptanceRate',
+        label: 'Accept %',
+        title: 'Accepted submissions as a share of all submissions',
+        cellClass: 'stat-col',
+        render: user => (
+          <span style={{ color: getAcceptanceRateColor(user.acceptanceRate) }}>
+            {user.acceptanceRate.toFixed(1)}%
+          </span>
+        )
+      },
+      {
+        key: 'totalSubmissions',
+        label: 'Subs',
+        title: 'Total submissions, the denominator behind Accept %',
+        cellClass: 'stat-col',
+        render: user => user.totalSubmissions.toLocaleString()
+      },
+      {
+        key: 'beatsMedium',
+        label: 'Beats %',
+        title:
+          'Percentile beaten on Medium problems; hover a row for all three',
+        cellClass: 'stat-col',
+        render: user =>
+          user.beatsMedium > 0 ? (
+            <span title={user.beatsLabel}>{user.beatsMedium.toFixed(1)}%</span>
+          ) : (
+            <Placeholder />
+          )
+      },
+      {
+        key: 'questionRanking',
+        label: 'Global Rank',
+        title: 'LeetCode problem-solving rank',
+        cellClass: 'stat-col',
+        render: user => rankValue(user.questionRanking)
+      },
+      {
+        key: 'topTopicCount',
+        label: 'Top Topic',
+        title: 'Strongest tag by problems solved',
+        cellClass: 'topic-col',
+        render: user =>
+          user.topTopicName ? (
+            <span title={`${user.topTopicCount} solved`}>
+              {user.topTopicName}
+              <span className="topic-col__count">{user.topTopicCount}</span>
+            </span>
+          ) : (
+            <Placeholder />
+          )
+      },
+      {
+        key: 'topLanguageCount',
+        label: 'Language',
+        title: 'Most-used language by problems solved',
+        cellClass: 'topic-col',
+        render: user =>
+          user.topLanguage ? (
+            <span
+              title={`${user.topLanguageCount} solved in ${user.topLanguage}, ${user.languageCount} languages used`}
+            >
+              {user.topLanguage}
+              <span className="topic-col__count">{user.topLanguageCount}</span>
+            </span>
+          ) : (
+            <Placeholder />
+          )
+      }
+    ]
+  },
+  {
+    id: 'contests',
+    label: 'Contests',
+    hint: 'Who competes well',
+    icon: <FaTrophy />,
+    defaultSort: 'globalContestRating',
+    columns: [
+      nameColumn,
+      batchColumn,
+      {
+        key: 'globalContestRating',
+        label: 'Rating',
+        cellClass: 'stat-col total-col',
+        render: user => <RatingCell user={user} />
+      },
+      {
+        key: 'ratingDelta',
+        label: 'Trend',
+        title: 'Rating change in the most recent contest',
+        cellClass: 'stat-col',
+        render: user => <TrendCell delta={user.ratingDelta} />
+      },
+      {
+        key: 'globalContestRanking',
+        label: 'Global Rank',
+        cellClass: 'stat-col',
+        render: user => rankValue(user.globalContestRanking)
+      },
+      {
+        key: 'contestTopPercentage',
+        label: 'Top %',
+        cellClass: 'stat-col',
+        render: user =>
+          user.contestTopPercentage ? (
+            `${user.contestTopPercentage.toFixed(2)}%`
+          ) : (
+            <Placeholder />
+          )
+      },
+      {
+        key: 'attendedContestCount',
+        label: 'Attended',
+        cellClass: 'stat-col',
+        render: user => <strong>{user.attendedContestCount ?? 0}</strong>
+      },
+      {
+        key: 'bestContestRank',
+        label: 'Best Rank',
+        cellClass: 'stat-col',
+        render: user => rankValue(user.bestContestRank)
+      },
+      {
+        key: 'averageContestRanking',
+        label: 'Avg Rank',
+        cellClass: 'stat-col',
+        render: user => rankValue(user.averageContestRanking)
+      },
+      {
+        label: 'Spread',
+        title: 'How many contests ended with 4 / 3 / 2 / 1 / 0 problems solved',
+        cellClass: 'stat-col mix-col',
+        render: user => <ContestSpread user={user} />
+      },
+      {
+        key: 'daysSinceLastContest',
+        label: 'Last Seen',
+        title: 'Days since the most recent contest attended',
+        cellClass: 'stat-col',
+        render: user =>
+          Number.isFinite(user.daysSinceLastContest) ? (
+            <span
+              title={user.lastContestTitle}
+              style={
+                user.daysSinceLastContest > 30 ? MUTED : { color: 'inherit' }
+              }
+            >
+              {user.daysSinceLastContest}d
+            </span>
+          ) : (
+            <Placeholder />
+          )
+      },
+      {
+        label: 'Badge',
+        cellClass: 'stat-col',
+        render: user => <ContestBadgeCell user={user} />
+      }
+    ]
+  },
+  {
+    id: 'consistency',
+    label: 'Consistency',
+    hint: 'Who shows up',
+    icon: <FaFire />,
+    defaultSort: 'currentStreak',
+    columns: [
+      nameColumn,
+      batchColumn,
+      streakColumn('currentStreak', 'Current'),
+      streakColumn('trueBestStreak', 'Best'),
+      {
+        key: 'totalActiveDays',
+        label: 'Active Days',
+        cellClass: 'stat-col',
+        render: user => (
+          <span className="streak-cell">
+            <MdCalendarToday style={{ color: 'var(--success)' }} />
+            <strong>{user.totalActiveDays ?? 0}</strong>
+          </span>
+        )
+      },
+      {
+        key: 'yearsActive',
+        label: 'Years',
+        title: 'Number of years with at least one submission',
+        cellClass: 'stat-col',
+        render: user =>
+          user.yearsActive > 0 ? (
+            <span title={(user.activeYears ?? []).join(', ')}>
+              {user.yearsActive}
+            </span>
+          ) : (
+            <Placeholder />
+          )
+      },
+      {
+        key: 'dccProgress',
+        label: 'This Month',
+        title: "Progress on the current month's Daily Coding Challenge badge",
+        cellClass: 'stat-col dcc-col',
+        render: user => <DccCell user={user} />
+      },
+      {
+        key: 'solutionCount',
+        label: 'Solutions',
+        title: 'Public solution articles written',
+        cellClass: 'stat-col',
+        render: user =>
+          user.solutionCount ? (
+            <span
+              title={`${(user.postViewCount ?? 0).toLocaleString()} post views`}
+            >
+              {user.solutionCount.toLocaleString()}
+            </span>
+          ) : (
+            <span style={MUTED}>0</span>
+          )
+      },
+      {
+        key: 'reputation',
+        label: 'Reputation',
+        cellClass: 'stat-col',
+        render: user => user.reputation ?? 0
+      },
+      {
+        key: 'badgeCount',
+        label: 'Badges',
+        cellClass: 'stat-col',
+        render: user => <BadgesCell user={user} />
+      },
+      {
+        key: 'starRating',
+        label: 'Stars',
+        title: 'LeetCode star rating',
+        cellClass: 'stat-col',
+        render: user =>
+          user.starRating ? (
+            <span className="streak-cell" style={{ color: 'var(--gold)' }}>
+              <FaStar />
+              <strong>{user.starRating}</strong>
+            </span>
+          ) : (
+            <Placeholder />
+          )
+      }
+    ]
+  }
+]
 
-const ContestPerformanceRow = ({
-  user,
-  index,
-  rowClass,
-  getRankBadge
-}: RowComponentProps) => (
-  <tr key={user.userName || index} className={rowClass}>
-    <td className="rank-col">
-      <span className="rank-badge">{getRankBadge(index)}</span>
-    </td>
-    <td className="name-col" title={user.name}>
-      <a
-        href={`https://leetcode.com/${user.userName}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="username-link"
-      >
-        {user.name || 'N/A'}
-      </a>
-      <div className="username-subtitle">@{user.userName}</div>
-    </td>
-    <td className="stat-col">
-      <strong>{user.attendedContestCount || 0}</strong>
-    </td>
-    <td className="stat-col contest-4q">
-      <strong>{user.mostFourQuestionsInContest || 0}</strong>
-    </td>
-    <td className="stat-col contest-3q">
-      <strong>{user.mostThreeQuestionsInContest || 0}</strong>
-    </td>
-    <td className="stat-col contest-2q">
-      <strong>{user.mostTwoQuestionsInContest || 0}</strong>
-    </td>
-    <td className="stat-col contest-1q">
-      <strong>{user.mostOneQuestionsInContest || 0}</strong>
-    </td>
-    <td className="stat-col contest-0q">
-      <strong>{user.mostZeroQuestionsInContest || 0}</strong>
-    </td>
-    <td className="stat-col">
-      {user.averageContestRanking && user.averageContestRanking !== Infinity
-        ? user.averageContestRanking.toLocaleString()
-        : 'N/A'}
-    </td>
-  </tr>
-)
-
-const AdvancedRow = ({
-  user,
-  index,
-  rowClass,
-  getRankBadge
-}: RowComponentProps) => (
-  <tr key={user.userName || index} className={rowClass}>
-    <td className="rank-col">
-      <span className="rank-badge">{getRankBadge(index)}</span>
-    </td>
-    <td className="name-col" title={user.name}>
-      <a
-        href={`https://leetcode.com/${user.userName}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="username-link"
-      >
-        {user.name || 'N/A'}
-      </a>
-      <div className="username-subtitle">@{user.userName}</div>
-    </td>
-    <td className="stat-col">{user.reputation || 0}</td>
-    <td className="stat-col">
-      {user.questionRanking && user.questionRanking !== Infinity
-        ? user.questionRanking.toLocaleString()
-        : 'N/A'}
-    </td>
-    <td className="stat-col">
-      {user.bestStreak ? `${user.bestStreak} days` : 'N/A'}
-    </td>
-    <td className="stat-col">{user.totalActiveDays || 0}</td>
-    <td className="stat-col">{user.badgeCount || 0}</td>
-  </tr>
-)
+/* ============================================
+   TABLE
+   ============================================ */
 
 interface CustomRankTableProps {
   data: PartialUser[]
 }
 
 const CustomRankTable = ({ data }: CustomRankTableProps) => {
+  const [activeTab, setActiveTab] = useState(TABS[0].id)
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: 'asc' | 'desc'
-  }>({
-    key: 'totalSolved',
-    direction: 'desc'
-  })
+  }>({ key: TABS[0].defaultSort, direction: 'desc' })
   const [searchTerm, setSearchTerm] = useState('')
   const [filterBatch, setFilterBatch] = useState('all')
-  const [activeTab, setActiveTab] = useState('overview')
 
-  // Get unique batches for filter
+  const tab = TABS.find(entry => entry.id === activeTab) ?? TABS[0]
+
+  // Each tab ranks by its own headline metric. Without this, switching to
+  // Contests would leave rows ordered by problems solved and the medals would
+  // sit on the wrong people.
+  useEffect(() => {
+    setSortConfig({ key: tab.defaultSort, direction: 'desc' })
+  }, [tab.defaultSort])
+
+  const enriched = useMemo(() => data.map(enrichUser), [data])
+
   const batches = useMemo(() => {
-    const uniqueBatches = [
-      ...new Set(data.map(user => user.batch).filter(Boolean))
+    const unique = [
+      ...new Set(enriched.map(user => user.batch).filter(Boolean))
     ] as string[]
-    return uniqueBatches.sort((a, b) => a.localeCompare(b))
-  }, [data])
+    return unique.sort((a, b) => a.localeCompare(b))
+  }, [enriched])
 
-  // Sort and filter data
   const processedData = useMemo(() => {
-    let filtered = [...data]
+    let filtered = enriched
 
-    // Search filter
     if (searchTerm) {
+      const needle = searchTerm.toLowerCase()
       filtered = filtered.filter(
         user =>
-          user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.userName?.toLowerCase().includes(searchTerm.toLowerCase())
+          user.name?.toLowerCase().includes(needle) ||
+          user.userName?.toLowerCase().includes(needle)
       )
     }
 
-    // Batch filter
     if (filterBatch !== 'all') {
       filtered = filtered.filter(user => user.batch === filterBatch)
     }
 
-    // Sorting
-    if (sortConfig.key) {
-      // Accept % is derived at render time, not stored on the user object, so
-      // it needs its own accessor or the sort silently compares 0 with 0.
-      const readValue = (user: PartialUser): unknown =>
-        sortConfig.key === 'acceptanceRate'
-          ? Number.parseFloat(computeAcceptanceRate(user))
-          : (user as Record<string, unknown>)[sortConfig.key]
+    const direction = sortConfig.direction === 'asc' ? 1 : -1
+    return [...filtered].sort((a, b) => {
+      const aValue = readField(a, sortConfig.key)
+      const bValue = readField(b, sortConfig.key)
 
-      const direction = sortConfig.direction === 'asc' ? 1 : -1
-      filtered.sort((a, b) => {
-        const aValue = readValue(a)
-        const bValue = readValue(b)
+      if (typeof aValue === 'string' || typeof bValue === 'string') {
+        const aText = typeof aValue === 'string' ? aValue : ''
+        const bText = typeof bValue === 'string' ? bValue : ''
+        return (
+          aText.localeCompare(bText, undefined, { sensitivity: 'base' }) *
+          direction
+        )
+      }
 
-        if (typeof aValue === 'string' || typeof bValue === 'string') {
-          const aText = typeof aValue === 'string' ? aValue : ''
-          const bText = typeof bValue === 'string' ? bValue : ''
-          return (
-            aText.localeCompare(bText, undefined, { sensitivity: 'base' }) *
-            direction
-          )
-        }
-
-        // Missing values and Infinity placeholders always sink to the bottom
-        // regardless of direction so "N/A" rows never take a medal.
-        const aNum = typeof aValue === 'number' && Number.isFinite(aValue)
-        const bNum = typeof bValue === 'number' && Number.isFinite(bValue)
-        if (!aNum && !bNum) return 0
-        if (!aNum) return 1
-        if (!bNum) return -1
-        return ((aValue as number) - (bValue as number)) * direction
-      })
-    }
-
-    return filtered
-  }, [data, searchTerm, filterBatch, sortConfig])
+      // Missing values and Infinity placeholders always sink to the bottom
+      // regardless of direction so "N/A" rows never take a medal.
+      const aNum = typeof aValue === 'number' && Number.isFinite(aValue)
+      const bNum = typeof bValue === 'number' && Number.isFinite(bValue)
+      if (!aNum && !bNum) return 0
+      if (!aNum) return 1
+      if (!bNum) return -1
+      return ((aValue as number) - (bValue as number)) * direction
+    })
+  }, [enriched, searchTerm, filterBatch, sortConfig])
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
     }))
   }
 
   const getSortIcon = (key: string): string => {
-    if (sortConfig.key !== key) return '\u21C5'
-    return sortConfig.direction === 'asc' ? '\u2191' : '\u2193'
+    if (sortConfig.key !== key) return '⇅'
+    return sortConfig.direction === 'asc' ? '↑' : '↓'
   }
 
   const getRankBadge = (index: number): React.ReactNode => {
@@ -517,324 +786,47 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
     return ''
   }
 
-  // Tab configuration
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: <FaChartBar /> },
-    { id: 'problems', label: 'Problem Stats', icon: <BiTargetLock /> },
-    { id: 'contests', label: 'Contest Stats', icon: <FaTrophy /> },
-    {
-      id: 'contest-performance',
-      label: 'Contest Performance',
-      icon: <BiTargetLock />
-    },
-    { id: 'advanced', label: 'Advanced Stats', icon: <MdSpeed /> }
-  ]
+  const cardColumns = tab.columns.filter(column => column.inCard !== false)
 
-  // Render different table headers based on active tab
-  const renderTableHeaders = () => {
-    switch (activeTab) {
-      case 'overview':
-        return (
-          <>
-            <th className="rank-col">Rank</th>
-            <th onClick={() => handleSort('name')} className="sortable">
-              Name {getSortIcon('name')}
-            </th>
-            <th onClick={() => handleSort('batch')} className="sortable">
-              Batch {getSortIcon('batch')}
-            </th>
-            <th
-              onClick={() => handleSort('totalSolved')}
-              className="sortable stat-col"
-            >
-              Total Solved {getSortIcon('totalSolved')}
-            </th>
-            <th
-              onClick={() => handleSort('globalContestRating')}
-              className="sortable"
-            >
-              Contest Rating {getSortIcon('globalContestRating')}
-            </th>
-            <th
-              onClick={() => handleSort('bestStreak')}
-              className="sortable"
-              title="Current/Best Streak"
-            >
-              🔥 Streak {getSortIcon('bestStreak')}
-            </th>
-            <th
-              onClick={() => handleSort('totalActiveDays')}
-              className="sortable"
-              title="Total Active Days"
-            >
-              📅 Active Days {getSortIcon('totalActiveDays')}
-            </th>
-            <th title="Easy/Medium/Hard ratio">Difficulty Mix</th>
-          </>
-        )
-
-      case 'problems':
-        return (
-          <>
-            <th className="rank-col">Rank</th>
-            <th onClick={() => handleSort('name')} className="sortable">
-              Name {getSortIcon('name')}
-            </th>
-            <th
-              onClick={() => handleSort('totalSolved')}
-              className="sortable stat-col"
-            >
-              Total {getSortIcon('totalSolved')}
-            </th>
-            <th
-              onClick={() => handleSort('easySolved')}
-              className="sortable easy-col"
-            >
-              Easy {getSortIcon('easySolved')}
-            </th>
-            <th
-              onClick={() => handleSort('mediumSolved')}
-              className="sortable medium-col"
-            >
-              Medium {getSortIcon('mediumSolved')}
-            </th>
-            <th
-              onClick={() => handleSort('hardSolved')}
-              className="sortable hard-col"
-            >
-              Hard {getSortIcon('hardSolved')}
-            </th>
-            <th>Easy %</th>
-            <th>Medium %</th>
-            <th>Hard %</th>
-            <th
-              onClick={() => handleSort('acceptanceRate')}
-              className="sortable"
-              title="Overall acceptance rate"
-            >
-              Accept % {getSortIcon('acceptanceRate')}
-            </th>
-          </>
-        )
-
-      case 'contests':
-        return (
-          <>
-            <th className="rank-col">Rank</th>
-            <th onClick={() => handleSort('name')} className="sortable">
-              Name {getSortIcon('name')}
-            </th>
-            <th
-              onClick={() => handleSort('globalContestRating')}
-              className="sortable stat-col"
-            >
-              Rating {getSortIcon('globalContestRating')}
-            </th>
-            <th
-              onClick={() => handleSort('globalContestRanking')}
-              className="sortable"
-            >
-              Global Rank {getSortIcon('globalContestRanking')}
-            </th>
-            <th
-              onClick={() => handleSort('contestTopPercentage')}
-              className="sortable"
-            >
-              Top % {getSortIcon('contestTopPercentage')}
-            </th>
-            <th
-              onClick={() => handleSort('attendedContestCount')}
-              className="sortable"
-            >
-              Attended {getSortIcon('attendedContestCount')}
-            </th>
-            <th
-              onClick={() => handleSort('bestContestRank')}
-              className="sortable"
-            >
-              Best Rank {getSortIcon('bestContestRank')}
-            </th>
-            <th className="sortable" title="Contest Badge">
-              Badge
-            </th>
-          </>
-        )
-
-      case 'contest-performance':
-        return (
-          <>
-            <th className="rank-col">Rank</th>
-            <th onClick={() => handleSort('name')} className="sortable">
-              Name {getSortIcon('name')}
-            </th>
-            <th
-              onClick={() => handleSort('attendedContestCount')}
-              className="sortable"
-            >
-              Attended {getSortIcon('attendedContestCount')}
-            </th>
-            <th
-              onClick={() => handleSort('mostFourQuestionsInContest')}
-              className="sortable stat-col"
-              title="Contests with 4 problems solved"
-            >
-              4 Qs {getSortIcon('mostFourQuestionsInContest')}
-            </th>
-            <th
-              onClick={() => handleSort('mostThreeQuestionsInContest')}
-              className="sortable stat-col"
-              title="Contests with 3 problems solved"
-            >
-              3 Qs {getSortIcon('mostThreeQuestionsInContest')}
-            </th>
-            <th
-              onClick={() => handleSort('mostTwoQuestionsInContest')}
-              className="sortable stat-col"
-              title="Contests with 2 problems solved"
-            >
-              2 Qs {getSortIcon('mostTwoQuestionsInContest')}
-            </th>
-            <th
-              onClick={() => handleSort('mostOneQuestionsInContest')}
-              className="sortable stat-col"
-              title="Contests with 1 problem solved"
-            >
-              1 Q {getSortIcon('mostOneQuestionsInContest')}
-            </th>
-            <th
-              onClick={() => handleSort('mostZeroQuestionsInContest')}
-              className="sortable stat-col"
-              title="Contests with 0 problems solved"
-            >
-              0 Qs {getSortIcon('mostZeroQuestionsInContest')}
-            </th>
-            <th
-              onClick={() => handleSort('averageContestRanking')}
-              className="sortable"
-              title="Average contest ranking"
-            >
-              Avg Rank {getSortIcon('averageContestRanking')}
-            </th>
-          </>
-        )
-
-      case 'advanced':
-        return (
-          <>
-            <th className="rank-col">Rank</th>
-            <th onClick={() => handleSort('name')} className="sortable">
-              Name {getSortIcon('name')}
-            </th>
-            <th onClick={() => handleSort('reputation')} className="sortable">
-              Reputation {getSortIcon('reputation')}
-            </th>
-            <th
-              onClick={() => handleSort('questionRanking')}
-              className="sortable"
-            >
-              Ranking {getSortIcon('questionRanking')}
-            </th>
-            <th onClick={() => handleSort('bestStreak')} className="sortable">
-              Best Streak {getSortIcon('bestStreak')}
-            </th>
-            <th
-              onClick={() => handleSort('totalActiveDays')}
-              className="sortable"
-            >
-              Active Days {getSortIcon('totalActiveDays')}
-            </th>
-            <th onClick={() => handleSort('badgeCount')} className="sortable">
-              Badges {getSortIcon('badgeCount')}
-            </th>
-          </>
-        )
-
-      default:
-        return null
-    }
-  }
-
-  // Render table rows based on active tab
-  const renderTableRows = () => {
-    return processedData.map((user, index) => {
-      const rowClass = `rank-table__row ${getRankClass(index)}`
-
-      switch (activeTab) {
-        case 'overview':
-          return (
-            <OverviewRow
-              key={user.userName || index}
-              user={user}
-              index={index}
-              rowClass={rowClass}
-              getRankBadge={getRankBadge}
-            />
-          )
-        case 'problems':
-          return (
-            <ProblemsRow
-              key={user.userName || index}
-              user={user}
-              index={index}
-              rowClass={rowClass}
-              getRankBadge={getRankBadge}
-            />
-          )
-        case 'contests':
-          return (
-            <ContestsRow
-              key={user.userName || index}
-              user={user}
-              index={index}
-              rowClass={rowClass}
-              getRankBadge={getRankBadge}
-            />
-          )
-        case 'contest-performance':
-          return (
-            <ContestPerformanceRow
-              key={user.userName || index}
-              user={user}
-              index={index}
-              rowClass={rowClass}
-              getRankBadge={getRankBadge}
-            />
-          )
-        case 'advanced':
-          return (
-            <AdvancedRow
-              key={user.userName || index}
-              user={user}
-              index={index}
-              rowClass={rowClass}
-              getRankBadge={getRankBadge}
-            />
-          )
-        default:
-          return null
-      }
-    })
-  }
+  const emptyState = (
+    <div className="rank-table__empty">
+      <span className="empty-icon">
+        <FaSearch />
+      </span>
+      <p>No users found matching your criteria</p>
+      <button
+        onClick={() => {
+          setSearchTerm('')
+          setFilterBatch('all')
+        }}
+        className="reset-btn"
+      >
+        Reset Filters
+      </button>
+    </div>
+  )
 
   return (
     <div className="custom-rank-table">
-      {/* Tab Navigation */}
-      <div className="rank-table__tabs">
-        {tabs.map(tab => (
+      <div className="rank-table__tabs" role="tablist">
+        {TABS.map(entry => (
           <button
-            key={tab.id}
+            key={entry.id}
+            role="tab"
+            aria-selected={activeTab === entry.id}
+            aria-label={`${entry.label}: ${entry.hint}`}
+            title={entry.hint}
             className={`tab-button ${
-              activeTab === tab.id ? 'tab-button--active' : ''
+              activeTab === entry.id ? 'tab-button--active' : ''
             }`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setActiveTab(entry.id)}
           >
-            <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label}</span>
+            <span className="tab-icon">{entry.icon}</span>
+            <span className="tab-label">{entry.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Controls Bar */}
       <div className="rank-table__controls">
         <div className="rank-table__search">
           <span className="search-icon">
@@ -845,8 +837,8 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
             placeholder="Search by name or username..."
             aria-label="Search by name or username"
             value={searchTerm}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSearchTerm(e.target.value)
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchTerm(event.target.value)
             }
             className="search-input"
           />
@@ -868,8 +860,8 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
           <select
             id="batch-filter"
             value={filterBatch}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setFilterBatch(e.target.value)
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setFilterBatch(event.target.value)
             }
             className="filter-select"
           >
@@ -887,32 +879,85 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Desktop and tablet: sortable table with a pinned rank + name column. */}
       <div className="rank-table__wrapper">
         <table className="rank-table">
           <thead className="rank-table__head">
-            <tr>{renderTableHeaders()}</tr>
+            <tr>
+              <th className="rank-col">Rank</th>
+              {tab.columns.map(column => (
+                <th
+                  key={column.label}
+                  title={column.title}
+                  className={`${column.cellClass ?? ''} ${
+                    column.key ? 'sortable' : ''
+                  }`}
+                  aria-sort={
+                    column.key && sortConfig.key === column.key
+                      ? sortConfig.direction === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : undefined
+                  }
+                  onClick={
+                    column.key
+                      ? () => handleSort(column.key as string)
+                      : undefined
+                  }
+                >
+                  {column.label}
+                  {column.key && ` ${getSortIcon(column.key)}`}
+                </th>
+              ))}
+            </tr>
           </thead>
-          <tbody className="rank-table__body">{renderTableRows()}</tbody>
+          <tbody className="rank-table__body">
+            {processedData.map((user, index) => (
+              <tr
+                key={user.userName || index}
+                className={`rank-table__row ${getRankClass(index)}`}
+              >
+                <td className="rank-col">
+                  <span className="rank-badge">{getRankBadge(index)}</span>
+                </td>
+                {tab.columns.map(column => (
+                  <td key={column.label} className={column.cellClass}>
+                    {column.render(user)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
 
-        {processedData.length === 0 && (
-          <div className="rank-table__empty">
-            <span className="empty-icon">
-              <FaSearch />
-            </span>
-            <p>No users found matching your criteria</p>
-            <button
-              onClick={() => {
-                setSearchTerm('')
-                setFilterBatch('all')
-              }}
-              className="reset-btn"
-            >
-              Reset Filters
-            </button>
-          </div>
-        )}
+        {processedData.length === 0 && emptyState}
+      </div>
+
+      {/* Phones: one card per person. A 12 column table cannot be read at
+          375px even with a pinned name, so the same data is stacked instead. */}
+      <div className="rank-cards">
+        {processedData.map((user, index) => (
+          <article
+            key={user.userName || index}
+            className={`rank-card ${getRankClass(index)}`}
+          >
+            <header className="rank-card__head">
+              <span className="rank-badge">{getRankBadge(index)}</span>
+              {nameColumn.render(user)}
+              <span className="batch-badge">{user.batch || 'N/A'}</span>
+            </header>
+            <dl className="rank-card__stats">
+              {cardColumns.map(column => (
+                <div key={column.label} className="rank-card__stat">
+                  <dt title={column.title}>{column.label}</dt>
+                  <dd>{column.render(user)}</dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+        ))}
+
+        {processedData.length === 0 && emptyState}
       </div>
     </div>
   )

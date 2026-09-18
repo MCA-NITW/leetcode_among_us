@@ -156,35 +156,37 @@ export const processUserDataResponse = (
       calendarData
     } = backendData
 
-    /* Upstream GraphQL payloads are loosely typed; casts are contained here. */
-    const publicProfile = userPublicProfile.data.matchedUser as any
-    const contestRanking = userContestRankingInfo.data.userContestRanking as any
-    const contestHistory =
-      userContestRankingInfo.data.userContestRankingHistory || []
-    const problemsData = userProblemsSolved.data as any
-    const badges = ((userBadges.data.matchedUser as any)?.badges || []).map(
-      normaliseBadge
-    )
-    const upcomingBadges = (
-      (userBadges.data.matchedUser as any)?.upcomingBadges || []
-    ).map(normaliseBadge)
+    /* Upstream GraphQL payloads are loosely typed; casts are contained here.
+       Any single query can time out against LeetCode, and the server passes
+       that through as null. Reading it unguarded used to throw and drop the
+       whole row, so a lone slow query blanked an otherwise complete user. */
+    const publicProfile = (userPublicProfile as any)?.data?.matchedUser
+    const contestData = (userContestRankingInfo as any)?.data
+    const contestRanking = contestData?.userContestRanking
+    const contestHistory = contestData?.userContestRankingHistory || []
+    const problemsData = (userProblemsSolved as any)?.data
+    const badgeUser = (userBadges as any)?.data?.matchedUser
+    const badges = (badgeUser?.badges || []).map(normaliseBadge)
+    const upcomingBadges = (badgeUser?.upcomingBadges || []).map(normaliseBadge)
     const contestBadge = publicProfile?.contestBadge
       ? {
           ...publicProfile.contestBadge,
           icon: resolveLeetCodeAsset(publicProfile.contestBadge.icon)
         }
       : null
-    const beatsStats = problemsData.matchedUser?.problemsSolvedBeatsStats || []
+    const beatsStats = problemsData?.matchedUser?.problemsSolvedBeatsStats || []
+    const lastSolved = (userPublicProfile as any)?.data
+      ?.recentAcSubmissionList?.[0]
 
     // Helper functions
     const getProblemsSolvedCount = (difficulty: string): number =>
-      problemsData.matchedUser?.submitStatsGlobal?.acSubmissionNum?.find(
+      problemsData?.matchedUser?.submitStatsGlobal?.acSubmissionNum?.find(
         (problem: { difficulty: string; count: number }) =>
           problem.difficulty === difficulty
       )?.count || 0
 
     const getTotalQuestionsCount = (difficulty: string): number =>
-      problemsData.allQuestionsCount?.find(
+      problemsData?.allQuestionsCount?.find(
         (problem: { difficulty: string; count: number }) =>
           problem.difficulty === difficulty
       )?.count || 0
@@ -235,6 +237,17 @@ export const processUserDataResponse = (
       websites: publicProfile.profile?.websites || [],
       skillTags: publicProfile.profile?.skillTags || [],
       starRating: publicProfile.profile?.starRating || undefined,
+      postViewCount: publicProfile.profile?.postViewCount || 0,
+      solutionCount: publicProfile.profile?.solutionCount || 0,
+      categoryDiscussCount: publicProfile.profile?.categoryDiscussCount || 0,
+      languageStats: publicProfile?.languageProblemCount || [],
+      lastSolved: lastSolved
+        ? {
+            title: lastSolved.title,
+            titleSlug: lastSolved.titleSlug,
+            timestamp: Number(lastSolved.timestamp)
+          }
+        : undefined,
       githubUrl: publicProfile?.githubUrl || '',
       linkedinUrl: publicProfile?.linkedinUrl || '',
       twitterUrl: publicProfile?.twitterUrl || '',
@@ -275,7 +288,7 @@ export const processUserDataResponse = (
       submissionCalendar: calendarData?.submissionCalendar || {},
       activeYears: calendarData?.activeYears || [],
       acSubmissionNum:
-        problemsData.matchedUser?.submitStatsGlobal?.acSubmissionNum || [],
+        problemsData?.matchedUser?.submitStatsGlobal?.acSubmissionNum || [],
       tagProblemCounts:
         (skillStats as any)?.data?.matchedUser?.tagProblemCounts || undefined
     } as Partial<UserData>

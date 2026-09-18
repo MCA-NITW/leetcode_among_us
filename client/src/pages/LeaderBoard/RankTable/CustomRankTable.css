@@ -549,6 +549,42 @@ tr:hover .rank-badge {
   font-family: var(--font-mono);
   font-weight: 600;
   min-width: 72px;
+  /* Digits share one advance width so columns of numbers line up instead of
+     shifting a pixel or two per row. */
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-badge,
+.rank-table__count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Pinned identity columns ──
+   The widest tabs scroll horizontally. Rank and name stay put so a row is
+   still attributable to a person once the stats scroll under them. */
+.rank-table__head th.rank-col,
+.rank-table__body td.rank-col {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--bg-raised);
+}
+
+.rank-table__head th.name-col,
+.rank-table__body td.name-col {
+  position: sticky;
+  left: 64px;
+  z-index: 3;
+  background: var(--bg-raised);
+}
+
+.rank-table__head th.rank-col,
+.rank-table__head th.name-col {
+  z-index: 11;
+}
+
+.rank-table__body td.name-col {
+  box-shadow: 1px 0 0 var(--border);
 }
 
 /* ── Total Column ── */
@@ -653,6 +689,225 @@ tr:hover .rank-badge {
 }
 
 /* ============================================
+   CELL COMPONENTS
+   ============================================ */
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.name-cell__avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: var(--glass-border);
+}
+
+.name-cell__text {
+  min-width: 0;
+}
+
+/* ── Distribution bars ── */
+.mix-col {
+  min-width: 96px;
+}
+
+.mix-bar,
+.spread-bar {
+  display: flex;
+  height: 8px;
+  width: 100%;
+  min-width: 72px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.mix-bar__segment,
+.spread-bar__segment {
+  height: 100%;
+  transition: width 0.4s var(--ease-out-expo);
+}
+
+/* The tone classes already carry the right hue as a text colour. */
+.spread-bar__segment {
+  background: currentColor;
+}
+
+/* ── Inline value cells ── */
+.streak-cell,
+.rating-cell,
+.trend-cell,
+.badges-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.streak-cell .unit {
+  font-size: 0.85em;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.rating-cell {
+  font-size: 1.05em;
+}
+
+.trend-cell {
+  font-size: 0.9em;
+}
+
+.badges-cell img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.badges-cell__name {
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+/* ── Daily challenge progress ── */
+.dcc-col {
+  min-width: 104px;
+}
+
+.dcc-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.dcc-cell__track {
+  flex: 1;
+  min-width: 40px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.dcc-cell__fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--easy-color), var(--accent));
+  transition: width 0.4s var(--ease-out-expo);
+}
+
+.dcc-cell__value {
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+
+/* ── Top topic ── */
+.topic-col {
+  text-align: left;
+  min-width: 130px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.topic-col__count {
+  display: inline-block;
+  margin-left: var(--space-xs);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass-strong);
+  border: var(--glass-border);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+
+/* ============================================
+   MOBILE CARDS
+   Same rows, stacked. Swapped in below 640px.
+   ============================================ */
+.rank-cards {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+}
+
+.rank-card {
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  overflow: hidden;
+}
+
+.rank-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: var(--glass-border);
+  background: var(--bg-glass-strong);
+}
+
+.rank-card__head .name-cell {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-card__head .batch-badge {
+  flex-shrink: 0;
+}
+
+.rank-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--border);
+}
+
+.rank-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-raised);
+}
+
+.rank-card__stat dt {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+
+.rank-card__stat dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bars need the full cell width inside a card. */
+.rank-card__stat dd .mix-bar,
+.rank-card__stat dd .spread-bar {
+  margin-top: 5px;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 1024px) {
@@ -729,28 +984,31 @@ tr:hover .rank-badge {
   }
 }
 
-@media (max-width: 480px) {
-  .tab-label {
+/* Phones get cards instead of the table. Twelve columns cannot be read at
+   375px even with the identity columns pinned, and the tab strip keeps its
+   text labels here (it scrolls) so no two tabs are icon-only lookalikes. */
+@media (max-width: 640px) {
+  .rank-table__wrapper {
     display: none;
   }
 
+  .rank-cards {
+    display: flex;
+  }
+
   .tab-button {
-    padding: var(--space-xs) var(--space-sm);
-    justify-content: center;
-  }
-
-  .tab-icon {
-    font-size: 1.1rem;
-  }
-
-  .rank-table__head th {
-    padding: var(--space-xs) 6px;
-    font-size: 0.6rem;
-  }
-
-  .rank-table__body td {
-    padding: var(--space-xs) 6px;
     font-size: 0.7rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+@media (max-width: 400px) {
+  .rank-card__stat {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .rank-card__stat dd {
+    font-size: 0.85rem;
   }
 }
 
