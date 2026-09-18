@@ -142,16 +142,15 @@ export const computeTopTopic = (
 export const computeTopLanguage = (
   languages: Array<{ languageName: string; problemsSolved: number }> | undefined
 ): { name: string; count: number; total: number } => {
-  if (!languages || languages.length === 0)
-    return { name: '', count: 0, total: 0 }
-  const top = languages.reduce((best, current) =>
-    current.problemsSolved > best.problemsSolved ? current : best
-  )
-  return {
-    name: top.languageName,
-    count: top.problemsSolved,
-    total: languages.length
+  let name = ''
+  let count = 0
+  for (const language of languages ?? []) {
+    if (language.problemsSolved > count) {
+      name = language.languageName
+      count = language.problemsSolved
+    }
   }
+  return { name, count, total: languages?.length ?? 0 }
 }
 
 /**

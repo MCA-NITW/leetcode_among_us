@@ -62,15 +62,16 @@ const formatAge = (hours: number): string => {
  * Freshness. A leaderboard that cannot show who solved something this morning
  * reads like a historical record rather than a live competition.
  */
+const freshnessColour = (hours: number): string => {
+  if (hours < 24) return 'var(--success)'
+  if (hours < 24 * 7) return 'var(--warning)'
+  return 'var(--text-3)'
+}
+
 const LastSolvedCell = ({ user }: { user: EnrichedUser }) => {
   if (!Number.isFinite(user.hoursSinceLastSolve)) return <Placeholder />
   const hours = user.hoursSinceLastSolve
-  const colour =
-    hours < 24
-      ? 'var(--success)'
-      : hours < 24 * 7
-        ? 'var(--warning)'
-        : 'var(--text-3)'
+  const colour = freshnessColour(hours)
   return (
     <span style={{ color: colour }} title={user.lastSolvedTitle}>
       {formatAge(hours)}
@@ -772,6 +773,13 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
     return sortConfig.direction === 'asc' ? '↑' : '↓'
   }
 
+  const ariaSortFor = (
+    key: string | undefined
+  ): 'ascending' | 'descending' | undefined => {
+    if (!key || sortConfig.key !== key) return undefined
+    return sortConfig.direction === 'asc' ? 'ascending' : 'descending'
+  }
+
   const getRankBadge = (index: number): React.ReactNode => {
     if (index === 0) return <FaMedal style={{ color: 'var(--gold)' }} />
     if (index === 1) return <FaMedal style={{ color: 'var(--silver)' }} />
@@ -892,13 +900,7 @@ const CustomRankTable = ({ data }: CustomRankTableProps) => {
                   className={`${column.cellClass ?? ''} ${
                     column.key ? 'sortable' : ''
                   }`}
-                  aria-sort={
-                    column.key && sortConfig.key === column.key
-                      ? sortConfig.direction === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                      : undefined
-                  }
+                  aria-sort={ariaSortFor(column.key)}
                   onClick={
                     column.key
                       ? () => handleSort(column.key as string)
