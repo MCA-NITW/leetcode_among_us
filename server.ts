@@ -4,6 +4,7 @@ import cors from 'cors'
 import type { CorsOptions } from 'cors'
 import helmet from 'helmet'
 import path from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import rateLimit from 'express-rate-limit'
 
@@ -32,14 +33,53 @@ const UPSTREAM_HEADERS: Record<string, string> = {
   'User-Agent': 'Mozilla/5.0 (compatible; LeetCodeAmongUs/3.2)'
 }
 
-const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
+const DEFAULT_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5000',
   'https://leetcode-among-us.onrender.com',
   'https://sagargupta.live'
-])
+]
+
+/**
+ * Browsers send an Origin header even on same-origin POSTs, so a fork deployed
+ * at its own URL must be allowed too. Render sets RENDER_EXTERNAL_URL for every
+ * web service; ALLOWED_ORIGINS adds any others (comma-separated).
+ */
+// A loop instead of /\/+$/, which backtracks on long runs of slashes.
+const stripTrailingSlashes = (value: string): string => {
+  let end = value.length
+  while (end > 0 && value[end - 1] === '/') end--
+  return value.slice(0, end)
+}
+
+export const buildAllowedOrigins = (
+  env: NodeJS.ProcessEnv
+): ReadonlySet<string> =>
+  new Set(
+    [
+      ...DEFAULT_ORIGINS,
+      env.RENDER_EXTERNAL_URL,
+      ...(env.ALLOWED_ORIGINS ?? '').split(',')
+    ]
+      .map(origin => origin && stripTrailingSlashes(origin.trim()))
+      .filter((origin): origin is string => Boolean(origin))
+  )
+
+const ALLOWED_ORIGINS = buildAllowedOrigins(process.env)
+
+// Daily snapshots written by scripts/snapshot.mjs. The scheduled workflow
+// commits them to the `data` branch; Render's RENDER_GIT_REPO_SLUG makes a fork
+// read its own branch without extra config. HISTORY_FILE (a local path) wins
+// over the URL, for development and offline demos.
+const HISTORY_URL =
+  process.env.HISTORY_URL ||
+  `https://raw.githubusercontent.com/${
+    process.env.RENDER_GIT_REPO_SLUG || 'MCA-NITW/leetcode_among_us'
+  }/data/history.json`
+const HISTORY_FILE = process.env.HISTORY_FILE
+const HISTORY_CACHE_MS = 60 * 60 * 1000
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -233,6 +273,91 @@ const evictExpired = (): void => {
 export const clearUserCache = (): void => {
   userCache.clear()
   inFlight.clear()
+  historyCache = null
+}
+
+// ─── History ─────────────────────────────────────────────────────────────────
+
+/** Per-user numbers recorded once a day by scripts/snapshot.mjs. */
+interface SnapshotEntry {
+  solved: number
+  easy: number
+  medium: number
+  hard: number
+  rating: number | null
+  contests: number
+}
+
+interface Snapshot {
+  date: string
+  takenAt?: string
+  users: Record<string, SnapshotEntry>
+}
+
+interface HistoryResponse {
+  snapshots: Snapshot[]
+}
+
+let historyCache: { data: HistoryResponse; expiresAt: number } | null = null
+
+const isSnapshot = (value: unknown): value is Snapshot => {
+  const s = value as Snapshot | null
+  return (
+    typeof s?.date === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(s.date) &&
+    typeof s.users === 'object' &&
+    s.users !== null
+  )
+}
+
+/** Read the history file, from disk when HISTORY_FILE is set, else HISTORY_URL. */
+const loadHistory = async (): Promise<HistoryResponse> => {
+  let raw: unknown
+  if (HISTORY_FILE) {
+    raw = JSON.parse(await readFile(HISTORY_FILE, 'utf8'))
+  } else {
+    const response = await fetch(HISTORY_URL, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+    })
+    // No data branch yet (fresh fork, workflow not run): history is empty,
+    // not an error.
+    if (response.status === 404) return { snapshots: [] }
+    if (!response.ok) {
+      throw new Error(`History responded ${response.status}`)
+    }
+    raw = await response.json()
+  }
+  const snapshots = (raw as { snapshots?: unknown })?.snapshots
+  if (!Array.isArray(snapshots)) throw new Error('History has no snapshots')
+  return {
+    snapshots: snapshots
+      .filter(isSnapshot)
+      .sort((a, b) => a.date.localeCompare(b.date))
+  }
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+/** Keep snapshots within `days` of the newest one and/or a single user. */
+const filterHistory = (
+  history: HistoryResponse,
+  days?: number,
+  user?: string
+): HistoryResponse => {
+  let { snapshots } = history
+  const newest = snapshots.at(-1)
+  if (days !== undefined && newest) {
+    const cutoff = Date.parse(newest.date) - days * DAY_MS
+    snapshots = snapshots.filter(s => Date.parse(s.date) >= cutoff)
+  }
+  if (user !== undefined) {
+    snapshots = snapshots.flatMap(s =>
+      Object.hasOwn(s.users, user)
+        ? [{ ...s, users: { [user]: s.users[user] } }]
+        : []
+    )
+  }
+  return { snapshots }
 }
 
 // ─── Core data fetching ──────────────────────────────────────────────────────
@@ -420,6 +545,11 @@ const fetchUserData = async (username: string): Promise<UserData> => {
   )
 
   const results = await Promise.all(promises)
+  // One failed query blanks one section; all five failing means LeetCode is
+  // unreachable, which the caller must be able to tell apart from "no data".
+  if (results.every(([, data]) => data === null)) {
+    throw new Error('Every LeetCode query failed')
+  }
   const userData = Object.fromEntries(results) as Record<
     string,
     GraphQLResponse | null
@@ -576,6 +706,49 @@ app.get('/health', (_req: Request, res: Response): void => {
   })
 })
 
+// Daily solved/rating snapshots for movers and per-user history charts. The
+// full file grows by ~6 KB a day, so callers narrow it: ?days=14 keeps the
+// snapshots from the last 14 days, ?user=name keeps one user's entries.
+app.get(
+  '/leetcode/history',
+  leetcodeLimiter,
+  async (
+    req: Request,
+    res: Response<HistoryResponse | ErrorResponse>
+  ): Promise<void> => {
+    const { days, user } = req.query
+    const dayCount = days === undefined ? undefined : Number(days)
+    if (
+      dayCount !== undefined &&
+      !(Number.isInteger(dayCount) && dayCount >= 1 && dayCount <= 1000)
+    ) {
+      res.status(400).json({ error: 'days must be an integer from 1 to 1000' })
+      return
+    }
+    if (user !== undefined && !isValidUsername(user)) {
+      res.status(400).json({
+        error:
+          'Invalid username. Must be 1-40 alphanumeric characters, hyphens, or underscores.'
+      })
+      return
+    }
+
+    try {
+      if (!historyCache || historyCache.expiresAt <= Date.now()) {
+        historyCache = {
+          data: await loadHistory(),
+          expiresAt: Date.now() + HISTORY_CACHE_MS
+        }
+      }
+      res.json(filterHistory(historyCache.data, dayCount, user?.toLowerCase()))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.error('Error loading history:', message)
+      res.status(502).json({ error: 'History is unavailable right now' })
+    }
+  }
+)
+
 // Optimized endpoint for fetching user data in parallel
 app.post(
   '/leetcode/user-data',
@@ -727,7 +900,7 @@ app.use(
   }
 )
 
-export { app, isValidUsername }
+export { app, isValidUsername, HISTORY_URL }
 
 // ─── Startup ─────────────────────────────────────────────────────────────────
 

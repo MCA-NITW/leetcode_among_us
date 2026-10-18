@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
-import { app, clearUserCache, isValidUsername } from '../server.ts'
+import {
+  app,
+  buildAllowedOrigins,
+  clearUserCache,
+  HISTORY_URL,
+  isValidUsername
+} from '../server.ts'
 
 /** Minimal upstream payload that satisfies every GraphQL query the server issues. */
 const matchedUserPayload = (username: string) => ({
@@ -135,19 +141,39 @@ describe('POST /leetcode/user-data', () => {
     expect(fetchMock.mock.calls).toHaveLength(first * 2)
   })
 
-  it('maps an upstream failure to 502 without leaking details', async () => {
+  it('maps a full upstream outage to 502 without leaking details', async () => {
     fetchMock.mockImplementation(async () => {
       throw new Error('socket hang up')
     })
     const res = await request(app)
       .post('/leetcode/user-data')
       .send({ username: 'alice' })
-    // Per-query failures are tolerated (nulls); the request still succeeds
-    // because the calendar loop and profile queries each catch their own errors.
-    expect([200, 502]).toContain(res.status)
-    if (res.status === 502) {
-      expect(res.body.error).not.toMatch(/socket/)
-    }
+    expect(res.status).toBe(502)
+    expect(res.body.error).not.toMatch(/socket/)
+    // Five parallel queries failed; the calendar calls are skipped.
+    expect(fetchMock.mock.calls).toHaveLength(5)
+
+    const health = await request(app).get('/health')
+    expect(health.body.cachedUsers).toBe(0)
+  })
+
+  it('still returns 200 when only some queries fail', async () => {
+    const working = fetchMock.getMockImplementation()!
+    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+      const { operationName } = JSON.parse(String(init?.body)) as {
+        operationName: string
+      }
+      if (operationName === 'userBadges') throw new Error('timeout')
+      return working(url, init)
+    })
+    const res = await request(app)
+      .post('/leetcode/user-data')
+      .send({ username: 'alice' })
+    expect(res.status).toBe(200)
+    expect(res.body.data.userBadges).toBeNull()
+    expect(res.body.data.userPublicProfile.data.matchedUser.username).toBe(
+      'alice'
+    )
   })
 })
 
@@ -191,6 +217,137 @@ describe('POST /leetcode/batch-user-data', () => {
       true
     )
     expect(fetchMock.mock.calls).toHaveLength(callsForOneUser)
+  })
+
+  it('marks each user failed when LeetCode is down', async () => {
+    fetchMock.mockImplementation(async () => {
+      throw new Error('ECONNRESET')
+    })
+    const res = await request(app)
+      .post('/leetcode/batch-user-data')
+      .send({ usernames: ['alice', 'bob'] })
+    expect(res.status).toBe(200)
+    expect(res.body.results).toEqual([
+      { username: 'alice', success: false, error: 'Failed to fetch user data' },
+      { username: 'bob', success: false, error: 'Failed to fetch user data' }
+    ])
+  })
+})
+
+describe('GET /leetcode/history', () => {
+  const history = {
+    version: 1,
+    snapshots: [
+      {
+        date: '2026-10-17',
+        users: {
+          alice: {
+            solved: 10,
+            easy: 5,
+            medium: 4,
+            hard: 1,
+            rating: 1500,
+            contests: 2
+          }
+        }
+      },
+      { date: 'not-a-date', users: {} }
+    ]
+  }
+
+  it('serves valid snapshots from HISTORY_URL and caches them', async () => {
+    fetchMock.mockImplementation(async () => jsonResponse(history))
+    const res = await request(app).get('/leetcode/history')
+    expect(res.status).toBe(200)
+    expect(res.body.snapshots).toHaveLength(1)
+    expect(res.body.snapshots[0].users.alice.solved).toBe(10)
+    expect(fetchMock).toHaveBeenCalledWith(HISTORY_URL, expect.anything())
+
+    await request(app).get('/leetcode/history')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('narrows to recent days and one user', async () => {
+    const day = (date: string) => ({
+      date,
+      users: {
+        alice: {
+          solved: 1,
+          easy: 1,
+          medium: 0,
+          hard: 0,
+          rating: null,
+          contests: 0
+        },
+        bob: {
+          solved: 2,
+          easy: 2,
+          medium: 0,
+          hard: 0,
+          rating: null,
+          contests: 0
+        }
+      }
+    })
+    fetchMock.mockImplementation(async () =>
+      jsonResponse({
+        snapshots: [day('2026-10-18'), day('2026-10-01'), day('2026-10-11')]
+      })
+    )
+    const recent = await request(app).get('/leetcode/history?days=7')
+    expect(recent.body.snapshots.map((s: { date: string }) => s.date)).toEqual([
+      '2026-10-11',
+      '2026-10-18'
+    ])
+
+    const one = await request(app).get('/leetcode/history?user=Bob')
+    expect(one.body.snapshots).toHaveLength(3)
+    expect(Object.keys(one.body.snapshots[0].users)).toEqual(['bob'])
+
+    const nobody = await request(app).get('/leetcode/history?user=carol')
+    expect(nobody.body.snapshots).toEqual([])
+    // All three requests were served from one upstream fetch.
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects bad days and user parameters', async () => {
+    for (const query of ['days=0', 'days=abc', 'days=2.5', 'user=a%20b']) {
+      const res = await request(app).get(`/leetcode/history?${query}`)
+      expect(res.status).toBe(400)
+    }
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('treats a missing data branch as empty history', async () => {
+    fetchMock.mockImplementation(
+      async () => new Response('404: Not Found', { status: 404 })
+    )
+    const res = await request(app).get('/leetcode/history')
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ snapshots: [] })
+  })
+
+  it('returns 502 when the history source fails', async () => {
+    fetchMock.mockImplementation(async () => {
+      throw new Error('getaddrinfo ENOTFOUND')
+    })
+    const res = await request(app).get('/leetcode/history')
+    expect(res.status).toBe(502)
+    expect(res.body.error).not.toMatch(/ENOTFOUND/)
+  })
+})
+
+describe('buildAllowedOrigins', () => {
+  it('adds the Render URL and ALLOWED_ORIGINS to the defaults', () => {
+    const origins = buildAllowedOrigins({
+      RENDER_EXTERNAL_URL: 'https://my-college.onrender.com',
+      ALLOWED_ORIGINS: ' https://a.example/ ,https://b.example,,'
+    })
+    expect(origins.has('http://localhost:3000')).toBe(true)
+    expect(origins.has('https://my-college.onrender.com')).toBe(true)
+    expect(origins.has('https://a.example')).toBe(true)
+    expect(origins.has('https://b.example')).toBe(true)
+    expect(origins.has('')).toBe(false)
   })
 })
 

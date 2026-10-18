@@ -1,0 +1,20 @@
+# Render Blueprint: one free web service that builds the client, compiles the
+# API and serves both. Used by the "Deploy to Render" button in the README and
+# by forks deploying their own cohort (see docs/fork-for-your-college.md).
+#
+# RENDER_EXTERNAL_URL (CORS) and RENDER_GIT_REPO_SLUG (history source) are set
+# by Render itself, so a fork needs no extra configuration.
+services:
+  - type: web
+    name: leetcode-among-us
+    runtime: node
+    plan: free
+    buildCommand: pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CACHE_TTL_MINUTES
+        value: '10'

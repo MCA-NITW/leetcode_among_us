@@ -11,8 +11,10 @@ import {
 import ContentLoader from '../../components/Loader/ContentLoader'
 import {
   fetchOptimizedUserData,
+  isUpstreamOutage,
   isUserNotFound,
-  processUserDataResponse
+  processUserDataResponse,
+  UPSTREAM_OUTAGE_MESSAGE
 } from '../../api/OptimizedFetchData'
 import './Compare.css'
 import DualRatingChart from '../../components/Charts/DualRatingChart'
@@ -244,7 +246,9 @@ const Compare = () => {
     } catch (err) {
       console.error('Error fetching user data for comparison:', err)
       setError(
-        'Error fetching user data. Please check usernames and try again.'
+        isUpstreamOutage(err)
+          ? UPSTREAM_OUTAGE_MESSAGE
+          : 'Error fetching user data. Please check usernames and try again.'
       )
     } finally {
       setLoading(false)
