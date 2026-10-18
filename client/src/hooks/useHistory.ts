@@ -37,7 +37,8 @@ export function useHistory({
       pending.set(key, request)
     }
     setHistory(null)
-    request.then(result => {
+    // fetchHistory never rejects; a failure resolves to null.
+    void request.then(result => {
       if (!cancelled) setHistory(result)
     })
     return () => {

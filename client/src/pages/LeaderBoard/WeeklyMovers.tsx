@@ -20,7 +20,7 @@ const formatDay = (date: string): string =>
   })
 
 /** Who solved the most since last week, from the daily snapshot history. */
-function WeeklyMovers({ data }: WeeklyMoversProps) {
+function WeeklyMovers({ data }: Readonly<WeeklyMoversProps>) {
   // Two weeks covers the 7-day comparison even if a few daily runs failed.
   const history = useHistory({ days: 14 })
   if (!history || history.snapshots.length === 0) return null
@@ -70,7 +70,7 @@ function MoversPanel({
         <p className="weekly-movers__subtitle">{subtitle}</p>
       </div>
 
-      {result && result.movers.length === 0 && (
+      {result?.movers.length === 0 && (
         <p className="weekly-movers__empty">
           Nobody solved a new problem in this window yet.
         </p>

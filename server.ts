@@ -47,6 +47,13 @@ const DEFAULT_ORIGINS = [
  * at its own URL must be allowed too. Render sets RENDER_EXTERNAL_URL for every
  * web service; ALLOWED_ORIGINS adds any others (comma-separated).
  */
+// A loop instead of /\/+$/, which backtracks on long runs of slashes.
+const stripTrailingSlashes = (value: string): string => {
+  let end = value.length
+  while (end > 0 && value[end - 1] === '/') end--
+  return value.slice(0, end)
+}
+
 export const buildAllowedOrigins = (
   env: NodeJS.ProcessEnv
 ): ReadonlySet<string> =>
@@ -56,7 +63,7 @@ export const buildAllowedOrigins = (
       env.RENDER_EXTERNAL_URL,
       ...(env.ALLOWED_ORIGINS ?? '').split(',')
     ]
-      .map(origin => origin?.trim().replace(/\/+$/, ''))
+      .map(origin => origin && stripTrailingSlashes(origin.trim()))
       .filter((origin): origin is string => Boolean(origin))
   )
 

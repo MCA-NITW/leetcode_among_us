@@ -31,7 +31,7 @@ interface SolvedHistoryChartProps {
  * Problems solved (left axis) and contest rating (right axis) per recorded
  * day, from the daily snapshot history.
  */
-function SolvedHistoryChart({ points }: SolvedHistoryChartProps) {
+function SolvedHistoryChart({ points }: Readonly<SolvedHistoryChartProps>) {
   const colors = useChartColors()
   const hasRating = points.some(p => p.rating !== null)
 

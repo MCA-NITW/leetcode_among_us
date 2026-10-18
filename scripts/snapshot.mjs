@@ -129,7 +129,7 @@ if (isDirectRun) {
 
   const users = {}
   let failed = 0
-  for (const username of usernames) {
+  const recordUser = async username => {
     try {
       const entry = await fetchEntry(username)
       if (entry) {
@@ -147,6 +147,11 @@ if (isDirectRun) {
     }
     await sleep(REQUEST_DELAY_MS)
   }
+  // Strictly one user at a time, chained, so LeetCode never sees a burst.
+  await usernames.reduce(
+    (previous, username) => previous.then(() => recordUser(username)),
+    Promise.resolve()
+  )
 
   const recorded = Object.keys(users).length
   if (recorded === 0) {
