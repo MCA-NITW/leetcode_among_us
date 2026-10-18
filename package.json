@@ -1,6 +1,6 @@
 {
   "name": "leetcode_among_us",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "LeetCode tracking platform for MCA students at NIT Warangal",
   "main": "dist/server.js",
   "type": "module",
@@ -12,6 +12,7 @@
     "build:client": "cd client && pnpm build",
     "build": "pnpm install && pnpm build:server && pnpm build:client",
     "validate:data": "node scripts/validate-data.mjs",
+    "snapshot": "node scripts/snapshot.mjs",
     "test": "pnpm run test:server && pnpm run test:client",
     "test:server": "vitest run",
     "test:client": "cd client && pnpm test",

@@ -1,5 +1,49 @@
 # Changelog
 
+## [3.4.0] - 2026-10-18
+
+History, a real outage signal, a lighter first load, and a path for other
+colleges to run their own copy.
+
+### Added
+
+- Daily snapshots: `scripts/snapshot.mjs` records each roster user's solved
+  counts (all, easy, medium, hard), contest rating and contests attended, and
+  `.github/workflows/snapshot.yml` commits the result to a `data` branch every
+  day at 19:00 UTC. Same-day re-runs replace the day; 400 days are kept. A full
+  run on 2026-10-18 took 21.8 s and recorded 32 of 34 roster entries (two
+  usernames no longer exist on LeetCode).
+- `GET /leetcode/history` serves the snapshots from the `data` branch, cached
+  for an hour, with `?days=` and `?user=` to return only what a view needs. A
+  missing branch is an empty list.
+- **Movers This Week** on the leaderboard: most problems solved over the last
+  seven days, with hard-problem and rating deltas, and a card layout on phones.
+- **Solved Over Time** chart (solved and rating) in the User Stats Problems tab
+  for roster members.
+- `render.yaml` Blueprint, a Deploy to Render button, and
+  `docs/fork-for-your-college.md` for running the app for another cohort.
+- `ALLOWED_ORIGINS` env var; `RENDER_EXTERNAL_URL` is allowed automatically, so
+  a fork on its own onrender.com URL no longer gets 403 on every POST.
+- README screenshots (leaderboard desktop and phone, User Stats, Compare) under
+  `docs/screenshots/`.
+- `pnpm snapshot` script.
+
+### Changed
+
+- `/leetcode/user-data` returns 502 when all five LeetCode queries fail, and the
+  batch endpoint marks those users `success: false`, instead of a 200 full of
+  nulls. The calendar calls are skipped in that case. User Stats and Compare now
+  say LeetCode is not responding instead of "no profile found".
+- Leaderboard, User Stats and Compare are lazy-loaded routes. The entry chunk
+  went from 584.87 kB to 300.25 kB (181.36 to 96.44 kB gzip), and the vite
+  chunk-size warning is gone.
+
+### Fixed
+
+- The 502 test accepted either 200 or 502, so it could never fail. It now
+  asserts 502, five upstream calls and nothing cached, and a new test covers the
+  partial-failure 200.
+
 ## [3.3.0] - 2026-10-18
 
 Leaderboard recut (shipped in #180 without a changelog entry), plus a
