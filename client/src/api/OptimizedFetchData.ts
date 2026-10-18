@@ -1,6 +1,7 @@
 // Optimized fetch functions that use the new parallel backend endpoints
 
 import type { LeetcoderEntry, UserData, ContestEntry } from '../types'
+import type { History } from '../utils/history'
 
 interface BackendUserData {
   userPublicProfile: { data: { matchedUser: Record<string, unknown> } }
@@ -75,6 +76,16 @@ const normaliseBadge = <T extends RawBadge>(badge: T): T => {
   }
 }
 
+/**
+ * True when the API answered 502: every LeetCode query failed, so LeetCode is
+ * down or blocking us, as opposed to the user not existing.
+ */
+export const isUpstreamOutage = (error: unknown): boolean =>
+  (error as { status?: number } | null)?.status === 502
+
+export const UPSTREAM_OUTAGE_MESSAGE =
+  'LeetCode is not responding right now, so no profile could be loaded. Please try again in a few minutes.'
+
 /** True when the backend reports that LeetCode has no such user. */
 export const isUserNotFound = (backendData: unknown): boolean => {
   const data = backendData as
@@ -98,7 +109,9 @@ export const fetchOptimizedUserData = async (
     })
 
     if (!response.ok) {
-      throw new Error('HTTP error! status: ' + response.status)
+      throw Object.assign(new Error('HTTP error! status: ' + response.status), {
+        status: response.status
+      })
     }
 
     const result = await response.json()
@@ -134,6 +147,28 @@ export const fetchBatchUserData = async (
   } catch (error) {
     console.error('Error fetching batch user data:', error)
     throw error
+  }
+}
+
+/**
+ * Daily snapshots for movers and history charts. Returns null when the API
+ * cannot load them, so callers simply hide the history views.
+ */
+export const fetchHistory = async (
+  query: { days?: number; user?: string } = {}
+): Promise<History | null> => {
+  const params = new URLSearchParams()
+  if (query.days) params.set('days', String(query.days))
+  if (query.user) params.set('user', query.user)
+  const search = params.toString() ? `?${params}` : ''
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/leetcode/history${search}`)
+    if (!response.ok) return null
+    const result = (await response.json()) as History
+    return Array.isArray(result?.snapshots) ? result : null
+  } catch (error) {
+    console.error('Error fetching history:', error)
+    return null
   }
 }
 

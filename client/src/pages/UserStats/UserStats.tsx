@@ -1,7 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import './UserStats.css'
 import ContentLoader from '../../components/Loader/ContentLoader'
-import { fetchDataForLeetcoder } from '../../utils/optimizedLeaderboardData'
+import {
+  fetchOptimizedUserData,
+  isUpstreamOutage,
+  processUserDataResponse,
+  UPSTREAM_OUTAGE_MESSAGE
+} from '../../api/OptimizedFetchData'
 import {
   FaUser,
   FaChartBar,
@@ -34,6 +39,9 @@ import TopicRadarChart from '../../components/Charts/TopicRadarChart'
 import SubmissionHeatmap from '../../components/Charts/SubmissionHeatmap'
 import AcceptanceRateChart from '../../components/Charts/AcceptanceRateChart'
 import ContestScatterChart from '../../components/Charts/ContestScatterChart'
+import SolvedHistoryChart from '../../components/Charts/SolvedHistoryChart'
+import { useHistory } from '../../hooks/useHistory'
+import { userHistory } from '../../utils/history'
 import type { UserData } from '../../types'
 
 const sanitizeUrl = (url: string): string => {
@@ -68,12 +76,12 @@ function UserStats() {
     setUserData(null)
 
     try {
-      const fetchedData = await fetchDataForLeetcoder({
-        userName: username.toLowerCase()
-      })
-      // fetchDataForLeetcoder never throws: a missing user or an upstream
-      // failure both come back as the bare input object. totalSolved is only
-      // present when a real profile was processed.
+      const userName = username.trim().toLowerCase()
+      const backendData = await fetchOptimizedUserData(userName)
+      // A missing user comes back as the bare input object; totalSolved is
+      // only present when a real profile was processed. A full LeetCode
+      // outage is a 502 and lands in the catch below.
+      const fetchedData = processUserDataResponse({ userName }, backendData)
       if (fetchedData.totalSolved === undefined) {
         setError(
           `No LeetCode profile found for "${username.trim()}". Check the spelling, or try again if LeetCode is slow to respond.`
@@ -81,9 +89,11 @@ function UserStats() {
         return
       }
       setUserData(fetchedData)
-    } catch {
+    } catch (err) {
       setError(
-        'Failed to fetch user data. Please check the username and try again.'
+        isUpstreamOutage(err)
+          ? UPSTREAM_OUTAGE_MESSAGE
+          : 'Failed to fetch user data. Please check the username and try again.'
       )
     } finally {
       setLoading(false)
@@ -101,6 +111,17 @@ function UserStats() {
   }, [userData])
 
   const isUnrated = (userData?.attendedContestCount ?? 0) === 0
+
+  // Only roster members are snapshotted, so other users get an empty list
+  // and the history card stays hidden.
+  const history = useHistory({
+    user: userData?.userName,
+    enabled: Boolean(userData?.userName)
+  })
+  const historyPoints = useMemo(
+    () => (userData?.userName ? userHistory(history, userData.userName) : []),
+    [history, userData]
+  )
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -713,6 +734,26 @@ function UserStats() {
                     </div>
                   </div>
                 </div>
+                {historyPoints.length > 0 && (
+                  <div className="user-stats__card user-stats__card--wide">
+                    <h3 className="user-stats__card-title">
+                      <span className="user-stats__card-icon">
+                        <FaChartLine />
+                      </span>{' '}
+                      Solved Over Time
+                    </h3>
+                    <div className="user-stats__card-content">
+                      {historyPoints.length > 1 ? (
+                        <SolvedHistoryChart points={historyPoints} />
+                      ) : (
+                        <p className="user-stats__info-label">
+                          Tracked daily since {historyPoints[0].date}. The chart
+                          appears after the next snapshot.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {userData.beatsStats && userData.beatsStats.length > 0 && (
                   <div className="user-stats__card user-stats__card--wide">
                     <h3 className="user-stats__card-title">

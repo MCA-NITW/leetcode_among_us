@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import NavBar from './components/Nav/NavBar'
+import ContentLoader from './components/Loader/ContentLoader'
 import Home from './pages/Home/Home'
-import LeaderBoard from './pages/LeaderBoard/LeaderBoard'
-import UserStats from './pages/UserStats/UserStats'
-import Compare from './pages/Compare/Compare'
 import leetcoders from './assets/leetcoders_data.json'
 import { fetchDataWithProgress } from './utils/optimizedLeaderboardData'
 import type { UserData } from './types'
+
+// Route-level code splitting: Chart.js and the three data pages only download
+// when a visitor opens them, so the home page loads less on phones.
+const LeaderBoard = lazy(() => import('./pages/LeaderBoard/LeaderBoard'))
+const UserStats = lazy(() => import('./pages/UserStats/UserStats'))
+const Compare = lazy(() => import('./pages/Compare/Compare'))
 
 function App() {
   const [data, setData] = useState<Partial<UserData>[]>([])
@@ -78,23 +82,25 @@ function App() {
     <ThemeProvider>
       <Router>
         <NavBar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/leaderboard"
-            element={
-              <LeaderBoard
-                data={data}
-                loading={loading}
-                error={error}
-                loadingProgress={loadingProgress}
-                currentlyProcessing={currentlyProcessing}
-              />
-            }
-          />
-          <Route path="/user-stats" element={<UserStats />} />
-          <Route path="/compare" element={<Compare />} />
-        </Routes>
+        <Suspense fallback={<ContentLoader message="Loading page..." />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/leaderboard"
+              element={
+                <LeaderBoard
+                  data={data}
+                  loading={loading}
+                  error={error}
+                  loadingProgress={loadingProgress}
+                  currentlyProcessing={currentlyProcessing}
+                />
+              }
+            />
+            <Route path="/user-stats" element={<UserStats />} />
+            <Route path="/compare" element={<Compare />} />
+          </Routes>
+        </Suspense>
       </Router>
     </ThemeProvider>
   )

@@ -1,5 +1,6 @@
 import CustomRankTable from './RankTable/CustomRankTable'
 import RecentContestActivity from './RecentContestActivity'
+import WeeklyMovers from './WeeklyMovers'
 import Loader from '../../components/Loader/Loader'
 import './LeaderBoard.css'
 import { FaChartBar, FaExclamationTriangle } from 'react-icons/fa'
@@ -34,6 +35,7 @@ function LeaderBoard({
       return (
         <>
           <CustomRankTable data={data} />
+          <WeeklyMovers data={data} />
           <RecentContestActivity data={data} />
         </>
       )

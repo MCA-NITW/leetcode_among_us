@@ -8,6 +8,8 @@ coverage/
 
 # build output
 dist/
+# local snapshot history (the real one lives on the data branch)
+data/
 client/dist/
 # legacy CRA output (pre-3.0), still present in some local checkouts
 client/build/
