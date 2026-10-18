@@ -1,5 +1,57 @@
 # Changelog
 
+## [3.3.0] - 2026-10-18
+
+Leaderboard recut (shipped in #180 without a changelog entry), plus a
+maintenance pass: security overrides, CI token permissions, line endings and a
+README rewrite of the parts that had drifted. No API contract changes.
+
+### Added
+
+- Leaderboard metrics derived from data the batch endpoint already returned
+  (`client/src/utils/derivedStats.ts`): completion percent, current streak,
+  rating delta, days since last contest, total submissions, beats percent, top
+  topic, top language, last solved, years active, star rating and
+  daily-challenge badge progress (#180).
+- `languageProblemCount`, `recentAcSubmissionList`, `solutionCount` and
+  `upcomingBadges` are requested inside the existing profile and badge queries,
+  so the per-user query count stays at five (#180).
+- Card layout below 640px on the rank table; rank and name stay sticky from
+  640px up (#180).
+- `.gitattributes` pinning LF on checkout. On Windows with `core.autocrlf=true`,
+  `pnpm format:check` reported 63 files and `tests/validate-data.test.ts` failed
+  to load (CRLF after the `scripts/validate-data.mjs` shebang); both pass now.
+- README Architecture section: request-flow diagram, design decisions, and
+  measured cold versus cached batch latency against the live service.
+
+### Changed
+
+- Rank table regrouped from five overlapping tabs into four (Overview, Problems,
+  Contests, Consistency), each a column list with its own default sort (#180).
+- Dependencies refreshed to latest minor/patch, including express 5.3,
+  express-rate-limit 8.7, helmet 8.3, react 19.3, react-router-dom 7.18 and vite
+  8.3. `@types/node` stays on 25 to match the Node 22 runtime.
+- README: leaderboard tab list, API error semantics and the query count now
+  match the code.
+
+### Fixed
+
+- Best streak walked per year, so a run crossing New Year was split; it now
+  walks the merged calendar and also yields the current streak (#180).
+- `upcomingBadges` was rendered but never requested, so that section was always
+  empty (#180).
+- One timed-out query no longer drops a user's whole row (#180).
+
+### Security
+
+- CI workflow now declares `permissions: contents: read` at the top level,
+  closing the two open `actions/missing-workflow-permissions` code scanning
+  alerts on `.github/workflows/ci.yml`.
+- pnpm overrides raised for advisories `pnpm audit` reported on main:
+  `shell-quote` to >=1.11.0 (critical, via concurrently), `ip-address` to
+  > =10.7.1 (moderate, via express-rate-limit), and new `source-map-js` >=1.2.2
+  > (high, via vite/postcss).
+
 ## [3.2.0] - 2026-09-10
 
 UI consistency and motion release. No data or API changes.
