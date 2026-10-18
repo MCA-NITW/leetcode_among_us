@@ -1,7 +1,7 @@
 # LeetCode Among Us
 
 [![CI](https://img.shields.io/github/actions/workflow/status/MCA-NITW/leetcode_among_us/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/MCA-NITW/leetcode_among_us/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-3.2.0-blue?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue?style=flat-square)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](package.json)
 [![pnpm](https://img.shields.io/badge/pnpm-12-F69220?style=flat-square&logo=pnpm&logoColor=white)](pnpm-workspace.yaml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-yellow?style=flat-square)](LICENSE)
@@ -17,9 +17,15 @@ wakes up).
 
 ## Features
 
-- Leaderboard with Overview, Problem Stats, Contest Stats, Contest Performance
-  and Advanced tabs; sortable columns, name search, batch filter, medals for the
-  top three, and a Recent Contest Activity feed.
+- Leaderboard with four tabs, each answering one question: Overview (who is
+  winning), Problems, Contests and Consistency. Sortable columns, name search,
+  batch filter, medals for the top three, and a Recent Contest Activity feed.
+  Below 640px each person becomes a card instead of a 12-column table.
+- Derived metrics computed client-side from data the API already returns:
+  completion percent, current and best streak (walked across the merged
+  multi-year calendar, so a run crossing New Year is not split), rating trend,
+  days since last contest, top topic, top language, last solved and
+  daily-challenge badge progress.
 - User Stats page: profile, difficulty breakdown, topic radar, submission
   heatmap, contest rating history and scatter, badges, streaks.
 - Compare page: two users side by side across problems, contests, beats
@@ -37,6 +43,64 @@ wakes up).
 | Data      | LeetCode GraphQL API (public queries only), roster JSON in the repo   |
 | Tooling   | pnpm 12 workspace, Prettier, Vitest, Supertest                        |
 | CI/Deploy | GitHub Actions (org reusable workflows), Render                       |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  roster[(leetcoders_data.json<br/>34 students)] --> app
+  subgraph browser[Browser]
+    app[React SPA] -->|batches of 10| fetchers[fetchDataWithProgress]
+  end
+  fetchers -->|POST /leetcode/batch-user-data| api
+  subgraph render[Render web service]
+    api[Express 5 API] --> limiter[Rate limit + validation]
+    limiter --> cache{In-memory cache<br/>+ in-flight map}
+    cache -->|hit| api
+    cache -->|miss| fanout[5 GraphQL queries in parallel<br/>+ calendar per active year]
+  end
+  fanout -->|public queries| lc[(leetcode.com/graphql)]
+  api -->|static| spa[client/dist]
+```
+
+One request path does all the work:
+
+1. The client reads the roster from the bundled JSON and sends it to the API in
+   batches of 10 usernames, updating a progress bar as each batch lands.
+2. The API validates every username, then asks `getUserData()` for each one. A
+   cache hit returns at once; a miss joins any in-flight fetch for the same
+   (case-insensitive) user, so duplicates and concurrent visitors share one
+   upstream round-trip.
+3. A real miss fires five LeetCode GraphQL queries in parallel (profile,
+   contests, problems, skills, badges), then one calendar overview call to learn
+   `activeYears`, then one calendar call per active year, 100 ms apart.
+4. The client shapes the response (`processUserDataResponse`) and enriches it
+   with derived metrics (`enrichUser`) before the leaderboard renders.
+
+### Design decisions
+
+- **Server proxy, not browser calls.** The browser never talks to leetcode.com.
+  The server owns the query shape, timeouts (15 s per query), rate limiting and
+  caching, and only public, unauthenticated queries are ever sent.
+- **Cache plus in-flight de-duplication.** Before 3.1.0 every page load cost
+  roughly 10 upstream calls per user, about 350 per visitor. Profiles are now
+  held for `CACHE_TTL_MINUTES`; users LeetCode does not know are never cached so
+  a fixed typo shows up on the next load.
+- **Partial failure is tolerated.** Each query catches its own error, so one
+  timed-out query blanks one section instead of dropping the whole row.
+- **Calendar years come from LeetCode.** Fetching exactly the user's
+  `activeYears` replaced a hardcoded 2022-to-now loop that lost older history
+  and wasted calls for later joiners.
+- **Roster as data, validated in CI.** Students join by pull request; the same
+  validator runs locally, before every client build and in CI.
+- **`/health` never calls upstream,** so a LeetCode outage cannot make Render
+  restart a healthy instance.
+
+Measured 2026-10-18 against the live service, from India, right after a Render
+cold start: one batch of the first 10 roster users took 7.5 s with an empty
+cache and 1.5 to 1.8 s on repeat requests served from cache (253 KB of JSON).
+Tests: 18 API cases (Vitest + Supertest), 8 roster validator cases and 9 client
+data-shaping cases.
 
 ## Quick start
 
@@ -97,14 +161,18 @@ CORS-restricted to the origins listed in `server.ts`.
 | `POST` | `/leetcode/user-data`       | `{ "username": "..." }`       | Aggregated profile for one user            |
 | `POST` | `/leetcode/batch-user-data` | `{ "usernames": ["...", …] }` | Up to 10 users; duplicates share one fetch |
 
-Usernames must match `^[a-zA-Z0-9_-]{1,40}$`. Invalid input returns 400,
-upstream failures 502, unknown `/leetcode/*` paths a JSON 404, disallowed
-origins 403. Successful profiles are cached for `CACHE_TTL_MINUTES`; not-found
-users are never cached.
+Usernames must match `^[a-zA-Z0-9_-]{1,40}$`. Invalid input returns 400, unknown
+`/leetcode/*` paths a JSON 404, disallowed origins 403. A failing LeetCode query
+does not fail the request: that section comes back `null` and the response is
+still 200 (even when LeetCode is down entirely), so clients should treat a
+missing `userPublicProfile.data.matchedUser` as "no data". 502 (single user) and
+500 (batch) are reserved for unexpected handler errors. Successful profiles are
+cached for `CACHE_TTL_MINUTES`; not-found users are never cached.
 
-Each profile response bundles six LeetCode queries: public profile, contest
-ranking and history, problems solved, skill tags, badges, and a per-year
-submission calendar for every year in the user's `activeYears`.
+Each profile response bundles five LeetCode queries run in parallel (public
+profile, contest ranking and history, problems solved, skill tags, badges) plus
+the submission calendar: one overview call for `activeYears`, then one call per
+active year.
 
 ## Adding yourself to the leaderboard
 
@@ -147,6 +215,7 @@ the full guide.
 │   └── src/
 │       ├── api/OptimizedFetchData.ts     Calls the API, shapes responses
 │       ├── utils/optimizedLeaderboardData.ts  Batching + progress
+│       ├── utils/derivedStats.ts         Streaks, trends, top topic/language
 │       ├── assets/leetcoders_data.json   Roster (edit this to add users)
 │       ├── components/Charts/            Chart.js wrappers
 │       ├── components/{Nav,Loader,ThemeToggle}/
@@ -161,7 +230,9 @@ the full guide.
 ## Development notes
 
 - Formatting is enforced by Prettier in CI (`pnpm format:check`). Single quotes,
-  no semicolons, 2 spaces, 80 columns.
+  no semicolons, 2 spaces, 80 columns, LF line endings. `.gitattributes` pins LF
+  on checkout so Windows clones with `core.autocrlf=true` pass the format check
+  and the validator test locally.
 - Design tokens live in `client/src/index.css` (colours, spacing, radius,
   shadows, motion). Use them; do not add literal colours or durations. For
   motion, reuse the shared utilities: `.reveal` + `useReveal()` for scroll
