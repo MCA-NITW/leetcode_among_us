@@ -96,10 +96,11 @@ One request path does all the work:
 - **`/health` never calls upstream,** so a LeetCode outage cannot make Render
   restart a healthy instance.
 
-Measured 2026-10-18 against the live service, from India: one batch of 10 roster
-users took 5.2 s with an empty cache and 1.4 s on the repeat request served from
-cache (274 KB of JSON). Tests: 18 API cases (Vitest + Supertest), 8 roster
-validator cases and 9 client data-shaping cases.
+Measured 2026-10-18 against the live service, from India, right after a Render
+cold start: one batch of the first 10 roster users took 7.5 s with an empty
+cache and 1.5 to 1.8 s on repeat requests served from cache (253 KB of JSON).
+Tests: 18 API cases (Vitest + Supertest), 8 roster validator cases and 9 client
+data-shaping cases.
 
 ## Quick start
 

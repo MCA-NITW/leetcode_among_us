@@ -30,7 +30,7 @@ README rewrite of the parts that had drifted. No API contract changes.
   Contests, Consistency), each a column list with its own default sort (#180).
 - Dependencies refreshed to latest minor/patch, including express 5.3,
   express-rate-limit 8.7, helmet 8.3, react 19.3, react-router-dom 7.18 and vite
-  8.3. `@types/node` stays on 25 to match the Node 22 runtime.
+  8.3. `@types/node` stays on 25 rather than taking the 26 major.
 - README: leaderboard tab list, API error semantics and the query count now
   match the code.
 
@@ -48,9 +48,9 @@ README rewrite of the parts that had drifted. No API contract changes.
   closing the two open `actions/missing-workflow-permissions` code scanning
   alerts on `.github/workflows/ci.yml`.
 - pnpm overrides raised for advisories `pnpm audit` reported on main:
-  `shell-quote` to >=1.11.0 (critical, via concurrently), `ip-address` to
-  > =10.7.1 (moderate, via express-rate-limit), and new `source-map-js` >=1.2.2
-  > (high, via vite/postcss).
+  `shell-quote >=1.11.0` (critical, via concurrently), `ip-address >=10.7.1`
+  (moderate, via express-rate-limit), and a new `source-map-js >=1.2.2` (high,
+  via vite/postcss).
 
 ## [3.2.0] - 2026-09-10
 
