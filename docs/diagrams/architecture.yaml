@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Sagargupta16/orrery/main/skills/orrery/references/diagram.schema.json
+# Rendered with orrery (github.com/Sagargupta16/orrery):
+#   orrery render docs/diagrams/architecture.yaml -o docs/diagrams/architecture -f svg --theme both
+# Reviewed at README width: orrery review docs/diagrams/architecture.yaml --width 880
+title: LeetCode Among Us
+subtitle: One Render web service proxies LeetCode for the roster; a daily GitHub Actions job keeps the history LeetCode does not
+direction: down
+legend:
+  dashed: Daily snapshot job
+
+groups:
+  browser:
+    type: boundary
+    label: Browser (React 19 SPA)
+    cols: 3
+  render:
+    type: box
+    label: Render web service
+    icon: si:render
+    cols: 2
+    evidence: render.yaml:8#web
+  github:
+    type: box
+    label: GitHub
+    icon: logos:github-icon
+
+nodes:
+  students:
+    icon: tabler:users
+    label: Students
+    note: MCA, NIT Warangal
+  stats:
+    icon: logos:chartjs
+    label: User Stats + Compare
+    note: one user per call
+    in: browser
+    evidence:
+      - client/src/pages/UserStats/UserStats.tsx:80#fetchOptimizedUserData
+      - client/src/pages/Compare/Compare.tsx:218#fetchOptimizedUserData
+  roster:
+    icon: tabler:json
+    label: Roster JSON
+    note: bundled at build
+    in: browser
+    evidence: client/src/App.tsx:7#leetcoders_data
+  board:
+    icon: logos:react
+    label: Leaderboard
+    note: roster in batches of 10
+    in: browser
+    evidence: client/src/utils/optimizedLeaderboardData.ts:76#batchSize
+  api:
+    icon: si:express
+    label: Express 5 API
+    note: Helmet, CORS, rate limit
+    in: render
+    evidence: server.ts:163#express
+  cache:
+    icon: github:cache
+    label: In-memory cache
+    note: TTL 10 min (history 1 h)
+    in: render
+    evidence:
+      - server.ts:259#userCache
+      - server.ts:301#historyCache
+  history:
+    icon: github:git-branch
+    label: data branch
+    note: history.json, 400 days
+    in: github
+    evidence: server.ts:76#HISTORY_URL
+  snapshot:
+    icon: logos:github-actions
+    label: Daily snapshot
+    note: 19:00 UTC, 1 query per user
+    in: github
+    evidence: .github/workflows/snapshot.yml:12#cron
+  leetcode:
+    icon: si:leetcode
+    label: LeetCode GraphQL
+    note: 5 queries + calendars per user
+    evidence: server.ts:20#LEETCODE_GRAPHQL_URL
+
+edges:
+  - students -> browser
+  - roster -> board
+  - board, stats -> api
+  - api -> cache
+  - cache -> history
+  - cache -> leetcode
+  # Drawn after layout so the job sits beside the branch it commits to.
+  - { from: snapshot, to: history, line: dashed, constraint: false }
+  - { from: snapshot, to: leetcode, line: dashed, constraint: false }

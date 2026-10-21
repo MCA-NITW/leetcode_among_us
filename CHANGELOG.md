@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.4.1] - 2026-10-21
+
+Docs only. No code or API changes.
+
+### Added
+
+- Architecture diagram in the README, drawn with
+  [orrery](https://github.com/Sagargupta16/orrery) from
+  `docs/diagrams/architecture.yaml` and rendered to light and dark SVGs. It
+  shows the request path (browser, Render web service, in-memory cache, LeetCode
+  GraphQL) and the daily snapshot path (GitHub Actions, `data` branch), with
+  `evidence:` on each node pointing at the code it comes from. The Mermaid chart
+  it replaces stays in a collapsed block under it.
+
 ## [3.4.0] - 2026-10-18
 
 History, a real outage signal, a lighter first load, and a path for other

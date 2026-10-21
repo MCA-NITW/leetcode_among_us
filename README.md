@@ -1,7 +1,7 @@
 # LeetCode Among Us
 
 [![CI](https://img.shields.io/github/actions/workflow/status/MCA-NITW/leetcode_among_us/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/MCA-NITW/leetcode_among_us/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-3.4.0-blue?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.4.1-blue?style=flat-square)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](package.json)
 [![pnpm](https://img.shields.io/badge/pnpm-12-F69220?style=flat-square&logo=pnpm&logoColor=white)](pnpm-workspace.yaml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-yellow?style=flat-square)](LICENSE)
@@ -72,6 +72,19 @@ LeetCode data, at 1440px and 390px wide.
 
 ## Architecture
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/architecture-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/diagrams/architecture-light.svg">
+  <img width="880" src="docs/diagrams/architecture-light.svg" alt="Architecture of LeetCode Among Us. Students open the React 19 single-page app in the browser, which has the roster JSON bundled in at build time. The Leaderboard sends the roster in batches of 10, and User Stats and Compare send one user per call, to the Express 5 API on a Render web service (Helmet, CORS, rate limit). The API reads through an in-memory cache (10 minute TTL, 1 hour for history) that only on a miss calls the LeetCode GraphQL API (5 queries plus calendars per user) or reads history.json from the data branch on GitHub. A daily GitHub Actions snapshot at 19:00 UTC sends 1 query per user to LeetCode and commits the day to the data branch.">
+</picture>
+
+The spec behind the picture is
+[`docs/diagrams/architecture.yaml`](docs/diagrams/architecture.yaml), rendered
+with [orrery](https://github.com/Sagargupta16/orrery).
+
+<details>
+<summary>The same flow as a Mermaid chart</summary>
+
 ```mermaid
 flowchart LR
   roster[(leetcoders_data.json<br/>34 students)] --> app
@@ -95,6 +108,8 @@ flowchart LR
   app -->|GET /leetcode/history| api
   api -->|cached 1 h| data
 ```
+
+</details>
 
 One request path does all the work:
 
@@ -282,7 +297,7 @@ the full guide.
 ├── scripts/validate-data.mjs    Roster validator (CLI + importable)
 ├── scripts/snapshot.mjs         Daily solved/rating snapshot (CLI + importable)
 ├── render.yaml                  Render Blueprint (Deploy button, forks)
-├── docs/                        Fork guide, README screenshots
+├── docs/                        Fork guide, README screenshots, diagrams
 ├── client/
 │   ├── index.html               CSP meta, fonts, theme pre-paint script
 │   ├── vite.config.ts           Dev proxy to :3001
