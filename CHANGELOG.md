@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.2] - 2026-10-23
+
+Docs only. No code or API changes.
+
+### Changed
+
+- Redrew the README architecture diagram with orrery 0.12.0, which draws icons
+  at 64 px instead of 48 px. The spec is unchanged.
+
 ## [3.4.1] - 2026-10-21
 
 Docs only. No code or API changes.

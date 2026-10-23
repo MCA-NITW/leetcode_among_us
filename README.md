@@ -1,7 +1,7 @@
 # LeetCode Among Us
 
 [![CI](https://img.shields.io/github/actions/workflow/status/MCA-NITW/leetcode_among_us/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/MCA-NITW/leetcode_among_us/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-3.4.1-blue?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.4.2-blue?style=flat-square)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](package.json)
 [![pnpm](https://img.shields.io/badge/pnpm-12-F69220?style=flat-square&logo=pnpm&logoColor=white)](pnpm-workspace.yaml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-yellow?style=flat-square)](LICENSE)
