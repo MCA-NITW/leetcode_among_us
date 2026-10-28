@@ -2620,6 +2620,268 @@
           "contests": 17
         }
       }
+    },
+    {
+      "date": "2026-10-28",
+      "takenAt": "2026-10-28T23:05:24.322Z",
+      "users": {
+        "anubhavsri": {
+          "solved": 979,
+          "easy": 294,
+          "medium": 545,
+          "hard": 140,
+          "rating": 1678,
+          "contests": 29
+        },
+        "_devesh_g": {
+          "solved": 1504,
+          "easy": 484,
+          "medium": 785,
+          "hard": 235,
+          "rating": 1656,
+          "contests": 30
+        },
+        "jigs_": {
+          "solved": 342,
+          "easy": 150,
+          "medium": 173,
+          "hard": 19,
+          "rating": 1561,
+          "contests": 5
+        },
+        "raghu30": {
+          "solved": 1392,
+          "easy": 425,
+          "medium": 730,
+          "hard": 237,
+          "rating": 2280,
+          "contests": 96
+        },
+        "dextermtor": {
+          "solved": 849,
+          "easy": 230,
+          "medium": 486,
+          "hard": 133,
+          "rating": 1757,
+          "contests": 24
+        },
+        "santhoshwon": {
+          "solved": 776,
+          "easy": 248,
+          "medium": 392,
+          "hard": 136,
+          "rating": 1420,
+          "contests": 35
+        },
+        "rohan_rai": {
+          "solved": 784,
+          "easy": 252,
+          "medium": 428,
+          "hard": 104,
+          "rating": 1777,
+          "contests": 25
+        },
+        "awasthya": {
+          "solved": 741,
+          "easy": 291,
+          "medium": 410,
+          "hard": 40,
+          "rating": 1670,
+          "contests": 29
+        },
+        "ptdr_girl": {
+          "solved": 374,
+          "easy": 209,
+          "medium": 152,
+          "hard": 13,
+          "rating": 1503,
+          "contests": 29
+        },
+        "kamra_ck25": {
+          "solved": 472,
+          "easy": 239,
+          "medium": 187,
+          "hard": 46,
+          "rating": 1522,
+          "contests": 7
+        },
+        "devashish_ind": {
+          "solved": 766,
+          "easy": 298,
+          "medium": 384,
+          "hard": 84,
+          "rating": 1492,
+          "contests": 55
+        },
+        "gauravmawari1807": {
+          "solved": 768,
+          "easy": 343,
+          "medium": 372,
+          "hard": 53,
+          "rating": 1713,
+          "contests": 20
+        },
+        "govindpatidar22": {
+          "solved": 357,
+          "easy": 217,
+          "medium": 133,
+          "hard": 7,
+          "rating": 1544,
+          "contests": 30
+        },
+        "jyoti_purnima__singh8": {
+          "solved": 805,
+          "easy": 353,
+          "medium": 383,
+          "hard": 69,
+          "rating": 1630,
+          "contests": 25
+        },
+        "malseji": {
+          "solved": 419,
+          "easy": 232,
+          "medium": 172,
+          "hard": 15,
+          "rating": 1072,
+          "contests": 18
+        },
+        "nikhil-saxena": {
+          "solved": 356,
+          "easy": 172,
+          "medium": 171,
+          "hard": 13,
+          "rating": 1277,
+          "contests": 46
+        },
+        "mr_bindass_pnkj": {
+          "solved": 446,
+          "easy": 204,
+          "medium": 231,
+          "hard": 11,
+          "rating": 1668,
+          "contests": 31
+        },
+        "pinkymangla45": {
+          "solved": 455,
+          "easy": 186,
+          "medium": 232,
+          "hard": 37,
+          "rating": 1497,
+          "contests": 11
+        },
+        "psychic_hunter": {
+          "solved": 379,
+          "easy": 147,
+          "medium": 190,
+          "hard": 42,
+          "rating": 1570,
+          "contests": 11
+        },
+        "pranshu0801": {
+          "solved": 821,
+          "easy": 233,
+          "medium": 508,
+          "hard": 80,
+          "rating": 1756,
+          "contests": 40
+        },
+        "prem261999": {
+          "solved": 132,
+          "easy": 55,
+          "medium": 56,
+          "hard": 21,
+          "rating": 1409,
+          "contests": 2
+        },
+        "lightmate": {
+          "solved": 601,
+          "easy": 216,
+          "medium": 367,
+          "hard": 18,
+          "rating": 1583,
+          "contests": 49
+        },
+        "rkmc2133": {
+          "solved": 548,
+          "easy": 271,
+          "medium": 235,
+          "hard": 42,
+          "rating": 1275,
+          "contests": 19
+        },
+        "sachin_gupta2007": {
+          "solved": 438,
+          "easy": 189,
+          "medium": 228,
+          "hard": 21,
+          "rating": 1763,
+          "contests": 17
+        },
+        "sagargupta1610": {
+          "solved": 1333,
+          "easy": 479,
+          "medium": 688,
+          "hard": 166,
+          "rating": 2166,
+          "contests": 107
+        },
+        "sandeepkumarnayak": {
+          "solved": 174,
+          "easy": 104,
+          "medium": 60,
+          "hard": 10,
+          "rating": null,
+          "contests": 0
+        },
+        "ptdr_shubham": {
+          "solved": 630,
+          "easy": 290,
+          "medium": 311,
+          "hard": 29,
+          "rating": 1777,
+          "contests": 53
+        },
+        "sikandarsahilkumar": {
+          "solved": 1312,
+          "easy": 516,
+          "medium": 709,
+          "hard": 87,
+          "rating": 1671,
+          "contests": 50
+        },
+        "officialsiud": {
+          "solved": 630,
+          "easy": 230,
+          "medium": 313,
+          "hard": 87,
+          "rating": 1464,
+          "contests": 47
+        },
+        "suman_yadav": {
+          "solved": 606,
+          "easy": 315,
+          "medium": 268,
+          "hard": 23,
+          "rating": 1393,
+          "contests": 25
+        },
+        "divyanshutyagi": {
+          "solved": 588,
+          "easy": 143,
+          "medium": 351,
+          "hard": 94,
+          "rating": 1626,
+          "contests": 9
+        },
+        "binary__search": {
+          "solved": 1188,
+          "easy": 400,
+          "medium": 682,
+          "hard": 106,
+          "rating": 1828,
+          "contests": 17
+        }
+      }
     }
   ]
 }
