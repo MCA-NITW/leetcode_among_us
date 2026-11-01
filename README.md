@@ -85,30 +85,6 @@ with [orrery](https://github.com/Sagargupta16/orrery).
 <details>
 <summary>The same flow as a Mermaid chart</summary>
 
-```mermaid
-flowchart LR
-  roster[(leetcoders_data.json<br/>34 students)] --> app
-  subgraph browser[Browser]
-    app[React SPA] -->|batches of 10| fetchers[fetchDataWithProgress]
-  end
-  fetchers -->|POST /leetcode/batch-user-data| api
-  subgraph render[Render web service]
-    api[Express 5 API] --> limiter[Rate limit + validation]
-    limiter --> cache{In-memory cache<br/>+ in-flight map}
-    cache -->|hit| api
-    cache -->|miss| fanout[5 GraphQL queries in parallel<br/>+ calendar per active year]
-  end
-  fanout -->|public queries| lc[(leetcode.com/graphql)]
-  api -->|static| spa[client/dist]
-  subgraph actions[GitHub Actions, daily 19:00 UTC]
-    cron[snapshot.yml] --> snap[scripts/snapshot.mjs]
-  end
-  snap -->|1 query per user| lc
-  snap -->|commit history.json| data[(data branch)]
-  app -->|GET /leetcode/history| api
-  api -->|cached 1 h| data
-```
-
 </details>
 
 One request path does all the work:
