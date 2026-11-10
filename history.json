@@ -5243,7 +5243,7 @@
     },
     {
       "date": "2026-11-10",
-      "takenAt": "2026-11-10T01:58:11.021Z",
+      "takenAt": "2026-11-10T23:59:07.139Z",
       "users": {
         "anubhavsri": {
           "solved": 979,
@@ -5254,9 +5254,9 @@
           "contests": 29
         },
         "_devesh_g": {
-          "solved": 1512,
+          "solved": 1513,
           "easy": 486,
-          "medium": 788,
+          "medium": 789,
           "hard": 238,
           "rating": 1656,
           "contests": 30
@@ -5438,9 +5438,9 @@
           "contests": 17
         },
         "sagargupta1610": {
-          "solved": 1340,
+          "solved": 1341,
           "easy": 480,
-          "medium": 692,
+          "medium": 693,
           "hard": 168,
           "rating": 2166,
           "contests": 107
