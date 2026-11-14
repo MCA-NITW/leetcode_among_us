@@ -6029,7 +6029,7 @@
     },
     {
       "date": "2026-11-14",
-      "takenAt": "2026-11-14T00:17:22.127Z",
+      "takenAt": "2026-11-14T22:55:24.752Z",
       "users": {
         "anubhavsri": {
           "solved": 979,
@@ -6224,8 +6224,8 @@
           "contests": 17
         },
         "sagargupta1610": {
-          "solved": 1342,
-          "easy": 481,
+          "solved": 1343,
+          "easy": 482,
           "medium": 693,
           "hard": 168,
           "rating": 2166,
