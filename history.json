@@ -7601,7 +7601,7 @@
     },
     {
       "date": "2026-11-21",
-      "takenAt": "2026-11-21T00:43:55.749Z",
+      "takenAt": "2026-11-21T23:45:03.009Z",
       "users": {
         "anubhavsri": {
           "solved": 979,
@@ -7612,9 +7612,9 @@
           "contests": 29
         },
         "_devesh_g": {
-          "solved": 1519,
+          "solved": 1520,
           "easy": 487,
-          "medium": 791,
+          "medium": 792,
           "hard": 241,
           "rating": 1656,
           "contests": 30
